@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "604169052633",
-    "project_id": "kidsquiz-4e94f",
-    "storage_bucket": "kidsquiz-4e94f.appspot.com"
+    "project_number": "276544864333",
+    "project_id": "quiz-robo",
+    "storage_bucket": "quiz-robo.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:604169052633:android:4bb1cc4627d639d44f79c8",
+        "mobilesdk_app_id": "1:276544864333:android:dce433ab792a4cad6edc04",
         "android_client_info": {
-          "package_name": "jp.genit.kidsquiz"
+          "package_name": "jp.genit.quizrobo"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAKYitngzAvgi28KsaNUvKkpNzsP67yHCs"
+          "current_key": "AIzaSyCOSTLoFREylG7WKmFU0HvJvI3aDkLBePg"
         }
       ],
       "services": {
