@@ -2,22 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>604169052633-osl9p0i3s706lbrv1p4qsgsj5eh7f9vh.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.604169052633-osl9p0i3s706lbrv1p4qsgsj5eh7f9vh</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA4QIVz-CrKd098KGiXmHZXR-um7AD1_5Y</string>
+	<string>AIzaSyAirzBfy8JcrNxJece2FiWRUi0vyZI6U2A</string>
 	<key>GCM_SENDER_ID</key>
-	<string>604169052633</string>
+	<string>276544864333</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>jp.genit.kidsquiz</string>
+	<string>jp.genit.quizrobo</string>
 	<key>PROJECT_ID</key>
-	<string>kidsquiz-4e94f</string>
+	<string>quiz-robo</string>
 	<key>STORAGE_BUCKET</key>
-	<string>kidsquiz-4e94f.appspot.com</string>
+	<string>quiz-robo.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:604169052633:ios:7328d3745710316b4f79c8</string>
+	<string>1:276544864333:ios:7f345fc286d20c2f6edc04</string>
 </dict>
 </plist>
