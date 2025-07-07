@@ -120,6 +120,10 @@ public class SelectScene : MonoBehaviour
     //     rankingDialog.Setup();
     // }
 
+    public void OnTappedGoToLaboButton()
+    {
+        GoToLabo();
+    }
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
@@ -137,6 +141,26 @@ public class SelectScene : MonoBehaviour
                 if (eventSystem != null) EventSystem.current = eventSystem;
 
                 SceneManager.sceneLoaded -= GameSceneLoaded;
+            }
+    }
+
+    private void GoToLabo()
+    {
+        SceneManager.sceneLoaded += LaboSceneLoaded;
+        gameLoadingScene.LoadNextScene("LaboScene", LoadSceneMode.Additive);
+        gameObject.SetActive(false);
+    }
+    
+    private void LaboSceneLoaded(Scene next, LoadSceneMode mode)
+    {
+        var gameObjects = next.GetRootGameObjects();
+        foreach (var gameObject in gameObjects)
+            if (gameObject.name == "Canvas")
+            {
+                var eventSystem = gameObject.GetComponentInChildren<EventSystem>();
+                if (eventSystem != null) EventSystem.current = eventSystem;
+
+                SceneManager.sceneLoaded -= LaboSceneLoaded;
             }
     }
 }
