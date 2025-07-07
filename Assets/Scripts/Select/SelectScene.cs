@@ -7,11 +7,7 @@ using UnityEngine.UI;
 
 public class SelectScene : MonoBehaviour
 {
-    [SerializeField] private Text _totalMedalText;
     [SerializeField] private GameLoadingPanel gameLoadingScene;
-    [SerializeField] private TMP_Dropdown _gradeSelectDropdown;
-
-    [SerializeField] private PictureBookPanel _pictureBookPanel;
 
     [SerializeField] private GameObject _blocker;
 
@@ -27,17 +23,6 @@ public class SelectScene : MonoBehaviour
         var masterData = MasterData.GetInstance();
         var subjects = masterData.AllSubjects();
         _selectedGrade = UserDataManager.GetInstance().GetUserData().grade;
-
-        if (_selectedGrade == 0)
-        {
-            var tutorialPanelObj = await Utils.InstantiatePrefab("Prefabs/Common/TutorialPanel", gameObject.transform);
-            var tutorialManager = tutorialPanelObj.GetComponent<TutorialManager>();
-            tutorialManager.SetHowToSelectGrade(_gradeSelectDropdown.transform);
-        }
-        else
-        {
-            _gradeSelectDropdown.value = _selectedGrade - 1;
-        }
 
         AdManager.Instance.LoadBannerAd();
 
@@ -58,7 +43,7 @@ public class SelectScene : MonoBehaviour
 
     private async void OnEnable()
     {
-        UserDataManager.GetInstance().AddUserDataUpdateListener(UpdateSelectSceneUI);
+        // UserDataManager.GetInstance().AddUserDataUpdateListener(UpdateSelectSceneUI);
 
         if (UserDataManager.GetInstance().GetUserData().totalMedal <= 0)
             await UserDataManager.GetInstance().SetUserData(UserDataManager.USER_DATA_KEY_TOTAL_MEDAL, 0);
@@ -89,21 +74,7 @@ public class SelectScene : MonoBehaviour
 
     private void OnDisable()
     {
-        UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdateSelectSceneUI);
-    }
-
-    private void UpdateSelectSceneUI()
-    {
-        var totalMedal = UserDataManager.GetInstance().GetUserData().totalMedal;
-        _totalMedalText.text = totalMedal.ToString();
-
-        _pictureBookPanel.Setup();
-    }
-
-    public async void OnSelectedGrade()
-    {
-        _selectedGrade = _gradeSelectDropdown.value + 1;
-        await UserDataManager.GetInstance().SetUserData(UserDataManager.USER_DATA_KEY_GRADE, _selectedGrade);
+        // UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdateSelectSceneUI);
     }
 
     public void OnClickRandomButton()
@@ -142,12 +113,12 @@ public class SelectScene : MonoBehaviour
         await Utils.OpenDialog("Prefabs/Select/ContinueDialog", transform);
     }
 
-    public async void OnClickRankingButton()
-    {
-        var rankingDialogObj = await Utils.OpenDialog("Prefabs/Select/RankingDialog", transform);
-        var rankingDialog = rankingDialogObj.GetComponent<RankingDialog>();
-        rankingDialog.Setup();
-    }
+    // public async void OnClickRankingButton()
+    // {
+    //     var rankingDialogObj = await Utils.OpenDialog("Prefabs/Select/RankingDialog", transform);
+    //     var rankingDialog = rankingDialogObj.GetComponent<RankingDialog>();
+    //     rankingDialog.Setup();
+    // }
 
     private void StartGame()
     {
