@@ -11,6 +11,7 @@ public class MasterData
     private static MasterData _masterData;
     
     public QuizData[] quizzes;
+    public ChapterData[] chapters;
     public bool IsPrepared { get; set; }
     
     public static MasterData GetInstance()
@@ -58,15 +59,5 @@ public class MasterData
     public string[] AllSubjects()
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
-    }
-    
-    
-    public string[] AllQuizTags(){
-        return quizzes.SelectMany(quiz => quiz.quizTags).Distinct().ToArray();
-    }
-    
-    public string[] AllQuizTagsBySubject(string subject)
-    {
-        return quizzes.Where(quiz => quiz.subject == subject).SelectMany(quiz => quiz.quizTags).Distinct().ToArray();
     }
 }

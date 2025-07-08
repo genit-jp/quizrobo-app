@@ -20,6 +20,13 @@ public class Const
     
     public static string MakeApiUrl(string path)
     {
+        if (IsDebug)
+        {
+            // 開発モードでは常に指定のURLを返す
+            return "https://script.google.com/macros/s/AKfycbzMHc55GJqmI3ZuI9XTxItdpgW1M84qHzGiDPiABrHu80wV4zTbUpMnAFfLZMUHIiM/exec";
+        }
+
+        
         if (!path.StartsWith("/"))
         {
             path = "/" + path;
@@ -39,10 +46,11 @@ public class Const
     {
         get
         {
-            // if (isDebug)
-            // {
-            //     return "https://s3.ap-northeast-1.amazonaws.com/"; 
-            // }
+            if (IsDebug)
+            {
+                return "https://script.google.com/macros/s"; 
+            }
+
 
             return "https://s3.ap-northeast-1.amazonaws.com/kidsquiz.assets"; //開発用(仮)
         }
@@ -52,6 +60,11 @@ public class Const
     
     public static string GetMasterJsonUrl(string masterVersion)
     {
+        if (IsDebug)
+        {
+            return "https://script.google.com/macros/s/AKfycbzMHc55GJqmI3ZuI9XTxItdpgW1M84qHzGiDPiABrHu80wV4zTbUpMnAFfLZMUHIiM/exec";
+        }
+
         if (masterVersion == "0.6.0")
         {
             return MakeApiUrl("/master-0.6.0.json");
