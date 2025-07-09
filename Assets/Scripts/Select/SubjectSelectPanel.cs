@@ -48,10 +48,11 @@ public class SubjectSelectPanel : MonoBehaviour
     }
 
 
-    private void OnClickSubjectButton(string subject)
+    private async void OnClickSubjectButton(string subject)
     {
-        Debug.Log($"Selected Subject: {subject}");
-        // クイズ開始処理など
+        var selectPanel = await Utils.InstantiatePrefab("Prefabs/Select/SelectChallengeStagePanel", this.gameObject.transform);
+        var selectChallengeStagePanel = selectPanel.GetComponent<SelectChallengeStagePanel>();
+        selectChallengeStagePanel.Setup(subject);
     }
 
     public void OnClickGoBackButton()
