@@ -56,6 +56,17 @@ public class MasterData
         return _masterData;
     }
     
+    public ChapterData[] GetAvailableChaptersBySubject(string subject)
+    {
+        if (_masterData == null || _masterData.chapters == null)
+        {
+            return new ChapterData[0];
+        }
+        
+        // 指定されたsubjectに対応するChapterDataを取得
+        return _masterData.chapters.Where(chapter => chapter.subject == subject).ToArray();
+    }
+    
     public string[] AllSubjects()
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
