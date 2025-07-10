@@ -21,6 +21,7 @@ public class UserDataManager
     public static readonly string USER_DATA_KEY_LAST_LOGIN_DATE = "lastLoginDateTime";
     public static readonly string USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM = "consecutiveLoginNum";
     public static readonly string USER_DATA_KEY_TOTAL_LOGIN_NUM = "totalLoginNum";
+    public static readonly string USER_DATA_KEY_CHALLENGE_LEVELS_KEY = "challengeLevels";
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
@@ -43,6 +44,7 @@ public class UserDataManager
         await SetDefaultValue(USER_DATA_KEY_LAST_LOGIN_DATE, 0);
         await SetDefaultValue(USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM, 0);
         await SetDefaultValue(USER_DATA_KEY_TOTAL_LOGIN_NUM, 0);
+        await SetDefaultDictionaryValue(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, Const.DEFAULT_CHALLENGE_LEVELS);
     }
 
 
@@ -159,6 +161,14 @@ public class UserDataManager
         if (!_userData.ContainsField(key)) await SetUserData(key, defaultValue);
     }
 
+    private async UniTask SetDefaultDictionaryValue(string key, Dictionary<string, string> defaultValue)
+    {
+        if (!_userData.ContainsField(key))
+        {
+            await SetUserData(key, defaultValue);
+        }
+    }
+
     public Type GetUserDataValue<Type>(string key, Type defaultValue)
     {
         if (_userData.ContainsField(key)) return _userData.GetValue<Type>(key);
@@ -220,6 +230,8 @@ public class UserDataManager
         [FirestoreProperty] public int maxTotalMedal { get; set; }
 
         [FirestoreProperty] public int stage { get; set; }
+        
+        [FirestoreProperty] public long createdAt { get; set; }
 
         [FirestoreProperty] public int rating { get; set; }
         [FirestoreProperty] public bool isPlayedTutorial { get; set; }
@@ -227,5 +239,7 @@ public class UserDataManager
         [FirestoreProperty] public int consecutiveLoginNum { get; set; }
         [FirestoreProperty] public int totalLoginNum { get; set; }
         [FirestoreProperty] public List<AnswerData> answers { get; set; }
+        
+        [FirestoreProperty] public Dictionary<string, string> challengeLevels { get; set; } = new();
     }
 }

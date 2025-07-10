@@ -75,6 +75,15 @@ public class Const
         }
     }
     
+    public static readonly Dictionary<string, string> DEFAULT_CHALLENGE_LEVELS = new()
+    {
+        { "Japanese", "easy" },
+        { "Math", "easy" },
+        { "Science", "easy" },
+        { "SocialStudies", "easy" },
+        { "English", "easy" }
+    };
+    
     public static Dictionary<int, Dictionary<string, int>> 
         SubjectRatioInGoodQuizFor060 = new Dictionary<int, Dictionary<string, int>>()
     {

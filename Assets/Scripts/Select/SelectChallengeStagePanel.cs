@@ -58,8 +58,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
     private void OnSelectLevel(string level)
     {
         Debug.Log($"選択されたレベル: {level}");
-        // レベル変更の処理をここに追加
-        // 例: GameManager.GetInstance().SetChallengeLevel(level);
+        // レベル変更して保存、表示切り替え
     }
     
     private void ShowChapterDialog(ChapterData data)
