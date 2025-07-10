@@ -30,7 +30,7 @@ public class SubjectSelectPanel : MonoBehaviour
         for (int i = 0; i < buttonCount; i++)
         {
             var subject = subjects[i];
-            var subjectButton = await Utils.InstantiatePrefab("Prefabs/Select/SubjectButton", buttonContainer);
+            var subjectButton = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SubjectButton", buttonContainer);
             var btn = subjectButton.GetComponent<SubjectButton>();
             btn.Setup(subject, () => this.OnClickSubjectButton(subject));
 
@@ -50,7 +50,7 @@ public class SubjectSelectPanel : MonoBehaviour
 
     private async void OnClickSubjectButton(string subject)
     {
-        var selectPanel = await Utils.InstantiatePrefab("Prefabs/Select/SelectChallengeStagePanel", this.gameObject.transform);
+        var selectPanel = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SelectChallengeStagePanel", this.gameObject.transform);
         var selectChallengeStagePanel = selectPanel.GetComponent<SelectChallengeStagePanel>();
         selectChallengeStagePanel.Setup(subject);
     }

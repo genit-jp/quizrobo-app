@@ -7,6 +7,8 @@ public class SelectChallengeStagePanel : MonoBehaviour
 {
     [SerializeField] private Text title;
     [SerializeField] private Transform chapterButtonParent;
+    [SerializeField] private GameObject dropDownMenu;
+    
     
     private ChapterData[] _chapters;
     public void Setup(string subject)
@@ -43,7 +45,22 @@ public class SelectChallengeStagePanel : MonoBehaviour
             rect.anchoredPosition = new Vector2(x, -y);
         }
     }
+    
+    public void OnClickLevelChangeButton()
+    {
+        dropDownMenu.gameObject.SetActive(true);
 
+        // 選択肢を設定
+        var options = new List<string> { "Easy", "Normal", "Hard" };
+        dropDownMenu.GetComponent<DropDownMenu>().Setup(options, OnSelectLevel);
+    }
+
+    private void OnSelectLevel(string level)
+    {
+        Debug.Log($"選択されたレベル: {level}");
+        // レベル変更の処理をここに追加
+        // 例: GameManager.GetInstance().SetChallengeLevel(level);
+    }
     
     private void ShowChapterDialog(ChapterData data)
     {

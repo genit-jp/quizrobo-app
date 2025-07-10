@@ -79,7 +79,7 @@ public class SelectScene : MonoBehaviour
 
     public async void OnClickSubjectSelectPanelButton()
     {
-        var selectSubject = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelectPanel", this.transform);
+        var selectSubject = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SubjectSelectPanel", this.transform);
         var selectSubjectPanel = selectSubject.GetComponent<SubjectSelectPanel>();
         selectSubjectPanel.Setup();
         // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Normal);
