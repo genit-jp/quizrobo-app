@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,16 +6,20 @@ using UnityEngine.UI;
 
 public class SelectChallengeStagePanel : MonoBehaviour
 {
-    [SerializeField] private Text title;
+    [SerializeField] private Text title, level;
     [SerializeField] private Transform chapterButtonParent;
     [SerializeField] private GameObject dropDownMenu;
-    
-    
+
+    public Action StartGame { get; private set; }
     private ChapterData[] _chapters;
+    private string _subject;
     public void Setup(string subject)
     {
-        title.text = subject;
-        
+        _subject = subject;
+        title.text = _subject;
+        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
+        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
+
         _chapters = MasterData.GetInstance().GetAvailableChaptersBySubject(subject);
         SetChapterButtons();
     }
@@ -31,7 +36,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
         {
             var chapterData = _chapters[i];
             var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/ChapterStar"), chapterButtonParent);
-            chapterButton.Setup(chapterData, ShowChapterDialog);
+            chapterButton.Setup(chapterData, ShowChallengeDialog);
 
             var rect = chapterButton.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
@@ -49,23 +54,23 @@ public class SelectChallengeStagePanel : MonoBehaviour
     public void OnClickLevelChangeButton()
     {
         dropDownMenu.gameObject.SetActive(true);
-
-        // 選択肢を設定
-        var options = new List<string> { "Easy", "Normal", "Hard" };
+        var options = new List<string>(Const.DIFFICULTY_NAME_MAP.Keys);
         dropDownMenu.GetComponent<DropDownMenu>().Setup(options, OnSelectLevel);
     }
 
-    private void OnSelectLevel(string level)
+    private async void OnSelectLevel(string challengeLevel)
     {
-        Debug.Log($"選択されたレベル: {level}");
-        // レベル変更して保存、表示切り替え
+        await UserDataManager.GetInstance().SetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject], challengeLevel);
+        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
     }
     
-    private void ShowChapterDialog(ChapterData data)
+    private async void ShowChallengeDialog(ChapterData data)
     {
-        Debug.Log($"チャプター {data.chapterNumber} を選択");
-        // 任意でダイアログ表示を呼ぶ
-        // e.g. DialogManager.Show(data);
+        var go = await Genit.Utils.OpenDialog("Prefabs/Common/CommonDialog", this.gameObject.transform);
+        var cd = go.GetComponent<CommonDialog>();
+        var challengeTitle = $"{data.chapterNumber}にチャレンジする？";
+        cd.Setup(challengeTitle, null, null, CommonDialog.Mode.OK_CANCEL);
+        
     }
     public void OnClickCloseButton()
     {

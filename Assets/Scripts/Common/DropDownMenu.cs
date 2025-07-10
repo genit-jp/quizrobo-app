@@ -8,12 +8,20 @@ public class DropDownMenu : MonoBehaviour
 {
     [SerializeField] private RectTransform content;
     [SerializeField] private GameObject dropMenuButtonPrefab;
+    [SerializeField] private Button backgroundButton;
     
-    private Action<string> onSelect;
+    private Action<string> _onSelect;
     
     public void Setup(List<string> options, Action<string> onSelectCallback)
     {
-        onSelect = onSelectCallback;
+        _onSelect = onSelectCallback;
+        
+        backgroundButton.onClick.RemoveAllListeners();
+        backgroundButton.onClick.AddListener(() =>
+        {
+            gameObject.SetActive(false);
+        });
+
         
         foreach (Transform child in content)
             Destroy(child.gameObject);
@@ -21,10 +29,10 @@ public class DropDownMenu : MonoBehaviour
         foreach (var option in options)
         {
             var btn = Instantiate(dropMenuButtonPrefab, content);
-            btn.GetComponentInChildren<Text>().text = option;
+            btn.GetComponentInChildren<Text>().text = Const.DIFFICULTY_NAME_MAP[option];
             btn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                onSelect?.Invoke(option);
+                _onSelect?.Invoke(option);
                 gameObject.SetActive(false);
             });
         }

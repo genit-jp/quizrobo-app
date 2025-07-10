@@ -84,6 +84,22 @@ public class Const
         { "English", "easy" }
     };
     
+    public static readonly Dictionary<string, string> DIFFICULTY_NAME_MAP = new Dictionary<string, string>
+    {
+        {"easy", "かんたん"},
+        {"normal", "ふつう"},
+        {"hard", "むずかしい"}
+    };
+    
+    public static readonly Dictionary<string, string> SUBJECT_NAME_MAP = new()
+    {
+        { "国語", "Japanese" },
+        { "算数", "Math" },
+        { "理科", "Science" },
+        { "社会", "SocialStudies" },
+        { "英語", "English" }
+    };
+    
     public static Dictionary<int, Dictionary<string, int>> 
         SubjectRatioInGoodQuizFor060 = new Dictionary<int, Dictionary<string, int>>()
     {

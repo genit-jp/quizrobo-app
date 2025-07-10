@@ -175,6 +175,23 @@ public class UserDataManager
 
         return defaultValue;
     }
+    
+    public async UniTask SetChallengeLevel(string subject, string level)
+    {
+        var userData = GetUserData();
+        var challengeLevels = userData.challengeLevels ?? new Dictionary<string, string>();
+        
+        challengeLevels[subject] = level;
+        
+        await SetUserData(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, challengeLevels);
+    }
+
+    public string GetChallengeLevel(string subject)
+    {
+        var userData = GetUserData();
+        return userData.challengeLevels[subject];
+    }
+
 
     // 新しい回答データを追加するメソッド
     public async UniTask AddUserAnswerData(AnswerData answer)
