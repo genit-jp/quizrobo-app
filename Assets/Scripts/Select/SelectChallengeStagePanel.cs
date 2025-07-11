@@ -10,16 +10,16 @@ public class SelectChallengeStagePanel : MonoBehaviour
     [SerializeField] private Transform chapterButtonParent;
     [SerializeField] private GameObject dropDownMenu;
 
-    public Action StartGame { get; private set; }
+    private Action _onStartGame;
     private ChapterData[] _chapters;
     private string _subject;
-    public void Setup(string subject)
+    public void Setup(string subject, Action startGame)
     {
         _subject = subject;
         title.text = _subject;
         var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
         level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
-
+        _onStartGame = startGame;
         _chapters = MasterData.GetInstance().GetAvailableChaptersBySubject(subject);
         SetChapterButtons();
     }
@@ -69,9 +69,15 @@ public class SelectChallengeStagePanel : MonoBehaviour
         var go = await Genit.Utils.OpenDialog("Prefabs/Common/CommonDialog", this.gameObject.transform);
         var cd = go.GetComponent<CommonDialog>();
         var challengeTitle = $"{data.chapterNumber}にチャレンジする？";
-        cd.Setup(challengeTitle, null, null, CommonDialog.Mode.OK_CANCEL);
-        
+        cd.Setup(challengeTitle, challengeTitle, result => 
+        {
+            if (result == CommonDialog.Result.OK)
+            {
+                _onStartGame();
+            }
+        }, CommonDialog.Mode.OK_CANCEL);
     }
+    
     public void OnClickCloseButton()
     {
         Destroy(this.gameObject);

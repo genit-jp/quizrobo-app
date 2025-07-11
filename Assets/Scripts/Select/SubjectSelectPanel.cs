@@ -1,12 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Genit;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SubjectSelectPanel : MonoBehaviour
 {
     [SerializeField] private Transform buttonContainer;
+
+    public Action StartGame;
 
     public async void Setup()
     {
@@ -52,7 +56,10 @@ public class SubjectSelectPanel : MonoBehaviour
     {
         var selectPanel = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SelectChallengeStagePanel", this.gameObject.transform);
         var selectChallengeStagePanel = selectPanel.GetComponent<SelectChallengeStagePanel>();
-        selectChallengeStagePanel.Setup(subject);
+        selectChallengeStagePanel.Setup(subject, () =>
+        {
+            StartGame();
+        });
     }
 
     public void OnClickGoBackButton()
