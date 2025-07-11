@@ -100,6 +100,8 @@ public class SelectChallengeStagePanel : MonoBehaviour
                 Const.GameSceneParam.Subject = data.subject;
                 Const.GameSceneParam.DifficultyLevel = data.difficultyLevel;
                 Const.GameSceneParam.ChapterNumber = data.chapterNumber;
+                
+                
                 _onStartGame();
             }
         }, CommonDialog.Mode.OK_CANCEL);

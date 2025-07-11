@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class SelectScene : MonoBehaviour
 {
-    // [SerializeField] private GameLoadingPanel gameLoadingScene;
+    [SerializeField] private GameLoadingPanel gameLoadingScene;
 
     [SerializeField] private GameObject _blocker;
 
@@ -130,7 +130,7 @@ public class SelectScene : MonoBehaviour
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
-        SceneManager.LoadScene("GameScene");
+        gameLoadingScene.LoadNextScene("GameScene", LoadSceneMode.Additive);
         gameObject.SetActive(false);
     }
 
