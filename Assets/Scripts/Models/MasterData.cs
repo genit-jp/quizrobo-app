@@ -56,16 +56,21 @@ public class MasterData
         return _masterData;
     }
     
-    public ChapterData[] GetAvailableChaptersBySubject(string subject)
+    public ChapterData[] GetChaptersBySubjectAndLevel(string subject, string difficultyLevel)
     {
         if (_masterData == null || _masterData.chapters == null)
         {
             return new ChapterData[0];
         }
-        
-        // 指定されたsubjectに対応するChapterDataを取得
-        return _masterData.chapters.Where(chapter => chapter.subject == subject).ToArray();
+    
+        return _masterData.chapters
+            .Where(chapter => 
+                chapter.subject == subject && 
+                chapter.difficultyLevel == difficultyLevel &&
+                chapter.available)
+            .ToArray();
     }
+
     
     public string[] AllSubjects()
     {

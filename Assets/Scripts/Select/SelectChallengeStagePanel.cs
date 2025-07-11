@@ -13,6 +13,31 @@ public class SelectChallengeStagePanel : MonoBehaviour
     private Action _onStartGame;
     private ChapterData[] _chapters;
     private string _subject;
+    
+    private void Start()
+    {
+        UserDataManager.GetInstance().AddUserDataUpdateListener(OnUserDataUpdated);
+    }
+
+    private void OnDestroy()
+    {
+        UserDataManager.GetInstance().RemoveUserDataUpdateListener(OnUserDataUpdated);
+    }
+
+    private void OnUserDataUpdated()
+    {
+        foreach (Transform child in chapterButtonParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
+        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
+        _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(_subject, challengeLevel);
+        SetChapterButtons();
+    }
+
+    
     public void Setup(string subject, Action startGame)
     {
         _subject = subject;
@@ -20,13 +45,12 @@ public class SelectChallengeStagePanel : MonoBehaviour
         var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
         level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
         _onStartGame = startGame;
-        _chapters = MasterData.GetInstance().GetAvailableChaptersBySubject(subject);
+        _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(subject, challengeLevel);
         SetChapterButtons();
     }
 
     private void SetChapterButtons()
     {
-        float panelHeight = ((RectTransform)this.transform).rect.height;
         int chapterCount = _chapters.Length;
 
         float offsetX = 200f;            // 左右のずれ幅
