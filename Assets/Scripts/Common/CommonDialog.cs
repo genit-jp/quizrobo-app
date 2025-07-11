@@ -51,7 +51,7 @@ public class CommonDialog : DialogBaseListener
         cd.Setup(title, text, onClose, mode);
     }
 
-    private void Setup(string title, string text, Action<Result> onClose, Mode mode)
+    public void Setup(string title, string text, Action<Result> onClose, Mode mode)
     {
         this.title = title;
         this.text = text;

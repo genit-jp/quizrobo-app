@@ -11,6 +11,7 @@ public class MasterData
     private static MasterData _masterData;
     
     public QuizData[] quizzes;
+    public ChapterData[] chapters;
     public bool IsPrepared { get; set; }
     
     public static MasterData GetInstance()
@@ -55,18 +56,24 @@ public class MasterData
         return _masterData;
     }
     
+    public ChapterData[] GetChaptersBySubjectAndLevel(string subject, string difficultyLevel)
+    {
+        if (_masterData == null || _masterData.chapters == null)
+        {
+            return new ChapterData[0];
+        }
+    
+        return _masterData.chapters
+            .Where(chapter => 
+                chapter.subject == subject && 
+                chapter.difficultyLevel == difficultyLevel &&
+                chapter.available)
+            .ToArray();
+    }
+
+    
     public string[] AllSubjects()
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
-    }
-    
-    
-    public string[] AllQuizTags(){
-        return quizzes.SelectMany(quiz => quiz.quizTags).Distinct().ToArray();
-    }
-    
-    public string[] AllQuizTagsBySubject(string subject)
-    {
-        return quizzes.Where(quiz => quiz.subject == subject).SelectMany(quiz => quiz.quizTags).Distinct().ToArray();
     }
 }

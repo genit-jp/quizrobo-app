@@ -1,22 +1,22 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class QuizData
 {
-    public string question = "";
-    public string imgPath = "";
-    public string answer = "";
+    public string Id = "";
+    public bool available = true;
     public string subject = "";
-    public string[] forbiddenLetters;
-    public string compliment = "";
-    public string explanation = "";
-    public int targetGrade = 0;
-    public string id = "";
-    public int quizKind = 0;
-    public string[] choices;
-    public string[] quizTags;
-    public int quizLevel;
-    public bool isGood = false;
+    public string question = "";
+    public string[] choices;  // カンマ区切りの文字列として受け取る
+    public string answer; 
+    public string difficultyLevels = "";  // JSONではdifficultyLevelsだが、levelでも受け取れるようにする
+    public string imgPath = "";
+    
+    // Unity側で使用するプロパティ（JSONシリアライズ対象外）
+    [NonSerialized]
     public Texture2D imgTexture;
 }
+
+

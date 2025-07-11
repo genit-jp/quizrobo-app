@@ -77,10 +77,13 @@ public class SelectScene : MonoBehaviour
         // UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdateSelectSceneUI);
     }
 
-    public void OnClickRandomButton()
+    public async void OnClickSubjectSelectPanelButton()
     {
-        QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Normal);
-        StartGame();
+        var selectSubject = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SubjectSelectPanel", this.transform);
+        var selectSubjectPanel = selectSubject.GetComponent<SubjectSelectPanel>();
+        selectSubjectPanel.Setup();
+        selectSubjectPanel.StartGame = StartGame;
+        // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Normal);
     }
 
     public async void OnClickCategoryButton()
@@ -91,7 +94,7 @@ public class SelectScene : MonoBehaviour
         categoryDialog.Setup(0, (grade, subject) =>
         {
             Debug.Log("grade: " + grade + " subject: " + subject);
-            QuizSelectManager.GetInstance().SetSelectQuizzes(grade, 10, Const.PlayMode.Subject, subject);
+            // QuizSelectManager.GetInstance().SetSelectQuizzes(grade, 10, Const.PlayMode.Subject, subject);
             StartGame();
         });
     }
@@ -103,7 +106,7 @@ public class SelectScene : MonoBehaviour
         calculationStartDialog.Setup(async () =>
         {
             calculationStartDialog.CloseNow();
-            QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Calculation);
+            // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Calculation);
             StartGame();
         });
     }
@@ -131,7 +134,7 @@ public class SelectScene : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void GameSceneLoaded(Scene next, LoadSceneMode mode)
+    private void GameSceneLoaded(Scene next, LoadSceneMode mode)
     {
         var gameObjects = next.GetRootGameObjects();
         foreach (var gameObject in gameObjects)
@@ -147,7 +150,7 @@ public class SelectScene : MonoBehaviour
     private void GoToLabo()
     {
         SceneManager.sceneLoaded += LaboSceneLoaded;
-        gameLoadingScene.LoadNextScene("LaboScene", LoadSceneMode.Additive);
+        // gameLoadingScene.LoadNextScene("LaboScene", LoadSceneMode.Additive);
         gameObject.SetActive(false);
     }
     

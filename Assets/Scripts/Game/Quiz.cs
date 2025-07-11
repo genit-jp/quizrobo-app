@@ -19,21 +19,16 @@ public class Quiz : MonoBehaviour
     [SerializeField] private Image _image;
     [SerializeField] private GameObject _choiceButtonContainer;
     [SerializeField]private GameObject _skipButton;
-    private QuizUI _quizUI;
+    private FourChoiceButtonUI _quizUI;
     private Action<bool, string> _answeredByUser;
-    private Dictionary<int,string> _quizUIs = new Dictionary<int, string>()
-    {
-        {0, "Prefabs/Game/FourChoiceButtonUI"},
-        {1, "Prefabs/Game/LetterChoiceButtonUI"}
-    };
 
     public async void Setup(QuizData quizData, int quizIndex, Action<bool, string> answeredByUser)
     {
-        if (QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
-        {
-            _skipButton.SetActive(false);
-        }
-        
+        // if (QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
+        // {
+        //     _skipButton.SetActive(false);
+        // }
+
         string question = quizData.question;
         string imgPath = quizData.imgPath;
         _answeredByUser = answeredByUser;
@@ -63,17 +58,23 @@ public class Quiz : MonoBehaviour
             _image.gameObject.SetActive(true);
         }
         
-        if(quizData.quizTags.Contains("計算"))
-        {
-            //textのautosizeをオフ
-            _quizText.enableAutoSizing = false;
-            _quizText.fontSize = 90;
-        }
+        // if(quizData.quizTags.Contains("計算"))
+        // {
+        //     //textのautosizeをオフ
+        //     _quizText.enableAutoSizing = false;
+        //     _quizText.fontSize = 90;
+        // }
         _quizText.uneditedText = GetQuestionRichText(question);
+        
+        Debug.Log("Attempting to instantiate FourChoiceButtonUI");
+        var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/FourChoiceButtonUI", _choiceButtonContainer.transform);
+        Debug.Log($"Instantiated object: {(instantiatedObj != null ? instantiatedObj.name : "null")}");
 
-        var instantiatedObj = await Genit.Utils.InstantiatePrefab(_quizUIs[quizData.quizKind], _choiceButtonContainer.transform);
-        _quizUI = instantiatedObj.GetComponent<QuizUI>();
+        _quizUI = instantiatedObj.GetComponent<FourChoiceButtonUI>();
+        Debug.Log($"QuizUI component: {(_quizUI != null ? "found" : "not found")}");
+
         _quizUI.Setup(quizData, _answeredByUser);
+
     }
 
     public void DestroyGameUI()

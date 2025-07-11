@@ -14,35 +14,35 @@ public class GameLoadingPanel : MonoBehaviour
     public void LoadNextScene(string sceneName, LoadSceneMode loadSceneMode)
     {
         gameObject.SetActive(true); // LoadPanelをアクティブにする
-        if(QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Normal)
-        {
-            _NormalModeDescription.SetActive(true);
-            _CalculationModeDescription.SetActive(false);
-        }
-        else if(QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
-        {
-            _NormalModeDescription.SetActive(false);
-            _CalculationModeDescription.SetActive(true);
-        }
-        LoadSceneAsync(sceneName, QuizSelectManager.GetInstance().selectQuizzes, loadSceneMode).Forget();
+        // if(QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Normal)
+        // {
+        //     _NormalModeDescription.SetActive(true);
+        //     _CalculationModeDescription.SetActive(false);
+        // }
+        // else if(QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
+        // {
+        //     _NormalModeDescription.SetActive(false);
+        //     _CalculationModeDescription.SetActive(true);
+        // }
+        LoadSceneAsync(sceneName, loadSceneMode).Forget();
     }
 
-    private async UniTaskVoid LoadSceneAsync(string sceneName, List<QuizData> quizList, LoadSceneMode loadSceneMode)
+    private async UniTaskVoid LoadSceneAsync(string sceneName, LoadSceneMode loadSceneMode)
     {
         int totalItems = 1; 
         int loadedItems = 0;
 
         // 画像のロード
-        foreach (var quizData in quizList)
-        {
-            if (!string.IsNullOrEmpty(quizData.imgPath))
-            {
-                totalItems++;
-                await SetImgAsync(quizData);
-                loadedItems++;
-                _slider.value = (float)loadedItems / totalItems;
-            }
-        }
+        // foreach (var quizData in quizList)
+        // {
+        //     if (!string.IsNullOrEmpty(quizData.imgPath))
+        //     {
+        //         totalItems++;
+        //         await SetImgAsync(quizData);
+        //         loadedItems++;
+        //         _slider.value = (float)loadedItems / totalItems;
+        //     }
+        // }
         // シーンの非同期ローディングを開始
         AsyncOperation async = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
         async.allowSceneActivation = false; // シーンの自動切り替えを防ぐ

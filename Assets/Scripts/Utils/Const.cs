@@ -20,6 +20,13 @@ public class Const
     
     public static string MakeApiUrl(string path)
     {
+        if (IsDebug)
+        {
+            // 開発モードでは常に指定のURLを返す
+            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+        }
+
+        
         if (!path.StartsWith("/"))
         {
             path = "/" + path;
@@ -39,10 +46,11 @@ public class Const
     {
         get
         {
-            // if (isDebug)
-            // {
-            //     return "https://s3.ap-northeast-1.amazonaws.com/"; 
-            // }
+            if (IsDebug)
+            {
+                return "https://script.google.com/macros/s"; 
+            }
+
 
             return "https://s3.ap-northeast-1.amazonaws.com/kidsquiz.assets"; //開発用(仮)
         }
@@ -52,6 +60,11 @@ public class Const
     
     public static string GetMasterJsonUrl(string masterVersion)
     {
+        if (IsDebug)
+        {
+            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+        }
+
         if (masterVersion == "0.6.0")
         {
             return MakeApiUrl("/master-0.6.0.json");
@@ -60,6 +73,38 @@ public class Const
         {
             return MakeApiUrl("/master.json");
         }
+    }
+    
+    public static readonly Dictionary<string, string> DEFAULT_CHALLENGE_LEVELS = new()
+    {
+        { "Japanese", "easy" },
+        { "Math", "easy" },
+        { "Science", "easy" },
+        { "SocialStudies", "easy" },
+        { "English", "easy" }
+    };
+    
+    public static readonly Dictionary<string, string> DIFFICULTY_NAME_MAP = new Dictionary<string, string>
+    {
+        {"easy", "かんたん"},
+        {"normal", "ふつう"},
+        {"hard", "むずかしい"}
+    };
+    
+    public static readonly Dictionary<string, string> SUBJECT_NAME_MAP = new()
+    {
+        { "国語", "Japanese" },
+        { "算数", "Math" },
+        { "理科", "Science" },
+        { "社会", "SocialStudies" },
+        { "英語", "English" }
+    };
+    
+    public static class GameSceneParam
+    {
+        public static string Subject;
+        public static string DifficultyLevel;
+        public static int ChapterNumber;
     }
     
     public static Dictionary<int, Dictionary<string, int>> 
