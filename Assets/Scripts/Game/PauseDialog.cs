@@ -22,8 +22,8 @@ public class PauseDialog : DialogBaseListener
         AdManager.Instance.ShowInterstitialAd(() => SceneManager.LoadScene("SelectScene"));
     }
 
-    // public void Setup(Action onClickContinue)
-    // {
-    //     _onClickContinue = onClickContinue;
-    // }
+    public void Setup(Action onClickContinue)
+    {
+        _onClickContinue = onClickContinue;
+    }
 }

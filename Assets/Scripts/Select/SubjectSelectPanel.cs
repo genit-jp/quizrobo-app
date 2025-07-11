@@ -58,6 +58,7 @@ public class SubjectSelectPanel : MonoBehaviour
         var selectChallengeStagePanel = selectPanel.GetComponent<SelectChallengeStagePanel>();
         selectChallengeStagePanel.Setup(subject, () =>
         {
+            Debug.Log("StartGame呼び出し");
             StartGame();
         });
     }

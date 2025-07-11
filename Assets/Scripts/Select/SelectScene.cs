@@ -130,7 +130,7 @@ public class SelectScene : MonoBehaviour
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
-        // gameLoadingScene.LoadNextScene("GameScene", LoadSceneMode.Additive);
+        SceneManager.LoadScene("GameScene");
         gameObject.SetActive(false);
     }
 

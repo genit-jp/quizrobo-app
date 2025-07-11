@@ -85,11 +85,11 @@ public class SelectChallengeStagePanel : MonoBehaviour
     private async void OnSelectLevel(string challengeLevel)
     {
         await UserDataManager.GetInstance().SetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject], challengeLevel);
-        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
     }
     
     private async void ShowChallengeDialog(ChapterData data)
     {
+        
         var go = await Genit.Utils.OpenDialog("Prefabs/Common/CommonDialog", this.gameObject.transform);
         var cd = go.GetComponent<CommonDialog>();
         var challengeTitle = $"{data.chapterNumber}にチャレンジする？";
@@ -97,6 +97,9 @@ public class SelectChallengeStagePanel : MonoBehaviour
         {
             if (result == CommonDialog.Result.OK)
             {
+                Const.GameSceneParam.Subject = data.subject;
+                Const.GameSceneParam.DifficultyLevel = data.difficultyLevel;
+                Const.GameSceneParam.ChapterNumber = data.chapterNumber;
                 _onStartGame();
             }
         }, CommonDialog.Mode.OK_CANCEL);

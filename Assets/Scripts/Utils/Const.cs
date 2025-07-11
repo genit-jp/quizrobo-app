@@ -23,7 +23,7 @@ public class Const
         if (IsDebug)
         {
             // 開発モードでは常に指定のURLを返す
-            return "https://script.google.com/macros/s/AKfycbzMHc55GJqmI3ZuI9XTxItdpgW1M84qHzGiDPiABrHu80wV4zTbUpMnAFfLZMUHIiM/exec";
+            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
         }
 
         
@@ -62,7 +62,7 @@ public class Const
     {
         if (IsDebug)
         {
-            return "https://script.google.com/macros/s/AKfycbzMHc55GJqmI3ZuI9XTxItdpgW1M84qHzGiDPiABrHu80wV4zTbUpMnAFfLZMUHIiM/exec";
+            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
         }
 
         if (masterVersion == "0.6.0")
@@ -99,6 +99,13 @@ public class Const
         { "社会", "SocialStudies" },
         { "英語", "English" }
     };
+    
+    public static class GameSceneParam
+    {
+        public static string Subject;
+        public static string DifficultyLevel;
+        public static int ChapterNumber;
+    }
     
     public static Dictionary<int, Dictionary<string, int>> 
         SubjectRatioInGoodQuizFor060 = new Dictionary<int, Dictionary<string, int>>()
