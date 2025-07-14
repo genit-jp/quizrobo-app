@@ -8,12 +8,10 @@ using UnityEngine.UIElements;
 
 public class ResultDialog: DialogBaseListener
 {
-    [SerializeField] private Text _totalMedalText;
-    [SerializeField] private Text _increasedMedalText;
     [SerializeField] private GameObject _scrollViewContent;
     private Action _onOkButtonClicked;
     
-    public async void Setup(List<QuizResultData> quizResults, int medalNum, int increasedMedalNum, Action onOkButtonClicked)
+    public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
     {
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
@@ -27,9 +25,6 @@ public class ResultDialog: DialogBaseListener
         }
         
         _onOkButtonClicked = onOkButtonClicked;
-        
-        _totalMedalText.text = medalNum.ToString();
-        _increasedMedalText.text = increasedMedalNum.ToString();
     }
 
     public void OnClickHomeButton()
