@@ -24,7 +24,7 @@ public class GameScene : MonoBehaviour
 //
      private Const.PlayMode _playMode;
      private int _quizIndex;
-//     private List<QuizResultData> _quizResults;
+     private List<QuizResultData> _quizResults;
      private QuizData[] _quizzes;
 //     private AudioClip _resultSound;
 //
@@ -36,7 +36,7 @@ public class GameScene : MonoBehaviour
              Const.GameSceneParam.DifficultyLevel,
              Const.GameSceneParam.ChapterNumber
          );
-         // _quizResults = new List<QuizResultData>();
+         _quizResults = new List<QuizResultData>();
          // _medalNum = UserDataManager.GetInstance().GetUserData().totalMedal;
          // _medalNumWhenStart = _medalNum;
          // _playMode = QuizSelectManager.GetInstance().GetPlayMode();
@@ -96,13 +96,22 @@ public class GameScene : MonoBehaviour
              {
                  quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
+
+                 // クイズ結果を記録（← ここ追加）
+                 _quizResults.Add(new QuizResultData
+                 {
+                     Quiz = _quizzes[_quizIndex],
+                     IsCorrect = isCorrect,
+                     AnswerWord = answerWord
+                 });
+
                  _quizIndex++;
+
                  if (_quizIndex < _quizzes.Length)
                      await StartNextQuiz();
                  else
-                     Debug.Log("All quizzes done!");
+                     EndGame(); // ← 最後のクイズならResultDialogへ
              });
-         
      }
 //
 //     private async void HandleQuizAnswer(bool isCorrect, string answerWord, Quiz quiz)
@@ -249,35 +258,34 @@ public class GameScene : MonoBehaviour
 //         await UserDataManager.GetInstance().SetUserData(data);
 //     }
 //
-//     private async void EndGame()
-//     {
-//         var isSaved = false;
-//         Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
-//         var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
-//         var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
-//         resultDialog.Setup(_quizResults, _medalNum, _medalNum - _medalNumWhenStart
-//             , () =>
-//             {
-//                 if (isSaved) AdManager.Instance.ShowInterstitialAd(() => EndScene());
-//             });
-//         _audioSource.PlayOneShot(_resultSound);
-//
-//         SaveAnswerData();
-//         SaveUserData();
-//
-//         isSaved = true;
-//         Debug.Log("AnswerData saved");
-//     }
-//
-//     private void EndScene()
-//     {
-//         var scene = SceneManager.GetSceneByName("SelectScene");
-//         foreach (var go in scene.GetRootGameObjects())
-//             if (go.name == "Canvas")
-//                 go.SetActive(true);
-//
-//         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
-//     }
+     private async void EndGame()
+     {
+         var isSaved = false;
+         Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
+         var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
+         var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
+         resultDialog.Setup(_quizResults , () =>
+             {
+                 if (isSaved) AdManager.Instance.ShowInterstitialAd(() => EndScene());
+             });
+         // _audioSource.PlayOneShot(_resultSound);
+         //
+         // SaveAnswerData();
+         // SaveUserData();
+
+         isSaved = true;
+         Debug.Log("AnswerData saved");
+     }
+
+     private void EndScene()
+     {
+         var scene = SceneManager.GetSceneByName("SelectScene");
+         foreach (var go in scene.GetRootGameObjects())
+             if (go.name == "Canvas")
+                 go.SetActive(true);
+
+         SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
+     }
 //
 //     private IEnumerator AnimateNumber(int startValue, int targetValue)
 //     {
