@@ -100,6 +100,15 @@ public class Const
         { "英語", "English" }
     };
     
+    public static readonly Dictionary<string, string> PART_NAMES = new Dictionary<string, string>
+    {
+        { "Head", "あたま" },
+        { "Body", "からだ" },
+        { "Arms", "うで" },
+        { "Legs", "あし" },
+        { "Tail", "しっぽ" }
+    };
+    
     public static class GameSceneParam
     {
         public static string Subject;
