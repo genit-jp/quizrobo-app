@@ -9,7 +9,7 @@ public class SelectScene : MonoBehaviour
 {
     [SerializeField] private GameLoadingPanel gameLoadingScene;
 
-    [SerializeField] private GameObject _blocker;
+    [SerializeField] private GameObject _blocker, roboContainer;
 
     private int _selectedGrade;
     private TimeDispatcher _timer;
@@ -70,6 +70,51 @@ public class SelectScene : MonoBehaviour
         }
 
         _blocker.SetActive(false);
+        
+        // RoboPrefabを表示
+        DisplayRobo();
+    }
+    
+    private async void DisplayRobo()
+    {
+        if (roboContainer == null)
+        {
+            Debug.LogWarning("roboContainer is not set in SelectScene");
+            return;
+        }
+        
+        // 既存の子オブジェクトをクリア
+        foreach (Transform child in roboContainer.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        // RoboPrefabをインスタンス化
+        var roboPrefab = await Utils.InstantiatePrefab("Prefabs/Robo/RoboPrefab", roboContainer.transform);
+        
+        if (roboPrefab != null)
+        {
+            var roboComponent = roboPrefab.GetComponent<RoboPrefab>();
+                roboComponent.SetRobo();
+                
+                // Prefabのサイズをコンテナの縦幅に合わせる
+                var containerRect = roboContainer.GetComponent<RectTransform>();
+                var roboRect = roboPrefab.GetComponent<RectTransform>();
+                
+            if (containerRect != null && roboRect != null)
+            {
+                float containerHeight = containerRect.rect.height;
+                    
+                    // ロボのアスペクト比を維持しながらスケールを調整
+                float currentHeight = roboRect.rect.height;
+                float scale = containerHeight / currentHeight;
+                Debug.Log("Container Height: " + containerHeight + ", Current Height: " + currentHeight + ", Scale: " + scale);
+                    
+                roboRect.localScale = new Vector3(scale, scale, 1f);
+                roboRect.anchoredPosition = Vector2.zero;
+            }
+          
+        }
     }
 
     private void OnDisable()

@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -330, y: 376}
+  m_AnchoredPosition: {x: -230, y: 306}
   m_SizeDelta: {x: 199, y: 251}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2764077114803259026
@@ -111,7 +111,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -388, y: 538}
+  m_AnchoredPosition: {x: -288, y: 458}
   m_SizeDelta: {x: 254, y: 198}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1370724726523191967
@@ -187,7 +187,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -227, y: 426}
+  m_AnchoredPosition: {x: -127, y: 356}
   m_SizeDelta: {x: 93, y: 235}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6079808777437557896
@@ -263,7 +263,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -339, y: 261}
+  m_AnchoredPosition: {x: -239, y: 191}
   m_SizeDelta: {x: 260, y: 195}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4418636473749246497
@@ -339,7 +339,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -351, y: 401}
+  m_AnchoredPosition: {x: -251, y: 321}
   m_SizeDelta: {x: 342, y: 97}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7835742210849211361
@@ -421,7 +421,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 700, y: 800}
+  m_SizeDelta: {x: 500, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4547361620164173170
 CanvasRenderer:
@@ -443,3 +443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7618a5cbd474140e28beccca4c79535a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  head: {fileID: 4758598284244973352}
+  body: {fileID: 4243168822019617711}
+  arms: {fileID: 7019577333211618380}
+  legs: {fileID: 6929648287350699272}
+  tail: {fileID: 5691523177962277551}

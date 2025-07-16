@@ -140,9 +140,17 @@ public class UserDataManager
         return _answerDataList;
     }
 
-    public Dictionary<string, RoboCustomData> GetRoboCustomDataDict()
+    public Dictionary<string, RoboCustomData> GetRoboCustomData(string roboId)
     {
-        return new Dictionary<string, RoboCustomData>(_roboCustomData);
+        if (_roboCustomData.ContainsKey(roboId))
+        {
+            return new Dictionary<string, RoboCustomData> { { roboId, _roboCustomData[roboId] } };
+        }
+        else
+        {
+            Debug.LogWarning($"RoboCustomData not found for roboId: {roboId}");
+            return new Dictionary<string, RoboCustomData>();
+        }
     }
 
     public async UniTask SaveRoboCustomData(string roboId, RoboCustomData roboData)
