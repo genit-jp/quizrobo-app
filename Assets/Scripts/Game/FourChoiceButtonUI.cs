@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 using Random = System.Random;
 
 public class FourChoiceButtonUI : MonoBehaviour
 {
+    [SerializeField] private List<Sprite> buttonSprites;
+        
     private QuizData _quizData;
     private Action<bool, string> _answeredByUser;
     private static GameObject _cachedChoiceButtonPrefab;
@@ -34,16 +38,25 @@ public class FourChoiceButtonUI : MonoBehaviour
 
         var prefab = await LoadChoiceButtonPrefab();
         
-        foreach (var choice in choices)
+        for (int i = 0; i < choices.Count; i++)
         {
             var gameObj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
             gameObj.transform.SetParent(transform, false);
 
             var fourChoiceButton = gameObj.GetComponent<FourChoiceButton>();
-            fourChoiceButton.Setup(choice, userAnswer =>
+            fourChoiceButton.Setup(choices[i], userAnswer =>
             {
                 _answeredByUser(userAnswer == _quizData.answer, userAnswer);
             });
+            var image = gameObj.GetComponent<UnityEngine.UI.Image>();
+            if (i < buttonSprites.Count && buttonSprites[i] != null)
+            {
+                image.sprite = buttonSprites[i];
+            }
+            else
+            {
+                Debug.Log($"buttonSprites[{i}] が未設定です。デフォルトのスプライトを使います。");
+            }
         }
     }
 

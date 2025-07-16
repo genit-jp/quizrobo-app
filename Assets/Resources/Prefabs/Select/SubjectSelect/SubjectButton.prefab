@@ -142,14 +142,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.19339621, b: 0.19339621, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 17dabd7696fa2483c908736333e85d92, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -172,6 +172,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   subjectName: {fileID: 5847436255871445511}
+  backgroundImage: {fileID: 5998398684575373285}
+  mathSprite: {fileID: 21300000, guid: b827a2c5c72184ae09e463a6956fbd98, type: 3}
+  japaneseSprite: {fileID: 21300000, guid: 17dabd7696fa2483c908736333e85d92, type: 3}
+  scienceSprite: {fileID: 21300000, guid: b19a0bec255634dc4af579a0009e4ade, type: 3}
+  socialStudiesSprite: {fileID: 21300000, guid: 58beb72e78d4b4cf2aaa568f5c683653, type: 3}
+  englishSprite: {fileID: 21300000, guid: f1fe03681d1354a4b8c929e72274172c, type: 3}
 --- !u!114 &3755275192991961866
 MonoBehaviour:
   m_ObjectHideFlags: 0
