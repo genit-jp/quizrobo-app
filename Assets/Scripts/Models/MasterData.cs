@@ -71,6 +71,13 @@ public class MasterData
                 chapter.available)
             .ToArray();
     }
+    public RoboData[] GetRoboDataByPartType(string partType)
+    {
+        Debug.Log("Fetching RoboData by part type: " + partType);
+        string lowerPartType = partType.ToLower();
+        return robos.Where(robo => robo.type.ToLower() == lowerPartType).ToArray();
+    }
+
 
     
     public string[] AllSubjects()

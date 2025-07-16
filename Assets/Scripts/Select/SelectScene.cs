@@ -71,8 +71,17 @@ public class SelectScene : MonoBehaviour
 
         _blocker.SetActive(false);
         
-        // RoboPrefabを表示
-        await RoboSettingManager.DisplayRobo(roboContainer);
+        var userDataManager = UserDataManager.GetInstance();
+        var original = userDataManager.GetRoboCustomData("default")["default"];
+        UserDataManager.RoboCustomData roboData = new UserDataManager.RoboCustomData
+        {
+            headId = original.headId,
+            bodyId = original.bodyId,
+            armsId = original.armsId,
+            legsId = original.legsId,
+            tailId = original.tailId
+        };
+        await RoboSettingManager.DisplayRobo(roboContainer, roboData);
     }
 
     private void OnDisable()

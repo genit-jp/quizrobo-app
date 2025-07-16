@@ -10,34 +10,12 @@ public class RoboPrefab : MonoBehaviour
     [SerializeField] private GameObject arms;
     [SerializeField] private GameObject legs;
     [SerializeField] private GameObject tail;
-
-    public void SetRobo()
-    {
-        SetRobo("default");
-    }
     
-    public void SetRobo(string roboId)
+    public void SetRobo(UserDataManager.RoboCustomData roboCustomData)
     {
-        var userDataManager = UserDataManager.GetInstance();
-        var roboCustomDataDict = userDataManager.GetRoboCustomData(roboId);
-        
-        if (roboCustomDataDict == null || roboCustomDataDict.Count == 0)
-        {
-            Debug.LogWarning($"RoboCustomData not found for roboId: {roboId}");
-            return;
-        }
-        
-        // Dictionary から RoboCustomData を取得
-        UserDataManager.RoboCustomData roboCustomData = null;
-        foreach (var kvp in roboCustomDataDict)
-        {
-            roboCustomData = kvp.Value;
-            break;
-        }
-        
         if (roboCustomData == null)
         {
-            Debug.LogWarning($"RoboCustomData is null for roboId: {roboId}");
+            Debug.LogWarning("RoboCustomData is null");
             return;
         }
         

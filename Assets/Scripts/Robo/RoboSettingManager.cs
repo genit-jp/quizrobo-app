@@ -10,14 +10,9 @@ public class RoboSettingManager : MonoBehaviour
     /// 指定されたコンテナにRoboPrefabを表示する
     /// </summary>
     /// <param name="roboContainer">ロボを表示するコンテナ</param>
-    /// <param name="roboId">表示するロボのID（デフォルトは"default"）</param>
-    public static async UniTask DisplayRobo(GameObject roboContainer, string roboId = "default")
+    /// <param name="roboCustomData">表示するロボのカスタムデータ</param>
+    public static async UniTask DisplayRobo(GameObject roboContainer, UserDataManager.RoboCustomData roboCustomData)
     {
-        if (roboContainer == null)
-        {
-            Debug.LogWarning("roboContainer is null");
-            return;
-        }
         
         // 既存の子オブジェクトをクリア
         foreach (Transform child in roboContainer.transform)
@@ -33,8 +28,8 @@ public class RoboSettingManager : MonoBehaviour
             var roboComponent = roboPrefab.GetComponent<RoboPrefab>();
             if (roboComponent != null)
             {
-                // 指定されたロボを表示（Firebaseから取得）
-                roboComponent.SetRobo(roboId);
+                // 指定されたロボカスタムデータで表示
+                roboComponent.SetRobo(roboCustomData);
                 
                 // Prefabのサイズをコンテナの縦幅に合わせる
                 AdjustRoboSize(roboContainer, roboPrefab);
