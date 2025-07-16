@@ -23,7 +23,7 @@ public class Const
         if (IsDebug)
         {
             // 開発モードでは常に指定のURLを返す
-            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+            return "https://script.google.com/macros/s/AKfycbyTkhwt-1IA7xMfWwjvLItiZ_DVJ0VBNX1qlZ7PtFwvet5ftG_q9ZwpzwYhP6x-5WX4/exec";
         }
 
         
@@ -62,7 +62,7 @@ public class Const
     {
         if (IsDebug)
         {
-            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+            return "https://script.google.com/macros/s/AKfycbyTkhwt-1IA7xMfWwjvLItiZ_DVJ0VBNX1qlZ7PtFwvet5ftG_q9ZwpzwYhP6x-5WX4/exec";
         }
 
         if (masterVersion == "0.6.0")

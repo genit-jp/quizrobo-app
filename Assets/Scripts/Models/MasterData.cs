@@ -12,6 +12,7 @@ public class MasterData
     
     public QuizData[] quizzes;
     public ChapterData[] chapters;
+    public RoboData[] robos;
     public bool IsPrepared { get; set; }
     
     public static MasterData GetInstance()

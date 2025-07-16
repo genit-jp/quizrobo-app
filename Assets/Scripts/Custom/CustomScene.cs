@@ -1,22 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Genit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LaboScene : MonoBehaviour
+public class CustomScene : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private GameObject roboContainer;
+    
+    private async void Start()
     {
-        
+       await RoboSettingManager.DisplayRobo(roboContainer);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+ 
     public void OnTappedGoToSelectScene()
     {
         var scene = SceneManager.GetSceneByName("SelectScene");
@@ -24,6 +20,6 @@ public class LaboScene : MonoBehaviour
             if (go.name == "Canvas")
                 go.SetActive(true);
 
-        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("LaboScene"));
+        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("CustomScene"));
     }
 }
