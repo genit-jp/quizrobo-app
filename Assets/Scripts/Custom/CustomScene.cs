@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class CustomScene : MonoBehaviour
 {
     [SerializeField] private GameObject roboContainer,partSelectorPanel;
+    [SerializeField] private Text selectedPartText;
     
     private async void Start()
     {
@@ -32,21 +33,22 @@ public class CustomScene : MonoBehaviour
             
             var partSelectorButton = buttonObj.GetComponent<PartSelectorButton>();
             partSelectorButton.SetPartSelectorButton(partJapaneseName);
-                    
-            // ボタンクリック時の処理を追加
-            var button = buttonObj.GetComponent<Button>();
-            if (button != null)
-            {
-                string capturedPartKey = partKey;  // クロージャー用にコピー
-                button.onClick.AddListener(() => OnPartButtonClicked(capturedPartKey));
-            }
+            
+            // Actionを設定
+            string capturedPartKey = partKey;  // クロージャー用にコピー
+            partSelectorButton.onPartSelected = () => OnPartButtonClicked(capturedPartKey);
+            
         }
     }
     
     private void OnPartButtonClicked(string partKey)
     {
-        Debug.Log($"Part button clicked: {partKey}");
-        // TODO: パーツ選択時の処理を実装
+        if (Const.PART_NAMES.TryGetValue(partKey, out string japaneseName))
+        {
+            selectedPartText.text = japaneseName;
+        }
+        
+        // TODO: パーツ選択時のその他の処理を実装
     }
  
     public void OnTappedGoToSelectScene()

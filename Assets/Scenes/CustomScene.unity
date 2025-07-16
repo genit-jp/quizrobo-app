@@ -1345,6 +1345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roboContainer: {fileID: 489072944}
   partSelectorPanel: {fileID: 1247434602}
+  selectedPartText: {fileID: 2534087}
 --- !u!1 &1501057860
 GameObject:
   m_ObjectHideFlags: 0
