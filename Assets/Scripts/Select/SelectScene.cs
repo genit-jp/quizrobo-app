@@ -123,9 +123,9 @@ public class SelectScene : MonoBehaviour
     //     rankingDialog.Setup();
     // }
 
-    public void OnTappedGoToLaboButton()
+    public void OnTappedGoToCustomSceneButton()
     {
-        GoToLabo();
+        GoToCustomScene();
     }
     private void StartGame()
     {
@@ -147,14 +147,14 @@ public class SelectScene : MonoBehaviour
             }
     }
 
-    private void GoToLabo()
+    private void GoToCustomScene()
     {
-        SceneManager.sceneLoaded += LaboSceneLoaded;
-        // gameLoadingScene.LoadNextScene("LaboScene", LoadSceneMode.Additive);
+        SceneManager.sceneLoaded += CustomSceneLoaded;
+        gameLoadingScene.LoadNextScene("CustomScene", LoadSceneMode.Additive);
         gameObject.SetActive(false);
     }
     
-    private void LaboSceneLoaded(Scene next, LoadSceneMode mode)
+    private void CustomSceneLoaded(Scene next, LoadSceneMode mode)
     {
         var gameObjects = next.GetRootGameObjects();
         foreach (var gameObject in gameObjects)
@@ -163,7 +163,7 @@ public class SelectScene : MonoBehaviour
                 var eventSystem = gameObject.GetComponentInChildren<EventSystem>();
                 if (eventSystem != null) EventSystem.current = eventSystem;
 
-                SceneManager.sceneLoaded -= LaboSceneLoaded;
+                SceneManager.sceneLoaded -= CustomSceneLoaded;
             }
     }
 }
