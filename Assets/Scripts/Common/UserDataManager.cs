@@ -26,6 +26,7 @@ public class UserDataManager
 
     private readonly List<Action> _userDataActions = new();
     private List<AnswerData> _answerDataList = new();
+    private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
     private DocumentSnapshot _userData;
     private SynchronizationContext mainThread;
 
@@ -80,6 +81,7 @@ public class UserDataManager
             }, null);
         });
         FetchAnswerDataList();
+        FetchRoboCustomDataList();
 
         return _userData;
     }
@@ -98,9 +100,61 @@ public class UserDataManager
         _answerDataList = answerDataList;
     }
 
+    private async void FetchRoboCustomDataList()
+    {
+        var roboCustomDataDict = new Dictionary<string, RoboCustomData>();
+        var snapshot = await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("roboCustomData")
+            .GetSnapshotAsync();
+
+        foreach (var documentSnapshot in snapshot.Documents)
+        {
+            var roboData = documentSnapshot.ConvertTo<RoboCustomData>();
+            roboCustomDataDict[documentSnapshot.Id] = roboData;
+        }
+        _roboCustomData.Clear();
+        foreach (var kvp in roboCustomDataDict)
+        {
+            _roboCustomData[kvp.Key] = kvp.Value;
+        }
+        
+        if (_roboCustomData.Count == 0)
+        {
+            var defaultRoboData = new RoboCustomData
+            {
+                headId = "default_head",
+                bodyId = "default_body",
+                armsId = "default_arms",
+                legsId = "default_legs",
+                tailId = "default_tail"
+            };
+        
+            await SaveRoboCustomData("default", defaultRoboData);
+        }
+    }
+
     public List<AnswerData> GetAnswerDataList()
     {
         return _answerDataList;
+    }
+
+    public Dictionary<string, RoboCustomData> GetRoboCustomDataDict()
+    {
+        return new Dictionary<string, RoboCustomData>(_roboCustomData);
+    }
+
+    public async UniTask SaveRoboCustomData(string roboId, RoboCustomData roboData)
+    {
+        await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("roboCustomData")
+            .Document(roboId)
+            .SetAsync(roboData);
+        
+        _roboCustomData[roboId] = roboData;
     }
 
     public void AddUserDataUpdateListener(Action action)
@@ -217,6 +271,16 @@ public class UserDataManager
         if (totalMedal > maxTotalMedal) await SetUserData(USER_DATA_KEY_MAX_TOTAL_MEDAL, totalMedal);
     }
 
+    [FirestoreData]
+    public class RoboCustomData
+    { 
+        [FirestoreProperty] public string headId { get; set; }
+        [FirestoreProperty] public string bodyId { get; set; }
+        [FirestoreProperty] public string armsId { get; set; }
+        [FirestoreProperty] public string legsId { get; set; }
+        [FirestoreProperty] public string tailId { get; set; }
+    }
+    
     // AnswerDataクラスの定義
     [FirestoreData]
     public class AnswerData
