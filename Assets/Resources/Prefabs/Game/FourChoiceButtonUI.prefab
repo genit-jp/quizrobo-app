@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2506660643397152314}
   - component: {fileID: 6367931356939249485}
   - component: {fileID: 2064150058460424248}
-  - component: {fileID: 2097248123692864993}
+  - component: {fileID: 5778442768701941966}
   m_Layer: 5
   m_Name: FourChoiceButtonUI
   m_TagString: Untagged
@@ -59,7 +59,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18fd1c646b5b4ade8505e70757b84711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2097248123692864993
+  buttonSprites:
+  - {fileID: 21300000, guid: 98456331279f7459aa2e551403ff024a, type: 3}
+  - {fileID: 21300000, guid: 4741020fcf94b48edbbb44f225186014, type: 3}
+  - {fileID: 21300000, guid: 6e6a8e671cbf24932bb6a9e70df697a7, type: 3}
+  - {fileID: 21300000, guid: 4a5183a0397ee446fae450478abf18a5, type: 3}
+--- !u!114 &5778442768701941966
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,7 +73,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4286489829157869421}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
@@ -76,12 +81,10 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 15
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 1
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 440, y: 300}
+  m_Spacing: {x: 20, y: 50}
+  m_Constraint: 0
+  m_ConstraintCount: 2
