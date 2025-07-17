@@ -53,7 +53,7 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
         _tapToStartText.gameObject.SetActive(true);
     }
 
-    public async void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
         if (_isFetchComplete) SceneManager.LoadScene("SelectScene");
     }

@@ -67,8 +67,7 @@ public class MasterData
         return _masterData.chapters
             .Where(chapter => 
                 chapter.subject == subject && 
-                chapter.difficultyLevel == difficultyLevel &&
-                chapter.available)
+                chapter.difficultyLevel == difficultyLevel)
             .ToArray();
     }
     public RoboData[] GetRoboDataByPartType(string partType)

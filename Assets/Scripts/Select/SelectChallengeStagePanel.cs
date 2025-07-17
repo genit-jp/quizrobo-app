@@ -46,11 +46,17 @@ public class SelectChallengeStagePanel : MonoBehaviour
         level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
         _onStartGame = startGame;
         _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(subject, challengeLevel);
+        Debug.Log($"Chapters for subject {subject} at level {challengeLevel}: {_chapters.Length}");
         SetChapterButtons();
     }
 
     private void SetChapterButtons()
     {
+        foreach (Transform child in chapterButtonParent)
+        {
+            Destroy(child.gameObject); // 既存のボタンを削除
+        }
+        
         int chapterCount = _chapters.Length;
 
         float offsetX = 200f;            // 左右のずれ幅
