@@ -11,20 +11,25 @@ public class CustomScene : MonoBehaviour
     [SerializeField] private Text selectedPartText;
     
     private UserDataManager.RoboCustomData _customizingRoboData;
+    private string _currentRoboId;
 
     private async void Start()
     { 
         var userDataManager = UserDataManager.GetInstance();
-       var original = userDataManager.GetRoboCustomData("default")["default"];
-
-       _customizingRoboData = new UserDataManager.RoboCustomData
-       {
-           headId = original.headId,
-           bodyId = original.bodyId,
-           armsId = original.armsId,
-           legsId = original.legsId,
-           tailId = original.tailId
-       };
+        var userData = userDataManager.GetUserData();
+        _currentRoboId = userData.selectedRoboId ?? "default";
+        
+        var roboCustomDataDict = userDataManager.GetRoboCustomData(_currentRoboId);
+        var original = roboCustomDataDict[_currentRoboId];
+        _customizingRoboData = new UserDataManager.RoboCustomData
+        {
+            headId = original.headId,
+            bodyId = original.bodyId,
+            armsId = original.armsId,
+            legsId = original.legsId,
+            tailId = original.tailId
+        };
+        
        await RoboSettingManager.DisplayRobo(roboContainer, _customizingRoboData);
        
        CreatePartSelectButtons();
@@ -169,8 +174,6 @@ public class CustomScene : MonoBehaviour
     public async void OnTappedSaveRoboButton()
     {
         var userDataManager = UserDataManager.GetInstance();
-        await userDataManager.SaveRoboCustomData("default", _customizingRoboData);
-
-        Debug.Log("Robo customization saved successfully.");
+        await userDataManager.SaveRoboCustomData(_currentRoboId, _customizingRoboData);
     }
 }

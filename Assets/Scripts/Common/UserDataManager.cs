@@ -22,6 +22,7 @@ public class UserDataManager
     public static readonly string USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM = "consecutiveLoginNum";
     public static readonly string USER_DATA_KEY_TOTAL_LOGIN_NUM = "totalLoginNum";
     public static readonly string USER_DATA_KEY_CHALLENGE_LEVELS_KEY = "challengeLevels";
+    public static readonly string USER_DATA_KEY_SELECTED_ROBO_ID = "selectedRoboId";
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
@@ -46,6 +47,7 @@ public class UserDataManager
         await SetDefaultValue(USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM, 0);
         await SetDefaultValue(USER_DATA_KEY_TOTAL_LOGIN_NUM, 0);
         await SetDefaultDictionaryValue(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, Const.DEFAULT_CHALLENGE_LEVELS);
+        await SetDefaultValue(USER_DATA_KEY_SELECTED_ROBO_ID, "default");
     }
 
 
@@ -330,5 +332,7 @@ public class UserDataManager
         [FirestoreProperty] public List<AnswerData> answers { get; set; }
         
         [FirestoreProperty] public Dictionary<string, string> challengeLevels { get; set; } = new();
+        
+        [FirestoreProperty] public string selectedRoboId { get; set; } 
     }
 }
