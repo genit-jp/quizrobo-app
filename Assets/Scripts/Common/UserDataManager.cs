@@ -26,8 +26,8 @@ public class UserDataManager
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
-    private List<AnswerData> _answerDataList = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
+    private readonly Dictionary<string, List<ChapterProgressData>> _chapterProgressData = new Dictionary<string, List<ChapterProgressData>>();
     private DocumentSnapshot _userData;
     private SynchronizationContext mainThread;
 
@@ -81,26 +81,13 @@ public class UserDataManager
             {
                 foreach (var action in _userDataActions) action();
             }, null);
-        });
-        FetchAnswerDataList();
+        }); 
         FetchRoboCustomDataList();
+        FetchChapterProgressData();
 
         return _userData;
     }
-
-    private async void FetchAnswerDataList()
-    {
-        var answerDataList = new List<AnswerData>();
-        var snapshot = await FirebaseFirestore.DefaultInstance
-            .Collection("users")
-            .Document(UserId)
-            .Collection("answers")
-            .GetSnapshotAsync();
-
-        foreach (var documentSnapshot in snapshot.Documents)
-            answerDataList.Add(documentSnapshot.ConvertTo<AnswerData>());
-        _answerDataList = answerDataList;
-    }
+    
 
     private async void FetchRoboCustomDataList()
     {
@@ -137,11 +124,6 @@ public class UserDataManager
         }
     }
 
-    public List<AnswerData> GetAnswerDataList()
-    {
-        return _answerDataList;
-    }
-
     public Dictionary<string, RoboCustomData> GetRoboCustomData(string roboId)
     {
         if (_roboCustomData.ContainsKey(roboId))
@@ -165,6 +147,73 @@ public class UserDataManager
             .SetAsync(roboData);
         
         _roboCustomData[roboId] = roboData;
+    }
+
+    private async void FetchChapterProgressData()
+    {
+        var snapshot = await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("chapterProgress")
+            .GetSnapshotAsync();
+
+        _chapterProgressData.Clear();
+        foreach (var documentSnapshot in snapshot.Documents)
+        {
+            var progressList = new List<ChapterProgressData>();
+            var progressDataList = documentSnapshot.GetValue<List<Dictionary<string, object>>>("progressList");
+            
+            if (progressDataList != null)
+            {
+                foreach (var progressDict in progressDataList)
+                {
+                    var progressData = new ChapterProgressData
+                    {
+                        chapterId = progressDict["chapterId"] as string,
+                        dateTime = Convert.ToInt64(progressDict["dateTime"]),
+                        correctCount = Convert.ToInt32(progressDict["correctCount"]),
+                        totalCount = Convert.ToInt32(progressDict["totalCount"])
+                    };
+                    progressList.Add(progressData);
+                }
+            }
+            
+            _chapterProgressData[documentSnapshot.Id] = progressList;
+        }
+    }
+
+    public async UniTask SaveChapterProgress(string subjectName, ChapterProgressData progressData)
+    {
+        if (!_chapterProgressData.ContainsKey(subjectName))
+        {
+            _chapterProgressData[subjectName] = new List<ChapterProgressData>();
+        }
+        
+        _chapterProgressData[subjectName].Add(progressData);
+        
+        var progressList = _chapterProgressData[subjectName].Select(p => new Dictionary<string, object>
+        {
+            { "chapterId", p.chapterId },
+            { "dateTime", p.dateTime },
+            { "correctCount", p.correctCount },
+            { "totalCount", p.totalCount }
+        }).ToList();
+        
+        await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("chapterProgress")
+            .Document(subjectName)
+            .SetAsync(new Dictionary<string, object> { { "progressList", progressList } });
+    }
+
+    public List<ChapterProgressData> GetChapterProgress(string subjectName)
+    {
+        if (_chapterProgressData.ContainsKey(subjectName))
+        {
+            return new List<ChapterProgressData>(_chapterProgressData[subjectName]);
+        }
+        return new List<ChapterProgressData>();
     }
 
     public void AddUserDataUpdateListener(Action action)
@@ -256,24 +305,6 @@ public class UserDataManager
         return userData.challengeLevels[subject];
     }
 
-
-    // 新しい回答データを追加するメソッド
-    public async UniTask AddUserAnswerData(AnswerData answer)
-    {
-        _userData = await FirebaseFirestore.DefaultInstance.Collection("users").Document(UserId).GetSnapshotAsync();
-
-        // DatetimeとQuestionIdを使用してドキュメントIDを生成
-        var documentId = $"{Utils.DateTimeToUnixTime(Clock.GetInstance().Now())}-{answer.quizId}";
-
-        await FirebaseFirestore.DefaultInstance
-            .Collection("users").Document(UserId)
-            .Collection("answers")
-            .Document(documentId)
-            .SetAsync(answer);
-
-        FetchAnswerDataList();
-    }
-
     private async UniTask ConfirmMaxTotalMedal()
     {
         var totalMedal = GetUserData().totalMedal;
@@ -293,21 +324,15 @@ public class UserDataManager
     
     // AnswerDataクラスの定義
     [FirestoreData]
-    public class AnswerData
+    public class ChapterProgressData
     {
-        [FirestoreProperty] public string onePlayId { get; set; }
-
-        [FirestoreProperty] public Const.PlayMode playMode { get; set; }
-
-        [FirestoreProperty] public string quizId { get; set; }
+        [FirestoreProperty] public string chapterId { get; set; }
 
         [FirestoreProperty] public long dateTime { get; set; }
 
-        [FirestoreProperty] public bool isCorrect { get; set; }
-
-        [FirestoreProperty] public int medalNum { get; set; }
-
-        [FirestoreProperty] public string answerWord { get; set; }
+        [FirestoreProperty] public int correctCount { get; set; }
+        
+        [FirestoreProperty] public int totalCount { get; set; }
     }
 
     [FirestoreData]
@@ -329,7 +354,6 @@ public class UserDataManager
         [FirestoreProperty] public long lastLoginDateTime { get; set; }
         [FirestoreProperty] public int consecutiveLoginNum { get; set; }
         [FirestoreProperty] public int totalLoginNum { get; set; }
-        [FirestoreProperty] public List<AnswerData> answers { get; set; }
         
         [FirestoreProperty] public Dictionary<string, string> challengeLevels { get; set; } = new();
         

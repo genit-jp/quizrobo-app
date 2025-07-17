@@ -117,19 +117,7 @@ public class SelectScene : MonoBehaviour
             StartGame();
         });
     }
-
-    public async void OnClickCalculationButton()
-    {
-        var calculationStartDialogObj = await Utils.OpenDialog("Prefabs/Select/CalculationStartDialog", transform);
-        var calculationStartDialog = calculationStartDialogObj.GetComponent<CalculationStartDialog>();
-        calculationStartDialog.Setup(async () =>
-        {
-            calculationStartDialog.CloseNow();
-            // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Calculation);
-            StartGame();
-        });
-    }
-
+    
     public async void OnClickMedalDescriptionButton()
     {
         await Utils.OpenDialog("Prefabs/Select/ContinueDialog", transform);
