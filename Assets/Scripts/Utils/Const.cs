@@ -244,12 +244,6 @@ public class Const
             {7, new List<int>(){10, 20, 30, 20, 20}},
         };
     
-    public enum PlayMode
-    {
-        Normal,
-        Calculation,
-        Subject,
-    }
     
     public static string MasterVersion = "master_version";
 }

@@ -1,7 +1,6 @@
 [System.Serializable]
 public class ChapterData
 {
-    public bool available;
     public string subject;
     public string difficultyLevel;
     public int chapterNumber;

@@ -6,25 +6,34 @@ using UnityEngine.UI;
 public class ChapterStar : MonoBehaviour
 {
     [SerializeField] private Text chapterNumberText;
-    [SerializeField] private GameObject rewardBalloon;
     [SerializeField] private Button button;
-    public void Setup(ChapterData data, System.Action<ChapterData> onClick)
+    [SerializeField] private GameObject mask;
+    
+    private int _maxChapterNumber;
+    private string _subject;
+    
+    private void Start()
     {
+        UserDataManager.GetInstance().AddChapterProgressDataUpdateListener(OnChapterProgressDataUpdated);
+    }
+    
+    private void OnDestroy()
+    {
+        UserDataManager.GetInstance().RemoveChapterProgressDataUpdateListener(OnChapterProgressDataUpdated);
+    }
+    
+    private void OnChapterProgressDataUpdated()
+    {
+        _maxChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
+    }
+    
+    public void Setup(ChapterData data, System.Action<ChapterData> onClick, string subject)
+    {
+        _subject = subject;
+        OnChapterProgressDataUpdated();
         chapterNumberText.text = data.chapterNumber.ToString();
-
-        // 吹き出し表示制御
-        if (data.rewardRobotId != null)
-        {
-            rewardBalloon.SetActive(true);
-
-            float offsetX = data.chapterNumber % 2 == 0 ? -150f : 150f;
-            rewardBalloon.GetComponent<RectTransform>().anchoredPosition = new Vector2(offsetX, 100f);
-        }
-        else
-        {
-            rewardBalloon.SetActive(false);
-        }
-
+        bool isLocked = data.chapterNumber > _maxChapterNumber + 1;
+        mask.SetActive(isLocked);
         button.onClick.AddListener(() => onClick?.Invoke(data));
     }
 }

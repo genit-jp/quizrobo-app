@@ -36,7 +36,6 @@ public class SelectChallengeStagePanel : MonoBehaviour
         _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(_subject, challengeLevel);
         SetChapterButtons();
     }
-
     
     public void Setup(string subject, Action startGame)
     {
@@ -51,8 +50,13 @@ public class SelectChallengeStagePanel : MonoBehaviour
 
     private void SetChapterButtons()
     {
+        foreach (Transform child in chapterButtonParent)
+        {
+            Destroy(child.gameObject); // 既存のボタンを削除
+        }
+        
         int chapterCount = _chapters.Length;
-
+        
         float offsetX = 200f;            // 左右のずれ幅
         float verticalOffset = 250f;     // 上端からのオフセット
 
@@ -60,7 +64,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
         {
             var chapterData = _chapters[i];
             var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/ChapterStar"), chapterButtonParent);
-            chapterButton.Setup(chapterData, ShowChallengeDialog);
+            chapterButton.Setup(chapterData, ShowChallengeDialog, _subject);
 
             var rect = chapterButton.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
