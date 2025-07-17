@@ -23,7 +23,7 @@ public class Const
         if (IsDebug)
         {
             // 開発モードでは常に指定のURLを返す
-            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+            return "https://script.google.com/macros/s/AKfycbxKSmUmMXiYZ5goePiDUGG0mQVhWBGQ-Om1ss4z5E7UOgU12cLJMam9XfWp0iwLp3R_/exec";
         }
 
         
@@ -62,7 +62,7 @@ public class Const
     {
         if (IsDebug)
         {
-            return "https://script.google.com/macros/s/AKfycbzp96TeSaMXkdJVV2zk3Mf8eGlH2Ohr0jpZBT82nFGM-pjUpoo6sZ8ZQ1uc7N8xvw4/exec";
+            return "https://script.google.com/macros/s/AKfycbxKSmUmMXiYZ5goePiDUGG0mQVhWBGQ-Om1ss4z5E7UOgU12cLJMam9XfWp0iwLp3R_/exec";
         }
 
         if (masterVersion == "0.6.0")
@@ -98,6 +98,15 @@ public class Const
         { "理科", "Science" },
         { "社会", "SocialStudies" },
         { "英語", "English" }
+    };
+    
+    public static readonly Dictionary<string, string> PART_NAMES = new Dictionary<string, string>
+    {
+        { "Head", "あたま" },
+        { "Body", "からだ" },
+        { "Arms", "うで" },
+        { "Legs", "あし" },
+        { "Tail", "しっぽ" }
     };
     
     public static class GameSceneParam

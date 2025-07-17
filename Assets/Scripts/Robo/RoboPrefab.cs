@@ -10,34 +10,12 @@ public class RoboPrefab : MonoBehaviour
     [SerializeField] private GameObject arms;
     [SerializeField] private GameObject legs;
     [SerializeField] private GameObject tail;
-
-    public void SetRobo()
-    {
-        SetRobo("default");
-    }
     
-    public void SetRobo(string roboId)
+    public void SetRobo(UserDataManager.RoboCustomData roboCustomData)
     {
-        var userDataManager = UserDataManager.GetInstance();
-        var roboCustomDataDict = userDataManager.GetRoboCustomData(roboId);
-        
-        if (roboCustomDataDict == null || roboCustomDataDict.Count == 0)
-        {
-            Debug.LogWarning($"RoboCustomData not found for roboId: {roboId}");
-            return;
-        }
-        
-        // Dictionary から RoboCustomData を取得
-        UserDataManager.RoboCustomData roboCustomData = null;
-        foreach (var kvp in roboCustomDataDict)
-        {
-            roboCustomData = kvp.Value;
-            break;
-        }
-        
         if (roboCustomData == null)
         {
-            Debug.LogWarning($"RoboCustomData is null for roboId: {roboId}");
+            Debug.LogWarning("RoboCustomData is null");
             return;
         }
         
@@ -71,6 +49,18 @@ public class RoboPrefab : MonoBehaviour
         if (image != null)
         {
             image.sprite = sprite;
+            
+            // RectTransformを取得してサイズを調整
+            var rectTransform = partObject.GetComponent<RectTransform>();
+            if (rectTransform != null && sprite != null)
+            {
+                // スプライトの実際のサイズを取得
+                float spriteWidth = sprite.rect.width;
+                float spriteHeight = sprite.rect.height;
+                
+                // 現在のアンカー設定を保持したまま、サイズを変更
+                rectTransform.sizeDelta = new Vector2(spriteWidth, spriteHeight);
+            }
         }
         else
         {
@@ -78,6 +68,7 @@ public class RoboPrefab : MonoBehaviour
             if (spriteRenderer != null)
             {
                 spriteRenderer.sprite = sprite;
+                // SpriteRendererの場合は自動的にスプライトサイズに合わせられる
             }
             else
             {

@@ -71,49 +71,23 @@ public class SelectScene : MonoBehaviour
 
         _blocker.SetActive(false);
         
-        // RoboPrefabを表示
-        DisplayRobo();
-    }
-    
-    private async void DisplayRobo()
-    {
-        if (roboContainer == null)
-        {
-            Debug.LogWarning("roboContainer is not set in SelectScene");
-            return;
-        }
+        var userDataManager = UserDataManager.GetInstance();
+        var userData = userDataManager.GetUserData();
+        var selectedRoboId = userData.selectedRoboId ?? "default";
         
-        // 既存の子オブジェクトをクリア
-        foreach (Transform child in roboContainer.transform)
+        var roboCustomDataDict = userDataManager.GetRoboCustomData(selectedRoboId);
+        if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(selectedRoboId))
         {
-            Destroy(child.gameObject);
-        }
-        
-        // RoboPrefabをインスタンス化
-        var roboPrefab = await Utils.InstantiatePrefab("Prefabs/Robo/RoboPrefab", roboContainer.transform);
-        
-        if (roboPrefab != null)
-        {
-            var roboComponent = roboPrefab.GetComponent<RoboPrefab>();
-                roboComponent.SetRobo();
-                
-                // Prefabのサイズをコンテナの縦幅に合わせる
-                var containerRect = roboContainer.GetComponent<RectTransform>();
-                var roboRect = roboPrefab.GetComponent<RectTransform>();
-                
-            if (containerRect != null && roboRect != null)
+            var original = roboCustomDataDict[selectedRoboId];
+            UserDataManager.RoboCustomData roboData = new UserDataManager.RoboCustomData
             {
-                float containerHeight = containerRect.rect.height;
-                    
-                    // ロボのアスペクト比を維持しながらスケールを調整
-                float currentHeight = roboRect.rect.height;
-                float scale = containerHeight / currentHeight;
-                Debug.Log("Container Height: " + containerHeight + ", Current Height: " + currentHeight + ", Scale: " + scale);
-                    
-                roboRect.localScale = new Vector3(scale, scale, 1f);
-                roboRect.anchoredPosition = Vector2.zero;
-            }
-          
+                headId = original.headId,
+                bodyId = original.bodyId,
+                armsId = original.armsId,
+                legsId = original.legsId,
+                tailId = original.tailId
+            };
+            await RoboSettingManager.DisplayRobo(roboContainer, roboData);
         }
     }
 

@@ -6,8 +6,8 @@ using UnityEngine.Serialization;
 public class RoboData
 {
     public string id = "";
-    public bool available = true;
     public string theme = "";
     public string type = "";
-    public string title; 
+    public string title;
+    public string titleJp;
 }
