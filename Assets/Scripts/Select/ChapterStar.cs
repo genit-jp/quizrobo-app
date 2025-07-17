@@ -7,10 +7,11 @@ public class ChapterStar : MonoBehaviour
 {
     [SerializeField] private Text chapterNumberText;
     [SerializeField] private Button button;
-    public void Setup(ChapterData data, System.Action<ChapterData> onClick)
+    [SerializeField] private GameObject mask;
+    public void Setup(ChapterData data, System.Action<ChapterData> onClick, bool isLocked)
     {
         chapterNumberText.text = data.chapterNumber.ToString();
-
+        mask.SetActive(isLocked);
         button.onClick.AddListener(() => onClick?.Invoke(data));
     }
 }

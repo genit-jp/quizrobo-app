@@ -27,7 +27,7 @@ public class UserDataManager
 
     private readonly List<Action> _userDataActions = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
-    private readonly Dictionary<string, List<ChapterProgressData>> _chapterProgressData = new Dictionary<string, List<ChapterProgressData>>();
+    private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
     private DocumentSnapshot _userData;
     private SynchronizationContext mainThread;
 
@@ -160,60 +160,41 @@ public class UserDataManager
         _chapterProgressData.Clear();
         foreach (var documentSnapshot in snapshot.Documents)
         {
-            var progressList = new List<ChapterProgressData>();
-            var progressDataList = documentSnapshot.GetValue<List<Dictionary<string, object>>>("progressList");
-            
-            if (progressDataList != null)
+            var progressData = documentSnapshot.ConvertTo<ChapterProgressData>();
+            if (!string.IsNullOrEmpty(progressData.subject))
             {
-                foreach (var progressDict in progressDataList)
-                {
-                    var progressData = new ChapterProgressData
-                    {
-                        chapterId = progressDict["chapterId"] as string,
-                        dateTime = Convert.ToInt64(progressDict["dateTime"]),
-                        correctCount = Convert.ToInt32(progressDict["correctCount"]),
-                        totalCount = Convert.ToInt32(progressDict["totalCount"])
-                    };
-                    progressList.Add(progressData);
-                }
+                _chapterProgressData[progressData.subject] = progressData;
             }
-            
-            _chapterProgressData[documentSnapshot.Id] = progressList;
         }
     }
 
     public async UniTask SaveChapterProgress(string subjectName, ChapterProgressData progressData)
     {
-        if (!_chapterProgressData.ContainsKey(subjectName))
-        {
-            _chapterProgressData[subjectName] = new List<ChapterProgressData>();
-        }
+        progressData.subject = subjectName;
+        _chapterProgressData[subjectName] = progressData;
         
-        _chapterProgressData[subjectName].Add(progressData);
-        
-        var progressList = _chapterProgressData[subjectName].Select(p => new Dictionary<string, object>
-        {
-            { "chapterId", p.chapterId },
-            { "dateTime", p.dateTime },
-            { "correctCount", p.correctCount },
-            { "totalCount", p.totalCount }
-        }).ToList();
+        // ランダムなドキュメントIDを生成
+        var documentId = Utils.GenerateRandomString(20);
         
         await FirebaseFirestore.DefaultInstance
             .Collection("users")
             .Document(UserId)
             .Collection("chapterProgress")
-            .Document(subjectName)
-            .SetAsync(new Dictionary<string, object> { { "progressList", progressList } });
+            .Document(documentId)
+            .SetAsync(progressData);
     }
 
-    public List<ChapterProgressData> GetChapterProgress(string subjectName)
+    public int GetMaxChapterNumber(string subjectName)
     {
         if (_chapterProgressData.ContainsKey(subjectName))
         {
-            return new List<ChapterProgressData>(_chapterProgressData[subjectName]);
+            var progressData = _chapterProgressData[subjectName];
+            if (int.TryParse(progressData.chapterId, out int chapterNum))
+            {
+                return chapterNum;
+            }
         }
-        return new List<ChapterProgressData>();
+        return 0; 
     }
 
     public void AddUserDataUpdateListener(Action action)
@@ -327,6 +308,8 @@ public class UserDataManager
     public class ChapterProgressData
     {
         [FirestoreProperty] public string chapterId { get; set; }
+        
+        [FirestoreProperty] public string subject { get; set; }
 
         [FirestoreProperty] public long dateTime { get; set; }
 

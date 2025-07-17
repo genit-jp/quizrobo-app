@@ -135,7 +135,6 @@ public class GameScene : MonoBehaviour
 
          // 教科名とともに保存
          await UserDataManager.GetInstance().SaveChapterProgress(Const.GameSceneParam.Subject, progressData);
-         Debug.Log($"Chapter progress saved - Subject: {Const.GameSceneParam.Subject}, Chapter: {Const.GameSceneParam.ChapterNumber}, Correct: {correctCount}/{_quizResults.Count}");
      }
 
      private void EndScene()
