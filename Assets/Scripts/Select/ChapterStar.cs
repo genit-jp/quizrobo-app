@@ -8,9 +8,31 @@ public class ChapterStar : MonoBehaviour
     [SerializeField] private Text chapterNumberText;
     [SerializeField] private Button button;
     [SerializeField] private GameObject mask;
-    public void Setup(ChapterData data, System.Action<ChapterData> onClick, bool isLocked)
+    
+    private int _maxChapterNumber;
+    private string _subject;
+    
+    private void Start()
     {
+        UserDataManager.GetInstance().AddChapterProgressDataUpdateListener(OnChapterProgressDataUpdated);
+    }
+    
+    private void OnDestroy()
+    {
+        UserDataManager.GetInstance().RemoveChapterProgressDataUpdateListener(OnChapterProgressDataUpdated);
+    }
+    
+    private void OnChapterProgressDataUpdated()
+    {
+        _maxChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
+    }
+    
+    public void Setup(ChapterData data, System.Action<ChapterData> onClick, string subject)
+    {
+        _subject = subject;
+        OnChapterProgressDataUpdated();
         chapterNumberText.text = data.chapterNumber.ToString();
+        bool isLocked = data.chapterNumber > _maxChapterNumber + 1;
         mask.SetActive(isLocked);
         button.onClick.AddListener(() => onClick?.Invoke(data));
     }

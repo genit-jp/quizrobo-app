@@ -13,7 +13,6 @@ public class SelectChallengeStagePanel : MonoBehaviour
     private Action _onStartGame;
     private ChapterData[] _chapters;
     private string _subject;
-    private int _maxChapterNumber;
     
     private void Start()
     {
@@ -37,11 +36,6 @@ public class SelectChallengeStagePanel : MonoBehaviour
         _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(_subject, challengeLevel);
         SetChapterButtons();
     }
-
-    private void OnChapterProgressDataUpdated()
-    {
-        _maxChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
-    }
     
     public void Setup(string subject, Action startGame)
     {
@@ -51,7 +45,6 @@ public class SelectChallengeStagePanel : MonoBehaviour
         level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
         _onStartGame = startGame;
         _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(subject, challengeLevel);
-        _maxChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
         SetChapterButtons();
     }
 
@@ -69,10 +62,9 @@ public class SelectChallengeStagePanel : MonoBehaviour
 
         for (int i = 0; i < chapterCount; i++)
         {
-            bool isLocked = _chapters[i].chapterNumber > _maxChapterNumber + 1;
             var chapterData = _chapters[i];
             var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/ChapterStar"), chapterButtonParent);
-            chapterButton.Setup(chapterData, ShowChallengeDialog, isLocked);
+            chapterButton.Setup(chapterData, ShowChallengeDialog, _subject);
 
             var rect = chapterButton.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);

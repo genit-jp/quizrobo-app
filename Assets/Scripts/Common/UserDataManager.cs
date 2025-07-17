@@ -26,6 +26,7 @@ public class UserDataManager
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
+    private readonly List<Action> _chapterProgressDataActions = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
     private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
     private DocumentSnapshot _userData;
@@ -166,6 +167,12 @@ public class UserDataManager
                 _chapterProgressData[progressData.subject] = progressData;
             }
         }
+        
+        // ChapterProgressData更新リスナーを呼び出す
+        mainThread.Post(__ =>
+        {
+            foreach (var action in _chapterProgressDataActions) action();
+        }, null);
     }
 
     public async UniTask SaveChapterProgress(string subjectName, ChapterProgressData progressData)
@@ -182,6 +189,12 @@ public class UserDataManager
             .Collection("chapterProgress")
             .Document(documentId)
             .SetAsync(progressData);
+        
+        // ChapterProgressData更新リスナーを呼び出す
+        mainThread.Post(__ =>
+        {
+            foreach (var action in _chapterProgressDataActions) action();
+        }, null);
     }
 
     public int GetMaxChapterNumber(string subjectName)
@@ -207,6 +220,18 @@ public class UserDataManager
     public void RemoveUserDataUpdateListener(Action action)
     {
         if (_userDataActions.Contains(action)) _userDataActions.Remove(action);
+    }
+    
+    public void AddChapterProgressDataUpdateListener(Action action)
+    {
+        if (!_chapterProgressDataActions.Contains(action)) _chapterProgressDataActions.Add(action);
+        
+        action();
+    }
+    
+    public void RemoveChapterProgressDataUpdateListener(Action action)
+    {
+        if (_chapterProgressDataActions.Contains(action)) _chapterProgressDataActions.Remove(action);
     }
 
     public UserData GetUserData()
