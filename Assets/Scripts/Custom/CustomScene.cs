@@ -12,6 +12,7 @@ public class CustomScene : MonoBehaviour
     
     private UserDataManager.RoboCustomData _customizingRoboData;
     private string _currentRoboId;
+    private bool _isDisplayingRobo = false;
 
     private async void Start()
     { 
@@ -30,9 +31,12 @@ public class CustomScene : MonoBehaviour
             tailId = original.tailId
         };
         
-       await RoboSettingManager.DisplayRobo(roboContainer, _customizingRoboData);
+        RefreshRoboDisplay();
        
        CreatePartSelectButtons();
+       //何も選んでいないときはあたまを表示
+       string defaultPart = "Head";
+       OnPartButtonClicked(defaultPart);
     }
     
     private async void CreatePartSelectButtons()
@@ -157,9 +161,24 @@ public class CustomScene : MonoBehaviour
         }
 
         // ロボの表示だけ反映（保存はしない）
-        await RoboSettingManager.DisplayRobo(roboContainer, _customizingRoboData);
+        RefreshRoboDisplay();
     }
 
+    
+    private async void RefreshRoboDisplay()
+    {
+        if (_isDisplayingRobo) return;
+
+        _isDisplayingRobo = true;
+        try
+        {
+            await RoboSettingManager.DisplayRobo(roboContainer, _customizingRoboData);
+        }
+        finally
+        {
+            _isDisplayingRobo = false;
+        }
+    }
  
     public void OnTappedGoToSelectScene()
     {
