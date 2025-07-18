@@ -105,19 +105,6 @@ public class SelectScene : MonoBehaviour
         // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Normal);
     }
 
-    public async void OnClickCategoryButton()
-    {
-        Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
-        var categoryDialogObj = await Utils.OpenDialog("Prefabs/Select/CategoryDialog", transform, blockerColor);
-        var categoryDialog = categoryDialogObj.GetComponent<CategoryDialog>();
-        categoryDialog.Setup(0, (grade, subject) =>
-        {
-            Debug.Log("grade: " + grade + " subject: " + subject);
-            // QuizSelectManager.GetInstance().SetSelectQuizzes(grade, 10, Const.PlayMode.Subject, subject);
-            StartGame();
-        });
-    }
-
     // public async void OnClickRankingButton()
     // {
     //     var rankingDialogObj = await Utils.OpenDialog("Prefabs/Select/RankingDialog", transform);
