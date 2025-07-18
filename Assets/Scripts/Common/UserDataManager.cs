@@ -31,6 +31,8 @@ public class UserDataManager
     private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
     private DocumentSnapshot _userData;
     private SynchronizationContext mainThread;
+    
+    public List<string> ownedRoboPartsIds { get; } = new List<string>();
 
     public string UserId => FirebaseManager.Instance.Auth.CurrentUser.UserId;
     public DateTime TimeLimit { get; set; }
@@ -85,6 +87,7 @@ public class UserDataManager
         }); 
         FetchRoboCustomDataList();
         FetchChapterProgressData();
+        FetchOwnedRoboPartsIds();
 
         return _userData;
     }
@@ -148,6 +151,54 @@ public class UserDataManager
             .SetAsync(roboData);
         
         _roboCustomData[roboId] = roboData;
+    }
+    
+    private async void FetchOwnedRoboPartsIds()
+    {
+        var snapshot = await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("ownedRoboPartsIds")
+            .GetSnapshotAsync();
+        
+        ownedRoboPartsIds.Clear();
+        foreach (var documentSnapshot in snapshot.Documents)
+        {
+            if (documentSnapshot.ContainsField("purchased") && documentSnapshot.GetValue<bool>("purchased"))
+            {
+                ownedRoboPartsIds.Add(documentSnapshot.Id);
+            }
+        }
+        
+        // デフォルトパーツを追加（初回起動時）
+        if (ownedRoboPartsIds.Count == 0)
+        {
+            var defaultParts = new List<string> { "default_head", "default_body", "default_arms", "default_legs", "default_tail" };
+            foreach (var partId in defaultParts)
+            {
+                await AddOwnedRoboPart(partId);
+            }
+        }
+    }
+    
+    public async UniTask AddOwnedRoboPart(string partId)
+    {
+        if (!ownedRoboPartsIds.Contains(partId))
+        {
+            ownedRoboPartsIds.Add(partId);
+            
+            await FirebaseFirestore.DefaultInstance
+                .Collection("users")
+                .Document(UserId)
+                .Collection("ownedRoboPartsIds")
+                .Document(partId)
+                .SetAsync(new Dictionary<string, object> { { "purchased", true } });
+        }
+    }
+    
+    public bool IsRoboPartOwned(string partId)
+    {
+        return ownedRoboPartsIds.Contains(partId);
     }
 
     private async void FetchChapterProgressData()
@@ -326,6 +377,12 @@ public class UserDataManager
         [FirestoreProperty] public string armsId { get; set; }
         [FirestoreProperty] public string legsId { get; set; }
         [FirestoreProperty] public string tailId { get; set; }
+    }
+    
+    [FirestoreData]
+    public class OwnedRoboPart
+    {
+        [FirestoreProperty] public bool purchased { get; set; }
     }
     
     // AnswerDataクラスの定義
