@@ -13,6 +13,7 @@ public class CustomScene : MonoBehaviour
     private UserDataManager.RoboCustomData _customizingRoboData;
     private string _currentRoboId;
     private bool _isDisplayingRobo = false;
+    private PartSelectorButton _currentSelectedPartButton;
 
     private async void Start()
     { 
@@ -34,9 +35,6 @@ public class CustomScene : MonoBehaviour
         RefreshRoboDisplay();
        
        CreatePartSelectButtons();
-       //何も選んでいないときはあたまを表示
-       string defaultPart = "Head";
-       OnPartButtonClicked(defaultPart);
     }
     
     private async void CreatePartSelectButtons()
@@ -46,30 +44,58 @@ public class CustomScene : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        
+
+        string defaultPartKey = "Head";
+        PartSelectorButton defaultButton = null;
+
         // PART_NAMESの各パーツに対してボタンを作成
         foreach (var partEntry in Const.PART_NAMES)
         {
             var partKey = partEntry.Key; 
             var partJapaneseName = partEntry.Value;  
             var buttonObj = await Utils.InstantiatePrefab("Prefabs/Custom/PartSlectorButton", partSelectorPanel.transform);
-            
+        
             var partSelectorButton = buttonObj.GetComponent<PartSelectorButton>();
             partSelectorButton.SetPartSelectorButton(partJapaneseName);
             
+            if (partKey == defaultPartKey)
+            {
+                defaultButton = partSelectorButton;
+            }
+
+            partSelectorButton.SetSelected(false); // 全部最初は未選択
+
             // Actionを設定
-            string capturedPartKey = partKey;  // クロージャー用にコピー
-            partSelectorButton.onPartSelected = () => OnPartButtonClicked(capturedPartKey);
-            
+            string capturedPartKey = partKey;
+            PartSelectorButton capturedButton = partSelectorButton;
+            partSelectorButton.onPartSelected = () => OnPartButtonClicked(capturedPartKey, capturedButton);
+        }
+        
+        if (defaultButton != null)
+        {
+            defaultButton.SetSelected(true);
+            _currentSelectedPartButton = defaultButton;
+            OnPartButtonClicked(defaultPartKey, defaultButton);
         }
     }
+
     
-    private void OnPartButtonClicked(string partKey)
+    private void OnPartButtonClicked(string partKey, PartSelectorButton clickedButton)
     {
         if (Const.PART_NAMES.TryGetValue(partKey, out string japaneseName))
         {
             selectedPartText.text = japaneseName;
         }
+        
+        // 前に選択されていたボタンの選択を解除
+        if (_currentSelectedPartButton != null)
+        {
+            _currentSelectedPartButton.SetSelected(false);
+        }
+        
+        // 新しいボタンを選択状態に
+        clickedButton.SetSelected(true);
+        _currentSelectedPartButton = clickedButton;
         
         // 選択されたパーツタイプに応じてcurrentPartButtonsを作成
         CreateCurrentPartButtons(partKey);
@@ -102,7 +128,7 @@ public class CustomScene : MonoBehaviour
         // 各RoboDataに対してCurrentPartButtonを作成
         foreach (var roboData in roboDataArray)
         {
-            var buttonObj = await Utils.InstantiatePrefab("Prefabs/Custom/CurrentPartButton", currentPartsPanel.transform);
+            var buttonObj = await Utils.InstantiatePrefab("Prefabs/Custom/PartButton", currentPartsPanel.transform);
             
             if (buttonObj != null)
             {
