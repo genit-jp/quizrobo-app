@@ -45,9 +45,6 @@ public class SelectScene : MonoBehaviour
     {
         // UserDataManager.GetInstance().AddUserDataUpdateListener(UpdateSelectSceneUI);
 
-        if (UserDataManager.GetInstance().GetUserData().totalMedal <= 0)
-            await UserDataManager.GetInstance().SetUserData(UserDataManager.USER_DATA_KEY_TOTAL_MEDAL, 0);
-
         var lastLoginDateTime = Utils.UnixTimeToDateTime(UserDataManager.GetInstance().GetUserData().lastLoginDateTime);
         var now = Clock.GetInstance().Now();
         if (lastLoginDateTime.Date < now.Date)
