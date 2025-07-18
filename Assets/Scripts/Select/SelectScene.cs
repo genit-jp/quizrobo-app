@@ -105,24 +105,6 @@ public class SelectScene : MonoBehaviour
         // QuizSelectManager.GetInstance().SetSelectQuizzes(_selectedGrade, 10, Const.PlayMode.Normal);
     }
 
-    public async void OnClickCategoryButton()
-    {
-        Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
-        var categoryDialogObj = await Utils.OpenDialog("Prefabs/Select/CategoryDialog", transform, blockerColor);
-        var categoryDialog = categoryDialogObj.GetComponent<CategoryDialog>();
-        categoryDialog.Setup(0, (grade, subject) =>
-        {
-            Debug.Log("grade: " + grade + " subject: " + subject);
-            // QuizSelectManager.GetInstance().SetSelectQuizzes(grade, 10, Const.PlayMode.Subject, subject);
-            StartGame();
-        });
-    }
-    
-    public async void OnClickMedalDescriptionButton()
-    {
-        await Utils.OpenDialog("Prefabs/Select/ContinueDialog", transform);
-    }
-
     // public async void OnClickRankingButton()
     // {
     //     var rankingDialogObj = await Utils.OpenDialog("Prefabs/Select/RankingDialog", transform);
@@ -134,6 +116,33 @@ public class SelectScene : MonoBehaviour
     {
         GoToCustomScene();
     }
+    
+    public void OnTappedGoToBattleSceneButton()
+    {
+        if (UserDataManager.GetInstance().GetUserData().selectedRoboId == null)
+        {
+            Utils.OpenDialog("Prefabs/Select/NoRoboDialog", transform);
+            return;
+        }
+
+        SceneManager.sceneLoaded += BattleSceneLoaded;
+        gameLoadingScene.LoadNextScene("BattleScene", LoadSceneMode.Additive);
+        gameObject.SetActive(false);
+    }
+    
+    private void BattleSceneLoaded(Scene next, LoadSceneMode mode)
+    {
+        var gameObjects = next.GetRootGameObjects();
+        foreach (var gameObject in gameObjects)
+            if (gameObject.name == "Canvas")
+            {
+                var eventSystem = gameObject.GetComponentInChildren<EventSystem>();
+                if (eventSystem != null) EventSystem.current = eventSystem;
+
+                SceneManager.sceneLoaded -= BattleSceneLoaded;
+            }
+    }
+    
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
@@ -173,4 +182,6 @@ public class SelectScene : MonoBehaviour
                 SceneManager.sceneLoaded -= CustomSceneLoaded;
             }
     }
+    
+    
 }
