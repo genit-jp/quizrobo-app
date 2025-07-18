@@ -117,6 +117,32 @@ public class SelectScene : MonoBehaviour
         GoToCustomScene();
     }
     
+    public void OnTappedGoToBattleSceneButton()
+    {
+        if (UserDataManager.GetInstance().GetUserData().selectedRoboId == null)
+        {
+            Utils.OpenDialog("Prefabs/Select/NoRoboDialog", transform);
+            return;
+        }
+
+        SceneManager.sceneLoaded += BattleSceneLoaded;
+        gameLoadingScene.LoadNextScene("BattleScene", LoadSceneMode.Additive);
+        gameObject.SetActive(false);
+    }
+    
+    private void BattleSceneLoaded(Scene next, LoadSceneMode mode)
+    {
+        var gameObjects = next.GetRootGameObjects();
+        foreach (var gameObject in gameObjects)
+            if (gameObject.name == "Canvas")
+            {
+                var eventSystem = gameObject.GetComponentInChildren<EventSystem>();
+                if (eventSystem != null) EventSystem.current = eventSystem;
+
+                SceneManager.sceneLoaded -= BattleSceneLoaded;
+            }
+    }
+    
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
@@ -156,4 +182,6 @@ public class SelectScene : MonoBehaviour
                 SceneManager.sceneLoaded -= CustomSceneLoaded;
             }
     }
+    
+    
 }

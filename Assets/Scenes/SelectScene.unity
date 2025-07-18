@@ -726,7 +726,7 @@ GameObject:
   - component: {fileID: 423913015}
   - component: {fileID: 423913014}
   m_Layer: 5
-  m_Name: RandomButton
+  m_Name: BattleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -799,7 +799,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 49885427}
         m_TargetAssemblyTypeName: SelectScene, Assembly-CSharp
-        m_MethodName: OnClickSubjectSelectPanelButton
+        m_MethodName: OnTappedGoToBattleSceneButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
