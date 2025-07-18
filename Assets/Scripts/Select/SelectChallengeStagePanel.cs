@@ -70,9 +70,9 @@ public class SelectChallengeStagePanel : MonoBehaviour
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
             rect.pivot = new Vector2(0.5f, 1f);
 
-            // ボタンの高さの半分を使って縦に等間隔に並べる
+            // ボタンの高さのを使って縦に等間隔に並べる
             float buttonHeight = rect.sizeDelta.y;
-            float y = verticalOffset + i * (buttonHeight / 2f);
+            float y = verticalOffset + i * buttonHeight;
             float x = (i % 2 == 0) ? offsetX : -offsetX;
 
             rect.anchoredPosition = new Vector2(x, -y);
