@@ -11,10 +11,12 @@ public class CustomScene : MonoBehaviour
     [SerializeField] private Text selectedPartText;
     
     private UserDataManager.RoboCustomData _customizingRoboData;
+    private UserDataManager.RoboCustomData _originalRoboData;
     private string _currentRoboId;
     private bool _isDisplayingRobo = false;
     private PartSelectorButton _currentSelectedPartButton;
     private CurretPartButton _currentSelectedCurrentPartButton;
+    
 
 
     private async void Start()
@@ -24,14 +26,14 @@ public class CustomScene : MonoBehaviour
         _currentRoboId = userData.selectedRoboId ?? "default";
         
         var roboCustomDataDict = userDataManager.GetRoboCustomData(_currentRoboId);
-        var original = roboCustomDataDict[_currentRoboId];
+        _originalRoboData = roboCustomDataDict[_currentRoboId];
         _customizingRoboData = new UserDataManager.RoboCustomData
         {
-            headId = original.headId,
-            bodyId = original.bodyId,
-            armsId = original.armsId,
-            legsId = original.legsId,
-            tailId = original.tailId
+            headId = _originalRoboData.headId,
+            bodyId = _originalRoboData.bodyId,
+            armsId = _originalRoboData.armsId,
+            legsId = _originalRoboData.legsId,
+            tailId = _originalRoboData.tailId
         };
         
         RefreshRoboDisplay();
@@ -127,15 +129,7 @@ public class CustomScene : MonoBehaviour
             return;
         }
         
-        string currentPartId = partType switch
-        {
-            "Head" => _customizingRoboData.headId,
-            "Body" => _customizingRoboData.bodyId,
-            "Arms" => _customizingRoboData.armsId,
-            "Legs" => _customizingRoboData.legsId,
-            "Tail" => _customizingRoboData.tailId,
-            _ => null
-        };
+        string currentPartId = CustomUtils.GetPartId(partType, _customizingRoboData);
         
         // 各RoboDataに対してCurrentPartButtonを作成
         foreach (var roboData in roboDataArray)
@@ -204,24 +198,7 @@ public class CustomScene : MonoBehaviour
         }
         
         // パーツタイプに応じて更新
-        switch (partType)
-        {
-            case "Head":
-                _customizingRoboData.headId = roboId;
-                break;
-            case "Body":
-                _customizingRoboData.bodyId = roboId;
-                break;
-            case "Arms":
-                _customizingRoboData.armsId = roboId;
-                break;
-            case "Legs":
-                _customizingRoboData.legsId = roboId;
-                break;
-            case "Tail":
-                _customizingRoboData.tailId = roboId;
-                break;
-        }
+        CustomUtils.SetPartId(partType, _customizingRoboData, roboId);
 
         // ロボの表示だけ反映（保存はしない）
         RefreshRoboDisplay();
@@ -242,7 +219,44 @@ public class CustomScene : MonoBehaviour
             _isDisplayingRobo = false;
         }
     }
- 
+
+    public void OnTappedResetButton()
+    {
+        // _originalRoboDataの内容に戻す
+        _customizingRoboData = new UserDataManager.RoboCustomData
+        {
+            headId = _originalRoboData.headId,
+            bodyId = _originalRoboData.bodyId,
+            armsId = _originalRoboData.armsId,
+            legsId = _originalRoboData.legsId,
+            tailId = _originalRoboData.tailId
+        };
+        // ロボの表示を更新
+        RefreshRoboDisplay();
+        
+        // 現在選択されているパーツタイプのボタンも更新
+        if (_currentSelectedPartButton != null)
+        {
+            // 現在のパーツタイプを取得
+            string currentPartType = null;
+            foreach (var partEntry in Const.PART_NAMES)
+            {
+                if (selectedPartText.text == partEntry.Value)
+                {
+                    currentPartType = partEntry.Key;
+                    break;
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(currentPartType))
+            {
+                CreateCurrentPartButtons(currentPartType);
+            }
+        }
+    }
+    
+    
+    
     public void OnTappedGoToSelectScene()
     {
         var scene = SceneManager.GetSceneByName("SelectScene");
