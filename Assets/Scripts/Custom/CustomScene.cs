@@ -14,6 +14,8 @@ public class CustomScene : MonoBehaviour
     private string _currentRoboId;
     private bool _isDisplayingRobo = false;
     private PartSelectorButton _currentSelectedPartButton;
+    private CurretPartButton _currentSelectedCurrentPartButton;
+
 
     private async void Start()
     { 
@@ -125,29 +127,47 @@ public class CustomScene : MonoBehaviour
             return;
         }
         
+        string currentPartId = partType switch
+        {
+            "Head" => _customizingRoboData.headId,
+            "Body" => _customizingRoboData.bodyId,
+            "Arms" => _customizingRoboData.armsId,
+            "Legs" => _customizingRoboData.legsId,
+            "Tail" => _customizingRoboData.tailId,
+            _ => null
+        };
+        
         // 各RoboDataに対してCurrentPartButtonを作成
         foreach (var roboData in roboDataArray)
         {
             var buttonObj = await Utils.InstantiatePrefab("Prefabs/Custom/PartButton", currentPartsPanel.transform);
-            
+
             if (buttonObj != null)
             {
                 var currentPartButton = buttonObj.GetComponent<CurretPartButton>();
                 if (currentPartButton != null)
                 {
-                    // roboDataのidをpartIdとして設定（画像パスに使用）
                     currentPartButton.SetPartButton(roboData.id);
-                    
-                    // ボタンクリック時の処理を設定
+
                     string capturedRoboId = roboData.id;
                     currentPartButton.onPartSelected = () => OnCurrentPartSelected(partType, capturedRoboId);
-                    
-                    // ボタンのクリックイベントを設定
+
                     var button = buttonObj.GetComponent<Button>();
                     if (button != null)
                     {
                         button.onClick.RemoveAllListeners();
                         button.onClick.AddListener(() => currentPartButton.OnPartButtonClicked());
+                    }
+
+                    // 初期選択を反映
+                    if (roboData.id == currentPartId)
+                    {
+                        currentPartButton.SetSelected(true);
+                        _currentSelectedCurrentPartButton = currentPartButton;
+                    }
+                    else
+                    {
+                        currentPartButton.SetSelected(false);
                     }
                 }
                 else
@@ -165,7 +185,24 @@ public class CustomScene : MonoBehaviour
             Debug.LogWarning("customizingRoboData is not initialized.");
             return;
         }
+        
+        if (_currentSelectedCurrentPartButton != null)
+        {
+            _currentSelectedCurrentPartButton.SetSelected(false);
+        }
 
+        // 新しく選ばれたボタンを探して SetSelected(true)
+        var allButtons = currentPartsPanel.GetComponentsInChildren<CurretPartButton>();
+        foreach (var btn in allButtons)
+        {
+            if (btn.PartId == roboId)
+            {
+                btn.SetSelected(true);
+                _currentSelectedCurrentPartButton = btn;
+                break;
+            }
+        }
+        
         // パーツタイプに応じて更新
         switch (partType)
         {
