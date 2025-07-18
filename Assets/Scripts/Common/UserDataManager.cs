@@ -295,7 +295,6 @@ public class UserDataManager
     {
         await _userData.Reference.SetAsync(data, SetOptions.MergeAll);
         await FetchUserData();
-        await ConfirmMaxTotalMedal();
     }
 
     public async UniTask SetUserData<Type>(string key, Type value)
@@ -303,7 +302,6 @@ public class UserDataManager
         var data = new Dictionary<string, Type> { { key, value } };
         await _userData.Reference.SetAsync(data, SetOptions.MergeAll);
         await FetchUserData();
-        await ConfirmMaxTotalMedal();
     }
 
     public async UniTask<List<UserData>> GetRankingUserData()
@@ -317,11 +315,6 @@ public class UserDataManager
         var rankingData = querySnapshot.Documents
             .Select(doc => doc.ConvertTo<UserData>())
             .ToList();
-
-        // デバッグログの出力
-        Debug.Log($"Fetched {rankingData.Count} ranking entries.");
-        foreach (var userData in rankingData)
-            Debug.Log($"Ranking - Grade: {userData.grade}, Total Medals: {userData.totalMedal}");
 
         return rankingData;
     }
@@ -361,13 +354,7 @@ public class UserDataManager
         var userData = GetUserData();
         return userData.challengeLevels[subject];
     }
-
-    private async UniTask ConfirmMaxTotalMedal()
-    {
-        var totalMedal = GetUserData().totalMedal;
-        var maxTotalMedal = GetUserData().maxTotalMedal;
-        if (totalMedal > maxTotalMedal) await SetUserData(USER_DATA_KEY_MAX_TOTAL_MEDAL, totalMedal);
-    }
+    
 
     [FirestoreData]
     public class RoboCustomData
@@ -385,7 +372,7 @@ public class UserDataManager
         [FirestoreProperty] public bool purchased { get; set; }
     }
     
-    // AnswerDataクラスの定義
+    // ChapterDataクラスの定義
     [FirestoreData]
     public class ChapterProgressData
     {
@@ -405,10 +392,6 @@ public class UserDataManager
     {
         [FirestoreProperty] public string playerName { get; set; }
         [FirestoreProperty] public int grade { get; set; }
-
-        [FirestoreProperty] public int totalMedal { get; set; }
-
-        [FirestoreProperty] public int maxTotalMedal { get; set; }
 
         [FirestoreProperty] public int stage { get; set; }
         
