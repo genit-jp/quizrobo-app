@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class SelectChallengeStagePanel : MonoBehaviour
 {
     [SerializeField] private Text title, level;
+    [SerializeField] private Image backGround;
+    [SerializeField] private Sprite[] backgroundSprites; 
     [SerializeField] private Transform chapterButtonParent;
     [SerializeField] private GameObject dropDownMenu;
 
@@ -47,6 +49,23 @@ public class SelectChallengeStagePanel : MonoBehaviour
         level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
         _onStartGame = startGame;
         _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(subject, challengeLevel);
+        
+        // 教科によって背景を変更
+        int spriteIndex = subject switch
+        {
+            "国語" => 0,
+            "算数" => 1,
+            "理科" => 2,
+            "社会" => 3,
+            "英語" => 4,
+            _ => 0
+        };
+        
+        if (backGround != null && backgroundSprites != null && spriteIndex < backgroundSprites.Length)
+        {
+            backGround.sprite = backgroundSprites[spriteIndex];
+        }
+        
         SetChapterButtons();
     }
 
