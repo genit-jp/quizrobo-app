@@ -63,7 +63,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
         for (int i = 0; i < chapterCount; i++)
         {
             var chapterData = _chapters[i];
-            var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/ChapterStar"), chapterButtonParent);
+            var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/SubjectSelect/ChapterStar"), chapterButtonParent);
             chapterButton.Setup(chapterData, ShowChallengeDialog, _subject);
 
             var rect = chapterButton.GetComponent<RectTransform>();
