@@ -50,18 +50,25 @@ public class SelectChallengeStagePanel : MonoBehaviour
         SetChapterButtons();
     }
 
-    private void SetChapterButtons()
+    private async void SetChapterButtons()
     {
         foreach (Transform child in chapterButtonParent)
         {
             Destroy(child.gameObject); // 既存のボタンを削除
         }
+        
+        // StartPointを最初に配置
+        var startPointObj = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/StartPoint", chapterButtonParent);
+        var startPointRect = startPointObj.GetComponent<RectTransform>();
+        startPointRect.anchorMin = startPointRect.anchorMax = new Vector2(0.5f, 1f);
+        startPointRect.pivot = new Vector2(0.5f, 1f);
+        startPointRect.anchoredPosition = new Vector2(0, -300f);
 
-        int currentChapter = 2;
+        int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
         int chapterCount = _chapters.Length;
         
-        float offsetX = 200f;            // 左右のずれ幅
-        float verticalOffset = 250f;     // 上端からのオフセット
+        float offsetX = 200f;            
+        float verticalOffset = 450f;
 
         for (int i = 0; i < chapterCount; i++)
         {
@@ -80,7 +87,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
 
             rect.anchoredPosition = new Vector2(x, -y);
             
-            if (chapterData.chapterNumber == currentChapter)
+            if (chapterData.chapterNumber == maxClearedChapterNumber)
             {
                 _currentChapterStar = chapterButton;
             }
@@ -122,33 +129,56 @@ public class SelectChallengeStagePanel : MonoBehaviour
 
     private async void PlaceRobotOnChapter()
     {
-        if (_currentChapterStar == null) return;
-        
+        RectTransform targetRect = null;
+        float adjustedY = 0f;
+
+        if (_currentChapterStar != null)
+        {
+            targetRect = _currentChapterStar.GetComponent<RectTransform>();
+            adjustedY = 100f;
+        }
+        else
+        {
+            // StartPoint にロボを配置（最初に生成されていると仮定）
+            foreach (Transform child in chapterButtonParent)
+            {
+                if (child.name.Contains("StartPoint"))
+                {
+                    targetRect = child.GetComponent<RectTransform>();
+                    adjustedY = 0f;
+                    break;
+                }
+            }
+
+            if (targetRect == null)
+            {
+                Debug.LogWarning("StartPoint が見つかりませんでした");
+                return;
+            }
+        }
+
         // ロボットプレハブを生成
         var roboPrefab = await Utils.InstantiatePrefab("Prefabs/Robo/RoboPrefab", chapterButtonParent);
         var roboRect = roboPrefab.GetComponent<RectTransform>();
-        
-        // 現在のチャプターボタンの位置を取得
-        var chapterRect = _currentChapterStar.GetComponent<RectTransform>();
-        
-        // ロボットをチャプターボタンの上に配置
+
+        // アンカー・ピボット設定
         roboRect.anchorMin = roboRect.anchorMax = new Vector2(0.5f, 1f);
         roboRect.pivot = new Vector2(0.5f, 0.5f); // 下部中央を基準点に
-        
-        // チャプターボタンからY=-50の位置に配置
+
+        // ロボットの位置を targetRect の下に配置
         roboRect.anchoredPosition = new Vector2(
-            chapterRect.anchoredPosition.x, 
-            chapterRect.anchoredPosition.y - 50f
+            targetRect.anchoredPosition.x,
+            targetRect.anchoredPosition.y - adjustedY
         );
-        
+
         // ロボットのサイズを調整（必要に応じて）
         roboRect.localScale = new Vector3(0.5f, 0.5f, 1f);
-        
+
         // ユーザーの選択したロボットデータを設定
         var userDataManager = UserDataManager.GetInstance();
         var userData = userDataManager.GetUserData();
         var selectedRoboId = userData.selectedRoboId ?? "default";
-        
+
         var roboCustomDataDict = userDataManager.GetRoboCustomData(selectedRoboId);
         if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(selectedRoboId))
         {
@@ -159,6 +189,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
             }
         }
     }
+
     
     public void OnClickCloseButton()
     {
