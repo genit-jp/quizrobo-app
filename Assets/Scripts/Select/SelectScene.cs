@@ -117,11 +117,6 @@ public class SelectScene : MonoBehaviour
             StartGame();
         });
     }
-    
-    public async void OnClickMedalDescriptionButton()
-    {
-        await Utils.OpenDialog("Prefabs/Select/ContinueDialog", transform);
-    }
 
     // public async void OnClickRankingButton()
     // {
@@ -134,6 +129,7 @@ public class SelectScene : MonoBehaviour
     {
         GoToCustomScene();
     }
+    
     private void StartGame()
     {
         SceneManager.sceneLoaded += GameSceneLoaded;
