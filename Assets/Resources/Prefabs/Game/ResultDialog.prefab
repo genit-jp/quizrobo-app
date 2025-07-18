@@ -118,7 +118,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -187.5, y: -85.5}
-  m_SizeDelta: {x: 250, y: 114}
+  m_SizeDelta: {x: 300, y: 114}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &8549834358274883661
 CanvasRenderer:
@@ -148,8 +148,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9c8af0d88d1140f0a373a979d10f827, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 4741020fcf94b48edbbb44f225186014, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -692,8 +692,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a16409258d04a448efb3392d27bff58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _totalMedalText: {fileID: 5254115773184249813}
-  _increasedMedalText: {fileID: 4245050768303335066}
   _scrollViewContent: {fileID: 4339080079450185076}
 --- !u!1 &5583414273463872111
 GameObject:
@@ -904,7 +902,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 187.5, y: -86.30005}
-  m_SizeDelta: {x: 250, y: 114}
+  m_SizeDelta: {x: 300, y: 114}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &8636554559152733177
 CanvasRenderer:
@@ -934,8 +932,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c9c8af0d88d1140f0a373a979d10f827, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 98456331279f7459aa2e551403ff024a, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
