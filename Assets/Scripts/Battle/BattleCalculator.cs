@@ -17,7 +17,7 @@ public class BattleCalculator
         return Mathf.Max(10, attackPower);
     }
     
-    public int GetThereAttackPower()
+    public int GetThereAttackPower(EnemyData data)
     {
         return 8; // 仮の固定値、将来的に計算式に変更可能
     }

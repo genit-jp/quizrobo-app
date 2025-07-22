@@ -9,13 +9,14 @@ public class BattleScene : MonoBehaviour
     [SerializeField] private EnemyArea enemyArea;
     
     private BattleCalculator calculator = new BattleCalculator();
+    private EnemyData _enemyDataGot;
 
     private void Start()
     {
+        _enemyDataGot = MasterData.GetInstance().GetRandomEnemyData();
         myArea.Initialize(PlayerAttack);
         myArea.SetMyArea();
-        enemyArea.SetEnemyArea();
-        
+        enemyArea.SetEnemyArea(_enemyDataGot);
     }
     
     private void PlayerAttack()
@@ -36,7 +37,7 @@ public class BattleScene : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        int damage = calculator.GetThereAttackPower();
+        int damage = calculator.GetThereAttackPower(_enemyDataGot);
         myArea.TakeDamage(damage);
 
         if (myArea.Hp <= 0)

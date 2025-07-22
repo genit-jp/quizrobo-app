@@ -735,6 +735,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   battleStatusUi: {fileID: 2471267025511247670}
+  enemyImage: {fileID: 1843884144}
 --- !u!1 &1843884142
 GameObject:
   m_ObjectHideFlags: 0

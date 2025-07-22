@@ -13,6 +13,7 @@ public class MasterData
     public QuizData[] quizzes;
     public ChapterData[] chapters;
     public RoboData[] robos;
+    public EnemyData[] enemies;
     public bool IsPrepared { get; set; }
     
     public static MasterData GetInstance()
@@ -76,7 +77,19 @@ public class MasterData
         string lowerPartType = partType.ToLower();
         return robos.Where(robo => robo.type.ToLower() == lowerPartType).ToArray();
     }
-
+    
+    public EnemyData GetRandomEnemyData()
+    {
+        if (enemies == null || enemies.Length == 0)
+        {
+            Debug.LogWarning("No enemy data available.");
+            return null;
+        }
+        
+        // ランダムに敵データを選択
+        int randomIndex = UnityEngine.Random.Range(0, enemies.Length);
+        return enemies[randomIndex];
+    }
 
     
     public string[] AllSubjects()
