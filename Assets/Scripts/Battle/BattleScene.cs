@@ -20,7 +20,7 @@ public class BattleScene : MonoBehaviour
     
     private void PlayerAttack()
     {
-        int damage = calculator.GetAttackPower();
+        int damage = calculator.GetMyAttackPower();
         enemyArea.TakeDamage(damage);
 
         if (enemyArea.HP <= 0)
@@ -36,10 +36,10 @@ public class BattleScene : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        int damage = calculator.GetAttackPower();
+        int damage = calculator.GetThereAttackPower();
         myArea.TakeDamage(damage);
 
-        if (myArea.HP <= 0)
+        if (myArea.Hp <= 0)
         {
             Debug.Log("自分が倒された...");
         }

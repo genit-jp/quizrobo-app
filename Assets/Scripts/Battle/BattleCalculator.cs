@@ -4,9 +4,22 @@ using UnityEngine;
 
 public class BattleCalculator
 {
-    public int GetAttackPower()
+    public int GetMyAttackPower()
     {
-        return 10; // 仮の固定値、将来的に計算式に変更可能
+        // UserDataManagerからプレイヤーのEXPを取得
+        var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
+        int exp = playerStatus.exp;
+        
+        // EXPの1/10を攻撃力として返す
+        int attackPower = exp / 10;
+        
+        // 最低攻撃力は1を保証
+        return Mathf.Max(10, attackPower);
+    }
+    
+    public int GetThereAttackPower()
+    {
+        return 8; // 仮の固定値、将来的に計算式に変更可能
     }
     
 }

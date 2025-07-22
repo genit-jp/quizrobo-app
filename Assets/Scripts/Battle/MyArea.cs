@@ -8,28 +8,32 @@ public class MyArea : MonoBehaviour
     [SerializeField] private BattleStatusUi battleStatusUi;
     [SerializeField] private GameObject myRoboArea;
     
-    public int HP { get; private set; } = 100;
-    private Action onAttack;
+    public int Hp { get; private set; }
+    private Action _onAttack;
 
     public void Initialize(Action onAttackAction)
     {
-        onAttack = onAttackAction;
+        _onAttack = onAttackAction;
     }
 
 
     public void SetMyArea()
     {
         SetRobo();
-        HP = 100;
-        Debug.Log("自分のHP: " + HP);
+        
+        // UserDataManagerからHPを取得
+        var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
+        Hp = playerStatus.hp;
+        
+        Debug.Log("自分のHP: " + Hp);
         UpdateHPDisplay();
     }
     
     public void TakeDamage(int damage)
     {
-        HP -= damage;
-        if (HP < 0) HP = 0;
-        Debug.Log($"自分が {damage} ダメージを受けた。残りHP: {HP}");
+        Hp -= damage;
+        if (Hp < 0) Hp = 0;
+        Debug.Log($"自分が {damage} ダメージを受けた。残りHP: {Hp}");
         UpdateHPDisplay();
     }
 
@@ -38,7 +42,7 @@ public class MyArea : MonoBehaviour
         Debug.Log("攻撃ボタンがタップされました。");
         
         // 攻撃アクションを実行
-        onAttack?.Invoke();
+        _onAttack?.Invoke();
     }
     
     private void UpdateHPDisplay()
@@ -46,7 +50,7 @@ public class MyArea : MonoBehaviour
         if (battleStatusUi != null)
         {
             // HPを0-1の範囲に正規化して表示
-            float normalizedHP = HP / 100f;
+            float normalizedHP = Hp / 100f;
             battleStatusUi.SetHP(normalizedHP);
         }
     }

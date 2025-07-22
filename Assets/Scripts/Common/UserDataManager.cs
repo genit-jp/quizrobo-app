@@ -23,6 +23,7 @@ public class UserDataManager
     public static readonly string USER_DATA_KEY_TOTAL_LOGIN_NUM = "totalLoginNum";
     public static readonly string USER_DATA_KEY_CHALLENGE_LEVELS_KEY = "challengeLevels";
     public static readonly string USER_DATA_KEY_SELECTED_ROBO_ID = "selectedRoboId";
+    public static readonly string USER_DATA_KEY_PLAYER_STATUS = "playerStatus";
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
@@ -51,6 +52,7 @@ public class UserDataManager
         await SetDefaultValue(USER_DATA_KEY_TOTAL_LOGIN_NUM, 0);
         await SetDefaultDictionaryValue(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, Const.DEFAULT_CHALLENGE_LEVELS);
         await SetDefaultValue(USER_DATA_KEY_SELECTED_ROBO_ID, "default");
+        await SetDefaultValue(USER_DATA_KEY_PLAYER_STATUS, new PlayerStatus());
     }
 
 
@@ -355,6 +357,17 @@ public class UserDataManager
         return userData.challengeLevels[subject];
     }
     
+    public async UniTask UpdatePlayerStatus(PlayerStatus playerStatus)
+    {
+        await SetUserData(USER_DATA_KEY_PLAYER_STATUS, playerStatus);
+    }
+    
+    public PlayerStatus GetPlayerStatus()
+    {
+        var userData = GetUserData();
+        return userData.playerStatus ?? new PlayerStatus();
+    }
+    
 
     [FirestoreData]
     public class RoboCustomData
@@ -370,6 +383,13 @@ public class UserDataManager
     public class OwnedRoboPart
     {
         [FirestoreProperty] public bool purchased { get; set; }
+    }
+    
+    [FirestoreData]
+    public class PlayerStatus
+    {
+        [FirestoreProperty] public int hp { get; set; } = 100;
+        [FirestoreProperty] public int exp { get; set; } = 100;
     }
     
     // ChapterDataクラスの定義
@@ -406,5 +426,8 @@ public class UserDataManager
         [FirestoreProperty] public Dictionary<string, string> challengeLevels { get; set; } = new();
         
         [FirestoreProperty] public string selectedRoboId { get; set; } 
+        
+        [FirestoreProperty] public PlayerStatus playerStatus { get; set; } = new();
+
     }
 }
