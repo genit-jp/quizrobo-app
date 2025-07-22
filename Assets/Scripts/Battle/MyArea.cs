@@ -22,21 +22,33 @@ public class MyArea : MonoBehaviour
         SetRobo();
         HP = 100;
         Debug.Log("自分のHP: " + HP);
+        UpdateHPDisplay();
     }
     
     public void TakeDamage(int damage)
     {
         HP -= damage;
+        if (HP < 0) HP = 0;
         Debug.Log($"自分が {damage} ダメージを受けた。残りHP: {HP}");
+        UpdateHPDisplay();
     }
 
     public void OnTappedAttackButton()
     {
         Debug.Log("攻撃ボタンがタップされました。");
-        // battleStatusUi.SetHP(HP);
         
         // 攻撃アクションを実行
         onAttack?.Invoke();
+    }
+    
+    private void UpdateHPDisplay()
+    {
+        if (battleStatusUi != null)
+        {
+            // HPを0-1の範囲に正規化して表示
+            float normalizedHP = HP / 100f;
+            battleStatusUi.SetHP(normalizedHP);
+        }
     }
     private async void SetRobo()
     {
