@@ -19,7 +19,12 @@ public class BattleCalculator
     
     public int GetThereAttackPower(EnemyData data)
     {
-        return 8; // 仮の固定値、将来的に計算式に変更可能
+        // 敵の攻撃力をそのまま返す
+        // ここでは敵データのattackPowerを使用
+        int attackPower = data.defaultEXP/ 10;
+        
+        // 最低攻撃力は1を保証
+        return Mathf.Max(10, attackPower);
     }
     
 }

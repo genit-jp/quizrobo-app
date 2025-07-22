@@ -24,7 +24,7 @@ public class BattleScene : MonoBehaviour
         int damage = calculator.GetMyAttackPower();
         enemyArea.TakeDamage(damage);
 
-        if (enemyArea.HP <= 0)
+        if (enemyArea.Hp <= 0)
         {
             Debug.Log("敵を倒した！");
         }

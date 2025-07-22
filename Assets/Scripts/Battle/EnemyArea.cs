@@ -7,45 +7,37 @@ public class EnemyArea : MonoBehaviour
 {
     [SerializeField] private BattleStatusUi battleStatusUi;
     [SerializeField] private Image enemyImage;
-    public int HP { get; private set; } = 100;
+    public int Hp { get; private set; } = 100;
     public void SetEnemyArea(EnemyData data)
     {
-        HP = data.defaultHP;
+        Hp = data.defaultHP;
         Debug.Log("敵エリアが設定されました。");
-        
-        // 敵の画像を設定
-        if (enemyImage != null && data != null)
-        {
-            string resourcePath = $"Images/Enemy/{data.id}";
-            var sprite = Resources.Load<Sprite>(resourcePath);
+       
+        string resourcePath = $"Images/Enemy/{data.id}";
+        var sprite = Resources.Load<Sprite>(resourcePath);
             
-            if (sprite != null)
-            {
-                enemyImage.sprite = sprite;
-            }
-            else
-            {
-                Debug.LogWarning($"Enemy sprite not found at path: {resourcePath}");
-            }
+        if (sprite != null)
+        {
+            enemyImage.sprite = sprite;
         }
         
-        UpdateHPDisplay();
+        UpdateHpDisplay();
     }
     
     public void TakeDamage(int damage)
     {
-        HP -= damage;
-        if (HP < 0) HP = 0;
-        Debug.Log($"敵が {damage} ダメージを受けた。残りHP: {HP}");
-        UpdateHPDisplay();
+        Hp -= damage;
+        if (Hp < 0) Hp = 0;
+        Debug.Log($"敵が {damage} ダメージを受けた。残りHP: {Hp}");
+        UpdateHpDisplay();
     }
     
-    private void UpdateHPDisplay()
+    private void UpdateHpDisplay()
     {
         if (battleStatusUi != null)
         {
             // HPを0-1の範囲に正規化して表示
-            float normalizedHP = HP / 100f;
+            float normalizedHP = Hp / 100f;
             battleStatusUi.SetHP(normalizedHP);
         }
     }
