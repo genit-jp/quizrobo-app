@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BattleScene : MonoBehaviour
 {
     [SerializeField] private MyArea myArea;
     [SerializeField] private EnemyArea enemyArea;
+    [SerializeField] private GameObject goBackToSelectButton;
     
     private readonly BattleCalculator _calculator = new BattleCalculator();
     private EnemyData _enemyDataGot;
+    private bool _isGoBackSelectSceneVisible;
 
     private void Start()
     {
@@ -17,10 +20,16 @@ public class BattleScene : MonoBehaviour
         myArea.Initialize(PlayerAttack);
         myArea.SetMyArea();
         enemyArea.SetEnemyArea(_enemyDataGot);
+        _isGoBackSelectSceneVisible = true;
+        goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
     }
     
     private void PlayerAttack()
     {
+        // 攻撃中は戻るボタンを非表示
+        _isGoBackSelectSceneVisible = false;
+        goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
+        
         int damage = _calculator.GetMyAttackPower();
         enemyArea.TakeDamage(damage);
 
@@ -54,6 +63,10 @@ public class BattleScene : MonoBehaviour
         // 次の敵に差し替える処理（未実装）
         _enemyDataGot = MasterData.GetInstance().GetRandomEnemyData();
         enemyArea.SetEnemyArea(_enemyDataGot);
+        
+        // 新しい敵が出現したら戻るボタンを再表示
+        _isGoBackSelectSceneVisible = true;
+        goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
     }
     
     private async void SaveCurrentHp()
@@ -76,5 +89,30 @@ public class BattleScene : MonoBehaviour
     {
         // リザルト画面に遷移するなど（未実装）
         Debug.Log("ゲームオーバー処理へ");
+        
+        // ゲームオーバー時は戻るボタンを再表示
+        _isGoBackSelectSceneVisible = true;
+        goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
+    }
+
+    public void OnTappedGoBackToSelectButton()
+    {
+        Debug.Log("戻るボタンがタップされました。");
+        GoToSelectScene();
+    }
+
+    private void GoToSelectScene()
+    {
+        var scene = SceneManager.GetSceneByName("SelectScene");
+        foreach (var go in scene.GetRootGameObjects())
+        {
+            if (go.name == "Canvas")
+            {
+                go.SetActive(true);
+            }
+        }
+
+        // BattleSceneをアンロード
+        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("BattleScene"));
     }
 }
