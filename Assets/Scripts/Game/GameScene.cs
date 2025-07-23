@@ -150,14 +150,10 @@ public class GameScene : MonoBehaviour
          // 現在のEXPに加算
          playerStatus.exp += expFromCorrectAnswers;
          
-         // HPを10加算（仮の値）
-         playerStatus.hp += 10;
+         playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
          
-         // HPの上限チェック（例：最大100）
-         if (playerStatus.hp > 100)
-         {
-             playerStatus.hp = 100;
-         }
+         // HPを10加算（仮の値）
+         playerStatus.hp = Mathf.Min(playerStatus.hp + LevelingSystem.RecoveryHpPerQuest, 100);
          
          // PlayerStatusを保存
          await userDataManager.UpdatePlayerStatus(playerStatus);

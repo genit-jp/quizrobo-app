@@ -4,27 +4,34 @@ using UnityEngine;
 
 public class BattleCalculator
 {
+    private const float HpGrowthRate = 1.12f;
+    private const float AtkGrowthRate = 1.08f;
+    
     public int GetMyAttackPower()
     {
-        // UserDataManagerからプレイヤーのEXPを取得
         var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
-        int exp = playerStatus.exp;
-        
-        // EXPの1/10を攻撃力として返す
-        int attackPower = exp / 10;
-        
-        // 最低攻撃力は1を保証
+        int level = playerStatus.level;
+
+        // ベース攻撃力と成長率
+        const int baseAtk = 10;
+        const float atkGrowthRate = 1.10f;
+
+        // 攻撃力計算式
+        int attackPower = Mathf.FloorToInt(baseAtk * Mathf.Pow(atkGrowthRate, level));
+
+        // 最低攻撃力を保証
         return Mathf.Max(10, attackPower);
     }
     
-    public int GetThereAttackPower(EnemyData data)
+    public static int GetEnemyAttackPower(int playerLevel, EnemyData data)
     {
-        // 敵の攻撃力をそのまま返す
-        // ここでは敵データのattackPowerを使用
-        int attackPower = data.defaultEXP/ 10;
-        
-        // 最低攻撃力は1を保証
-        return Mathf.Max(10, attackPower);
+        int atk = Mathf.FloorToInt(data.defaultEXP * Mathf.Pow(AtkGrowthRate, playerLevel));
+        return Mathf.Max(10, atk);
     }
     
+    public static int GetEnemyHp(int playerLevel,EnemyData data)
+    {
+        int hp = Mathf.FloorToInt(data.defaultHP * Mathf.Pow(HpGrowthRate, playerLevel));
+        return Mathf.Max(1, hp);
+    }
 }

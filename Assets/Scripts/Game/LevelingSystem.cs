@@ -4,11 +4,36 @@ using UnityEngine;
 
 public class LevelingSystem
 {
-    public static int CalculateExpFromCorrectAnswers(int correctAnswerCount)
-    {
-        // 仮のルール：1問正解につき10EXP
-        return correctAnswerCount * 10;
-    }
+    private const int ExpPerCorrectAnswer = 5;
+    public const int RecoveryHpPerQuest = 30;
     
-    //レベルの計算もここで行う
+    public static int CalculateExpFromCorrectAnswers(int correctAnswers)
+    {
+        return correctAnswers * ExpPerCorrectAnswer;
+    }
+
+    // レベルアップに必要なEXP（例：逓減倍率式）
+    private static int GetExpToLevelUp(int level)
+    {
+        if (level < 10)
+            return Mathf.FloorToInt(40 * Mathf.Pow(1.25f, level - 1));
+        else
+            return Mathf.FloorToInt(40 * Mathf.Pow(1.15f, level - 1));
+    }
+
+    // 現在の累積EXPからレベルを再計算
+    public static int CalculateLevelFromExp(int totalExp)
+    {
+        int level = 1;
+        int expToNext = GetExpToLevelUp(level);
+
+        while (totalExp >= expToNext)
+        {
+            totalExp -= expToNext;
+            level++;
+            expToNext = GetExpToLevelUp(level);
+        }
+
+        return level;
+    }
 }

@@ -14,13 +14,18 @@ public class BattleScene : MonoBehaviour
     private readonly BattleCalculator _calculator = new BattleCalculator();
     private EnemyData _enemyDataGot;
     private bool _isGoBackSelectSceneVisible;
+    private int _playerLevel, _enemyHp, _enemyAtk;
 
     private void Start()
     {
         _enemyDataGot = MasterData.GetInstance().GetRandomEnemyData();
+        _playerLevel = UserDataManager.GetInstance().GetPlayerStatus().level;
+        
+        _enemyHp = BattleCalculator.GetEnemyHp(_playerLevel, _enemyDataGot);
+        _enemyAtk = BattleCalculator.GetEnemyAttackPower(_playerLevel, _enemyDataGot);
         myArea.Initialize(PlayerAttack);
         myArea.SetMyArea();
-        enemyArea.SetEnemyArea(_enemyDataGot);
+        enemyArea.SetEnemyArea(_enemyDataGot, _enemyHp);
         _isGoBackSelectSceneVisible = true;
         goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
     }
@@ -47,9 +52,8 @@ public class BattleScene : MonoBehaviour
     private IEnumerator EnemyAttack()
     {
         yield return new WaitForSeconds(1f);
-
-        int damage = _calculator.GetThereAttackPower(_enemyDataGot);
-        myArea.TakeDamage(damage);
+        
+        myArea.TakeDamage(_enemyAtk);
 
         if (myArea.Hp <= 0)
         {
@@ -63,7 +67,7 @@ public class BattleScene : MonoBehaviour
     {
         // 次の敵に差し替える処理（未実装）
         _enemyDataGot = MasterData.GetInstance().GetRandomEnemyData();
-        enemyArea.SetEnemyArea(_enemyDataGot);
+        enemyArea.SetEnemyArea(_enemyDataGot, _enemyHp);
         
         // 新しい敵が出現したら戻るボタンを再表示
         _isGoBackSelectSceneVisible = true;

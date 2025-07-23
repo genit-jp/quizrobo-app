@@ -390,6 +390,8 @@ public class UserDataManager
     {
         [FirestoreProperty] public int hp { get; set; } = 100;
         [FirestoreProperty] public int exp { get; set; } = 100;
+        
+        [FirestoreProperty] public int level { get; set; } = 1;
     }
     
     // ChapterDataクラスの定義

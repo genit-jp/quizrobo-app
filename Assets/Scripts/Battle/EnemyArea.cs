@@ -8,9 +8,9 @@ public class EnemyArea : MonoBehaviour
     [SerializeField] private BattleStatusUi battleStatusUi;
     [SerializeField] private Image enemyImage;
     public int Hp { get; private set; } = 100;
-    public void SetEnemyArea(EnemyData data)
+    public void SetEnemyArea(EnemyData data, int hp)
     {
-        Hp = data.defaultHP;
+        Hp = hp;
         Debug.Log("敵エリアが設定されました。");
        
         string resourcePath = $"Images/Enemy/{data.id}";
