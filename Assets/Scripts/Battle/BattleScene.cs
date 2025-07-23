@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Genit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -85,7 +86,7 @@ public class BattleScene : MonoBehaviour
         Debug.Log($"PlayerStatus saved - HP: {playerStatus.hp}");
     }
     
-    private void OnGameOver()
+    private async void OnGameOver()
     {
         // リザルト画面に遷移するなど（未実装）
         Debug.Log("ゲームオーバー処理へ");
@@ -93,6 +94,14 @@ public class BattleScene : MonoBehaviour
         // ゲームオーバー時は戻るボタンを再表示
         _isGoBackSelectSceneVisible = true;
         goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
+        
+        // CommonDialogを表示
+        var dialogObj = await Utils.OpenDialog("Prefabs/Common/CommonDialog", transform);
+        var commonDialog = dialogObj.GetComponent<CommonDialog>();
+        commonDialog.Setup("ゲームオーバー", "クエストに参加しよう\n攻撃力UP・HPを回復してもう一度挑戦しよう", (result) =>
+        {
+            GoToSelectScene();
+        }, CommonDialog.Mode.OK);
     }
 
     public void OnTappedGoBackToSelectButton()
