@@ -34,4 +34,10 @@ public class BattleCalculator
         int hp = Mathf.FloorToInt(data.defaultHP * Mathf.Pow(HpGrowthRate, playerLevel));
         return Mathf.Max(1, hp);
     }
+    
+    public int GetEnemyLevel(EnemyData data)
+    {
+        // EXPからレベルを計算
+        return LevelingSystem.CalculateLevelFromExp(data.defaultEXP);
+    }
 }

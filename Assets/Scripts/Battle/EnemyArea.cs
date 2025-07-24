@@ -38,7 +38,7 @@ public class EnemyArea : MonoBehaviour
         {
             // HPを0-1の範囲に正規化して表示
             float normalizedHP = Hp / 100f;
-            battleStatusUi.SetHP(normalizedHP);
+            battleStatusUi.SetHP(normalizedHP, BattleStatusUi.CharacterType.Enemy);
         }
     }
 }

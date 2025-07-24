@@ -16,7 +16,7 @@ public class BattleScene : MonoBehaviour
     private bool _isGoBackSelectSceneVisible;
     private int _playerLevel, _enemyHp, _enemyAtk;
 
-    private void Start()
+    private async void Start()
     {
         _enemyDataGot = MasterData.GetInstance().GetRandomEnemyData();
         _playerLevel = UserDataManager.GetInstance().GetPlayerStatus().level;
@@ -26,8 +26,24 @@ public class BattleScene : MonoBehaviour
         myArea.Initialize(PlayerAttack);
         myArea.SetMyArea();
         enemyArea.SetEnemyArea(_enemyDataGot, _enemyHp);
+        
+        var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
+        _playerLevel = playerStatus.level;
+        
         _isGoBackSelectSceneVisible = true;
         goBackToSelectButton.SetActive(_isGoBackSelectSceneVisible);
+        
+        if (playerStatus.hp <= 0)
+        {
+            // HPが0の場合、CommonDialogを表示
+            var dialogObj = await Utils.OpenDialog("Prefabs/Common/CommonDialog", transform);
+            var commonDialog = dialogObj.GetComponent<CommonDialog>();
+            commonDialog.Setup("HPが不足しています", "クエストに参加してHPを回復してください。", (result) =>
+            {
+                GoToSelectScene();
+            }, CommonDialog.Mode.OK);
+            return;
+        }
     }
     
     private void PlayerAttack()
