@@ -5,10 +5,11 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 public class ResultDialog: DialogBaseListener
 {
-    [SerializeField] private GameObject _scrollViewContent;
+    [SerializeField] private GameObject _scrollViewContent, _roboContent;
     private Action _onOkButtonClicked;
     
     public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
@@ -22,6 +23,14 @@ public class ResultDialog: DialogBaseListener
             gameObj.transform.SetParent(_scrollViewContent.transform, false);
             var resultContent = gameObj.GetComponent<ResultContent>();
             resultContent.Setup(quizResult);
+        }
+        
+        var userDataManager = UserDataManager.GetInstance();
+        var roboCustomDataDict = userDataManager.GetRoboCustomData(userDataManager.GetUserData().selectedRoboId);
+        if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(userDataManager.GetUserData().selectedRoboId))
+        {
+            var roboCustomData = roboCustomDataDict[userDataManager.GetUserData().selectedRoboId];
+            await RoboSettingManager.DisplayRobo(_roboContent, roboCustomData);
         }
         
         _onOkButtonClicked = onOkButtonClicked;

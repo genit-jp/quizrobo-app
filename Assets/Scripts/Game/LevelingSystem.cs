@@ -13,7 +13,7 @@ public class LevelingSystem
     }
 
     // レベルアップに必要なEXP（例：逓減倍率式）
-    private static int GetExpToLevelUp(int level)
+    public static int GetExpToLevelUp(int level)
     {
         if (level < 10)
             return Mathf.FloorToInt(40 * Mathf.Pow(1.25f, level - 1));
