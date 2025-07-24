@@ -143,7 +143,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
                 
                 _onStartGame();
             }
-        }, CommonDialog.Mode.OK_CANCEL);
+        }, CommonDialog.Mode.OK);
     }
 
     private async void PlaceRobotOnChapter()

@@ -13,7 +13,7 @@ public class GameScene : MonoBehaviour
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
      [SerializeField] private Slider quizIndexSlider;
-     [SerializeField] private Text quizIndexText;
+     [SerializeField] private Text quizIndexText,subjectTitleText;
 //     private AudioClip _addMedalSound;
 //     private AudioClip _correctSound;
 //     private AudioClip _incorrectSound;
@@ -36,6 +36,9 @@ public class GameScene : MonoBehaviour
              Const.GameSceneParam.ChapterNumber
          );
          _quizResults = new List<QuizResultData>();
+         
+         // 教科名とチャプター番号を表示
+         subjectTitleText.text = $"{Const.GameSceneParam.Subject}\n{Const.GameSceneParam.ChapterNumber}";
          
          // _correctSound = Resources.Load<AudioClip>("SE/correct");
          // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
