@@ -51,9 +51,10 @@ public class ResultDialog: DialogBaseListener
         // 次のレベルまでに必要なEXP
         int expForNextLevel = LevelingSystem.GetExpToLevelUp(level);
         int expInCurrentLevel = currentExp - expToCurrentLevel;
-        
+        Debug.Log(level.ToString());
         // UIを更新
         levelText.text = level.ToString();
+        
         expSlider.value = (float)expInCurrentLevel / expForNextLevel;
         
         _onOkButtonClicked = onOkButtonClicked;

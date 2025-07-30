@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Genit;
 using UnityEngine;
 using UnityEngine.UI;
@@ -132,7 +133,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
         var go = await Genit.Utils.OpenDialog("Prefabs/Common/CommonDialog", this.gameObject.transform);
         var cd = go.GetComponent<CommonDialog>();
         var challengeTitle = $"{data.chapterNumber}にチャレンジする？";
-        cd.Setup(challengeTitle, challengeTitle, result => 
+        cd.Setup(challengeTitle, challengeTitle, async result => 
         {
             if (result == CommonDialog.Result.OK)
             {
@@ -140,10 +141,12 @@ public class SelectChallengeStagePanel : MonoBehaviour
                 Const.GameSceneParam.DifficultyLevel = data.difficultyLevel;
                 Const.GameSceneParam.ChapterNumber = data.chapterNumber;
                 
+                // ダイアログのアニメーションが完了するのを待つ
+                await UniTask.Delay(150);
                 
                 _onStartGame();
             }
-        }, CommonDialog.Mode.OK);
+        }, CommonDialog.Mode.OK_CANCEL);
     }
 
     private async void PlaceRobotOnChapter()
