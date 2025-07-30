@@ -13,7 +13,7 @@ public class GameScene : MonoBehaviour
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
      [SerializeField] private Slider quizIndexSlider;
-     [SerializeField] private Text quizIndexText;
+     [SerializeField] private Text quizIndexText,subjectTitleText;
 //     private AudioClip _addMedalSound;
 //     private AudioClip _correctSound;
 //     private AudioClip _incorrectSound;
@@ -24,6 +24,7 @@ public class GameScene : MonoBehaviour
      private int _quizIndex;
      private List<QuizResultData> _quizResults;
      private QuizData[] _quizzes;
+     private int _correctCount;
 //     private AudioClip _resultSound;
 
      private async void Start()
@@ -35,6 +36,9 @@ public class GameScene : MonoBehaviour
              Const.GameSceneParam.ChapterNumber
          );
          _quizResults = new List<QuizResultData>();
+         
+         // 教科名とチャプター番号を表示
+         subjectTitleText.text = $"{Const.GameSceneParam.Subject}\n{Const.GameSceneParam.ChapterNumber}";
          
          // _correctSound = Resources.Load<AudioClip>("SE/correct");
          // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
@@ -94,6 +98,11 @@ public class GameScene : MonoBehaviour
      
      private async void EndGame()
      {
+         foreach (var result in _quizResults)
+         {
+             if (result.IsCorrect)
+                 _correctCount++;
+         }
          var isSaved = false;
          Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
          var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
@@ -109,6 +118,9 @@ public class GameScene : MonoBehaviour
 
          // チャプター進捗を保存
          await SaveChapterProgress();
+         
+         // プレイヤーステータスを保存
+         await SavePlayerStatus();
 
          isSaved = true;
          Debug.Log("AnswerData saved");
@@ -116,25 +128,40 @@ public class GameScene : MonoBehaviour
 
      private async UniTask SaveChapterProgress()
      {
-         // 正解数を計算
-         int correctCount = 0;
-         foreach (var result in _quizResults)
-         {
-             if (result.IsCorrect)
-                 correctCount++;
-         }
-
          // ChapterProgressDataを作成
          var progressData = new UserDataManager.ChapterProgressData
          {
              chapterId = Const.GameSceneParam.ChapterNumber.ToString(),
              dateTime = Utils.DateTimeToUnixTime(Clock.GetInstance().Now()),
-             correctCount = correctCount,
+             correctCount = _correctCount,
              totalCount = _quizResults.Count
          };
 
          // 教科名とともに保存
          await UserDataManager.GetInstance().SaveChapterProgress(Const.GameSceneParam.Subject, progressData);
+     }
+
+     private async UniTask SavePlayerStatus()
+     {
+         // 現在のPlayerStatusを取得
+         var userDataManager = UserDataManager.GetInstance();
+         var playerStatus = userDataManager.GetPlayerStatus();
+         
+         // LevelingSystemを使用してEXPを計算
+         int expFromCorrectAnswers = LevelingSystem.CalculateExpFromCorrectAnswers(_correctCount);
+         
+         // 現在のEXPに加算
+         playerStatus.exp += expFromCorrectAnswers;
+         
+         playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
+         
+         // HPを10加算（仮の値）
+         playerStatus.hp = Mathf.Min(playerStatus.hp + LevelingSystem.RecoveryHpPerQuest, 100);
+         
+         // PlayerStatusを保存
+         await userDataManager.UpdatePlayerStatus(playerStatus);
+         
+         Debug.Log($"Player Status Updated - EXP: {playerStatus.exp} (+{expFromCorrectAnswers}), HP: {playerStatus.hp} (+10)");
      }
 
      private void EndScene()

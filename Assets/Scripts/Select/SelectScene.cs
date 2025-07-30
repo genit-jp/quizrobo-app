@@ -10,6 +10,8 @@ public class SelectScene : MonoBehaviour
     [SerializeField] private GameLoadingPanel gameLoadingScene;
 
     [SerializeField] private GameObject _blocker, roboContainer;
+    [SerializeField] private Slider expSlider;
+    [SerializeField] private Text levelText;
 
     private int _selectedGrade;
     private TimeDispatcher _timer;
@@ -43,7 +45,7 @@ public class SelectScene : MonoBehaviour
 
     private async void OnEnable()
     {
-        // UserDataManager.GetInstance().AddUserDataUpdateListener(UpdateSelectSceneUI);
+        UserDataManager.GetInstance().AddUserDataUpdateListener(UpdatePlayerStatusUI);
 
         var lastLoginDateTime = Utils.UnixTimeToDateTime(UserDataManager.GetInstance().GetUserData().lastLoginDateTime);
         var now = Clock.GetInstance().Now();
@@ -86,13 +88,35 @@ public class SelectScene : MonoBehaviour
             };
             await RoboSettingManager.DisplayRobo(roboContainer, roboData);
         }
+
+        UpdatePlayerStatusUI();
     }
 
     private void OnDisable()
     {
-        // UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdateSelectSceneUI);
+        UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdatePlayerStatusUI);
     }
 
+    private void UpdatePlayerStatusUI()
+    {
+        var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
+        int currentExp = playerStatus.exp;
+        int level = LevelingSystem.CalculateLevelFromExp(currentExp);
+
+        int expToCurrentLevel = 0;
+        for (int i = 1; i < level; i++)
+        {
+            expToCurrentLevel += LevelingSystem.GetExpToLevelUp(i);
+        }
+
+        int expForNextLevel = LevelingSystem.GetExpToLevelUp(level);
+        int expInCurrentLevel = currentExp - expToCurrentLevel;
+
+        levelText.text = level.ToString();
+        expSlider.value = (float)expInCurrentLevel / expForNextLevel;
+    }
+
+    
     public async void OnClickSubjectSelectPanelButton()
     {
         var selectSubject = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/SubjectSelectPanel", this.transform);
