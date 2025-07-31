@@ -7,8 +7,7 @@ using UnityEngine.UI;
 public class CurretPartButton : MonoBehaviour
 {
     [SerializeField] private Image partImage, backGround;
-    [SerializeField] private Sprite notSelected, selected;
-    [SerializeField] private GameObject mask;
+    [SerializeField] private GameObject mask, selectedImage;
     
     public string PartId { get; private set; }
     public Action onPartSelected { get; set; }
@@ -27,14 +26,7 @@ public class CurretPartButton : MonoBehaviour
     
     public void SetSelected(bool isSelected)
     {
-        if (isSelected)
-        {
-            backGround.sprite = selected;
-        }
-        else
-        {
-            backGround.sprite = notSelected;
-        }
+       selectedImage.SetActive(isSelected);
     }
     
     public void OnPartButtonClicked()
