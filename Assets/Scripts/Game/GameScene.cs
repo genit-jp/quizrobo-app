@@ -54,7 +54,11 @@ public class GameScene : MonoBehaviour
          // _resultSound = Resources.Load<AudioClip>("SE/result");
          //
          await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
-         SetEnemies();
+         
+         // EnemyManagerを使用して敵を表示
+         var enemyManager = gameObject.AddComponent<EnemyManager>();
+         enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
+         
          await SetRobo();
          await StartNextQuiz();
      }
@@ -115,70 +119,7 @@ public class GameScene : MonoBehaviour
                  });
              });
      }
-
-     private void SetEnemies()
-     {
-         // 敵データファイルを読み込む
-         var enemyDataText = Resources.Load<TextAsset>("Data/enemy_data");
-         if (enemyDataText == null)
-         {
-             Debug.LogError("enemy_data.txt not found");
-             return;
-         }
-         
-         // 改行で分割して敵IDのリストを取得
-         string[] enemyPatterns = enemyDataText.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-         
-         // チャプター番号から対応する敵パターンを取得（1始まりなので-1）
-         int chapterIndex = Const.GameSceneParam.ChapterNumber - 1;
-         if (chapterIndex < 0 || chapterIndex >= enemyPatterns.Length)
-         {
-             Debug.LogError($"Chapter {Const.GameSceneParam.ChapterNumber} not found in enemy_data");
-             return;
-         }
-         
-         string enemyPattern = enemyPatterns[chapterIndex].Trim();
-         
-         // 既存の敵画像をクリア
-         foreach (Transform child in enemyArea)
-         {
-             Destroy(child.gameObject);
-         }
-         
-         // パターンの各文字が敵を表す（最大4体）
-         int enemyCount = Mathf.Min(enemyPattern.Length, 4);
-         
-         for (int i = 0; i < enemyCount; i++)
-         {
-             char enemyChar = enemyPattern[i];
-             string enemyId = enemyChar.ToString();
-             
-             // 敵画像を作成
-             GameObject enemyImageObj = new GameObject($"Enemy_{enemyId}_{i}");
-             enemyImageObj.transform.SetParent(enemyArea, false);
-             
-             // Imageコンポーネントを追加
-             Image enemyImage = enemyImageObj.AddComponent<Image>();
-             
-             // スプライトを読み込む
-             Sprite enemySprite = Resources.Load<Sprite>($"Images/Enemy/{enemyId}");
-             if (enemySprite != null)
-             {
-                 enemyImage.sprite = enemySprite;
-                 enemyImage.preserveAspect = true;
-             }
-             else
-             {
-                 Debug.LogWarning($"Enemy sprite not found: Images/Enemy/{enemyId}");
-             }
-             
-             // RectTransformの設定
-             RectTransform rectTransform = enemyImageObj.GetComponent<RectTransform>();
-             rectTransform.sizeDelta = new Vector2(100, 100); // サイズは適宜調整
-         }
-         
-         Debug.Log($"Chapter {Const.GameSceneParam.ChapterNumber}: Spawned {enemyCount} enemies from pattern '{enemyPattern}'");
-     }
+     
      
      private async void EndGame()
      {
