@@ -87,7 +87,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
         int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
         int chapterCount = _chapters.Length;
         
-        float offsetX = 200f;            
+        float offsetX = 150f;            
         float verticalOffset = 450f;
 
         for (int i = 0; i < chapterCount; i++)
@@ -101,7 +101,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
             rect.pivot = new Vector2(0.5f, 1f);
 
             // ボタンの高さのを使って縦に等間隔に並べる
-            float buttonHeight = rect.sizeDelta.y;
+            float buttonHeight = rect.sizeDelta.y * 0.7f;
             float y = verticalOffset + i * buttonHeight;
             float x = (i % 2 == 0) ? offsetX : -offsetX;
 
