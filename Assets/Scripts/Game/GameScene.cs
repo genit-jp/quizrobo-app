@@ -28,36 +28,14 @@ public class GameScene : MonoBehaviour
      private QuizData[] _quizzes;
      private int _correctCount;
      private List<Image> answerIcons = new List<Image>();
+    
 //     private AudioClip _resultSound;
 
      private async void Start()
      {
          Debug.Log("GameScene Start");
          
-         // 初期化チェック
-         if (MasterData.GetInstance().quizzes == null || 
-             string.IsNullOrEmpty(Const.GameSceneParam.Subject) ||
-             Const.GameSceneParam.ChapterNumber == 0)
-         {
-             Debug.LogWarning("Game not properly initialized. Using dummy quizzes.");
-             // ダミーデータ用にパラメータを設定
-             if (string.IsNullOrEmpty(Const.GameSceneParam.Subject))
-                 Const.GameSceneParam.Subject = "テスト";
-             if (Const.GameSceneParam.ChapterNumber == 0)
-                 Const.GameSceneParam.ChapterNumber = 1;
-             if (string.IsNullOrEmpty(Const.GameSceneParam.DifficultyLevel))
-                 Const.GameSceneParam.DifficultyLevel = "easy";
-             
-             _quizzes = CreateDummyQuizzes();
-         }
-         else
-         {
-             _quizzes = new QuizSelectManager().PrepareQuizzesByChapter(
-                 Const.GameSceneParam.Subject,
-                 Const.GameSceneParam.DifficultyLevel,
-                 Const.GameSceneParam.ChapterNumber
-             );
-         }
+         _quizzes = QuizGenerator.GenerateRandomQuizList();
          
          _quizResults = new List<QuizResultData>();
          
@@ -75,7 +53,7 @@ public class GameScene : MonoBehaviour
          // _nextQuizSound = Resources.Load<AudioClip>("SE/nextQuiz");
          // _resultSound = Resources.Load<AudioClip>("SE/result");
          //
-         // await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
+         await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
          SetEnemies();
          await SetRobo();
          await StartNextQuiz();
@@ -107,7 +85,7 @@ public class GameScene : MonoBehaviour
                  quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
 
-                 // クイズ結果を記録（← ここ追加）
+                 // クイズ結果を記録
                  _quizResults.Add(new QuizResultData
                  {
                      Quiz = _quizzes[_quizIndex],
@@ -117,12 +95,24 @@ public class GameScene : MonoBehaviour
 
                  answerIcons[_quizIndex].sprite = isCorrect ? correctSprite : incorrectSprite;
                  
-                 _quizIndex++;
-
-                 if (_quizIndex < _quizzes.Length)
-                     await StartNextQuiz();
-                 else
-                     EndGame(); // ← 最後のクイズならResultDialogへ
+                 // JudgeScreenを表示
+                 var judgeScreenObj = await Utils.InstantiatePrefab("Prefabs/Game/JudgeScreen", transform);
+                 var judgeScreen = judgeScreenObj.GetComponent<JudgeScreen>();
+                 
+                 // JudgeScreenをセットアップ
+                 judgeScreen.Setup(isCorrect, _quizzes[_quizIndex], () =>
+                 {
+                     // JudgeScreenを破棄
+                     Destroy(judgeScreenObj);
+                     
+                     // 次のクイズへ進む
+                     _quizIndex++;
+                     
+                     if (_quizIndex < _quizzes.Length)
+                         StartNextQuiz();
+                     else
+                         EndGame(); // 最後のクイズならResultDialogへ
+                 });
              });
      }
 
@@ -268,28 +258,6 @@ public class GameScene : MonoBehaviour
          SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
      }
      
-     private QuizData[] CreateDummyQuizzes()
-     {
-         // 仮の問題データを生成
-         var dummyQuizzes = new QuizData[10];
-         
-         for (int i = 0; i < dummyQuizzes.Length; i++)
-         {
-             dummyQuizzes[i] = new QuizData
-             {
-                    Id = $"dummy_{i + 1}",
-                    available = true,
-                    subject = "テスト",
-                    question = $"テスト問題 {i + 1}: これは仮の問題です。",
-                    choices = new string[] { "答え", "選択肢2", "選択肢3", "選択肢4" },
-                    answer = "答え",
-                    difficultyLevels = "easy",
-                 
-             };
-         }
-         
-         return dummyQuizzes;
-     }
      
      private async UniTask SetRobo()
      {

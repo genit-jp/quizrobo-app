@@ -806,7 +806,6 @@ MonoBehaviour:
   _image: {fileID: 1160732802096785922}
   _explanationPanel: {fileID: 2457139768162799424}
   _ansText: {fileID: 4520238246873657995}
-  _explanationText: {fileID: 3224088603844322722}
 --- !u!114 &3667714767845135043
 MonoBehaviour:
   m_ObjectHideFlags: 0
