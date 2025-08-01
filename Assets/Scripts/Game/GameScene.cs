@@ -12,10 +12,10 @@ public class GameScene : MonoBehaviour
 //     [SerializeField] private AudioSource _audioSource;
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
-     [SerializeField] private Text subjectTitleText;
      [SerializeField] private Transform answerProgressPanel;
-     [SerializeField] private GameObject answerIconPrefab;
+     [SerializeField] private GameObject answerIconPrefab, robo;
      [SerializeField] private Sprite unansweredSprite, correctSprite, incorrectSprite;
+     [SerializeField] private Transform enemyArea;
 //     private AudioClip _addMedalSound;
 //     private AudioClip _correctSound;
 //     private AudioClip _incorrectSound;
@@ -33,15 +33,33 @@ public class GameScene : MonoBehaviour
      private async void Start()
      {
          Debug.Log("GameScene Start");
-         _quizzes = new QuizSelectManager().PrepareQuizzesByChapter(
-             Const.GameSceneParam.Subject,
-             Const.GameSceneParam.DifficultyLevel,
-             Const.GameSceneParam.ChapterNumber
-         );
-         _quizResults = new List<QuizResultData>();
          
-         // 教科名とチャプター番号を表示
-         subjectTitleText.text = $"{Const.GameSceneParam.Subject}\n{Const.GameSceneParam.ChapterNumber}";
+         // 初期化チェック
+         if (MasterData.GetInstance().quizzes == null || 
+             string.IsNullOrEmpty(Const.GameSceneParam.Subject) ||
+             Const.GameSceneParam.ChapterNumber == 0)
+         {
+             Debug.LogWarning("Game not properly initialized. Using dummy quizzes.");
+             // ダミーデータ用にパラメータを設定
+             if (string.IsNullOrEmpty(Const.GameSceneParam.Subject))
+                 Const.GameSceneParam.Subject = "テスト";
+             if (Const.GameSceneParam.ChapterNumber == 0)
+                 Const.GameSceneParam.ChapterNumber = 1;
+             if (string.IsNullOrEmpty(Const.GameSceneParam.DifficultyLevel))
+                 Const.GameSceneParam.DifficultyLevel = "easy";
+             
+             _quizzes = CreateDummyQuizzes();
+         }
+         else
+         {
+             _quizzes = new QuizSelectManager().PrepareQuizzesByChapter(
+                 Const.GameSceneParam.Subject,
+                 Const.GameSceneParam.DifficultyLevel,
+                 Const.GameSceneParam.ChapterNumber
+             );
+         }
+         
+         _quizResults = new List<QuizResultData>();
          
          for (int i = 0; i < _quizzes.Length; i++)
          {
@@ -58,8 +76,11 @@ public class GameScene : MonoBehaviour
          // _resultSound = Resources.Load<AudioClip>("SE/result");
          //
          // await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
+         SetEnemies();
+         await SetRobo();
          await StartNextQuiz();
      }
+    
 
      private async UniTask StartNextQuiz()
      {
@@ -105,6 +126,69 @@ public class GameScene : MonoBehaviour
              });
      }
 
+     private void SetEnemies()
+     {
+         // 敵データファイルを読み込む
+         var enemyDataText = Resources.Load<TextAsset>("Data/enemy_data");
+         if (enemyDataText == null)
+         {
+             Debug.LogError("enemy_data.txt not found");
+             return;
+         }
+         
+         // 改行で分割して敵IDのリストを取得
+         string[] enemyPatterns = enemyDataText.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+         
+         // チャプター番号から対応する敵パターンを取得（1始まりなので-1）
+         int chapterIndex = Const.GameSceneParam.ChapterNumber - 1;
+         if (chapterIndex < 0 || chapterIndex >= enemyPatterns.Length)
+         {
+             Debug.LogError($"Chapter {Const.GameSceneParam.ChapterNumber} not found in enemy_data");
+             return;
+         }
+         
+         string enemyPattern = enemyPatterns[chapterIndex].Trim();
+         
+         // 既存の敵画像をクリア
+         foreach (Transform child in enemyArea)
+         {
+             Destroy(child.gameObject);
+         }
+         
+         // パターンの各文字が敵を表す（最大4体）
+         int enemyCount = Mathf.Min(enemyPattern.Length, 4);
+         
+         for (int i = 0; i < enemyCount; i++)
+         {
+             char enemyChar = enemyPattern[i];
+             string enemyId = enemyChar.ToString();
+             
+             // 敵画像を作成
+             GameObject enemyImageObj = new GameObject($"Enemy_{enemyId}_{i}");
+             enemyImageObj.transform.SetParent(enemyArea, false);
+             
+             // Imageコンポーネントを追加
+             Image enemyImage = enemyImageObj.AddComponent<Image>();
+             
+             // スプライトを読み込む
+             Sprite enemySprite = Resources.Load<Sprite>($"Images/Enemy/{enemyId}");
+             if (enemySprite != null)
+             {
+                 enemyImage.sprite = enemySprite;
+                 enemyImage.preserveAspect = true;
+             }
+             else
+             {
+                 Debug.LogWarning($"Enemy sprite not found: Images/Enemy/{enemyId}");
+             }
+             
+             // RectTransformの設定
+             RectTransform rectTransform = enemyImageObj.GetComponent<RectTransform>();
+             rectTransform.sizeDelta = new Vector2(100, 100); // サイズは適宜調整
+         }
+         
+         Debug.Log($"Chapter {Const.GameSceneParam.ChapterNumber}: Spawned {enemyCount} enemies from pattern '{enemyPattern}'");
+     }
      
      private async void EndGame()
      {
@@ -182,6 +266,50 @@ public class GameScene : MonoBehaviour
                  go.SetActive(true);
 
          SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
+     }
+     
+     private QuizData[] CreateDummyQuizzes()
+     {
+         // 仮の問題データを生成
+         var dummyQuizzes = new QuizData[10];
+         
+         for (int i = 0; i < dummyQuizzes.Length; i++)
+         {
+             dummyQuizzes[i] = new QuizData
+             {
+                    Id = $"dummy_{i + 1}",
+                    available = true,
+                    subject = "テスト",
+                    question = $"テスト問題 {i + 1}: これは仮の問題です。",
+                    choices = new string[] { "答え", "選択肢2", "選択肢3", "選択肢4" },
+                    answer = "答え",
+                    difficultyLevels = "easy",
+                 
+             };
+         }
+         
+         return dummyQuizzes;
+     }
+     
+     private async UniTask SetRobo()
+     {
+         // ユーザーの選択したロボットデータを取得
+         var userDataManager = UserDataManager.GetInstance();
+         var userData = userDataManager.GetUserData();
+         var selectedRoboId = userData.selectedRoboId ?? "default";
+         
+         var roboCustomDataDict = userDataManager.GetRoboCustomData(selectedRoboId);
+         if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(selectedRoboId))
+         {
+             var roboCustomData = roboCustomDataDict[selectedRoboId];
+             
+             // RoboSettingManagerを使用してロボットを表示
+             await RoboSettingManager.DisplayRobo(robo, roboCustomData);
+         }
+         else
+         {
+             Debug.LogWarning($"RoboCustomData not found for selectedRoboId: {selectedRoboId}");
+         }
      }
      
      public async void OnClickPauseButton()

@@ -12,11 +12,6 @@ public class QuizData
     public string[] choices;  // カンマ区切りの文字列として受け取る
     public string answer; 
     public string difficultyLevels = "";  // JSONではdifficultyLevelsだが、levelでも受け取れるようにする
-    public string imgPath = "";
-    
-    // Unity側で使用するプロパティ（JSONシリアライズ対象外）
-    [NonSerialized]
-    public Texture2D imgTexture;
 }
 
 

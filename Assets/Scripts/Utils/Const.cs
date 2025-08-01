@@ -109,6 +109,8 @@ public class Const
         { "Tail", "しっぽ" }
     };
     
+    
+    
     public static class GameSceneParam
     {
         public static string Subject;

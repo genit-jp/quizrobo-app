@@ -30,7 +30,6 @@ public class Quiz : MonoBehaviour
         // }
 
         string question = quizData.question;
-        string imgPath = quizData.imgPath;
         _answeredByUser = answeredByUser;
 
         // 問題文の高さを調整
@@ -38,25 +37,6 @@ public class Quiz : MonoBehaviour
         int textLength = TextToTextLength(planeText); // 問題文の文字数(空白行がある時は20文字加算)
         int textHeight = TextLengthToHeight(textLength); // 問題文の高さ
         _quizTextRect.sizeDelta = new Vector2(_quizTextRect.sizeDelta.x, textHeight);
-        
-        if (imgPath != "")
-        {
-            Texture2D texture = quizData.imgTexture;
-            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-    
-            // 指定された縦幅
-            float desiredHeight = 300f;
-            // アスペクト比を計算 (元の画像の幅/高さ)
-            float aspectRatio = (float)texture.width / (float)texture.height;
-            // 横幅を計算 (縦幅 * アスペクト比)
-            float calculatedWidth = desiredHeight * aspectRatio;
-    
-            // ImageコンポーネントのRectTransformサイズを調整してアスペクト比を保持する
-            _image.rectTransform.sizeDelta = new Vector2(calculatedWidth, desiredHeight);
-            _image.sprite = sprite;
-    
-            _image.gameObject.SetActive(true);
-        }
         
         // if(quizData.quizTags.Contains("計算"))
         // {
