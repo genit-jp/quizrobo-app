@@ -12,8 +12,10 @@ public class GameScene : MonoBehaviour
 //     [SerializeField] private AudioSource _audioSource;
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
-     [SerializeField] private Slider quizIndexSlider;
-     [SerializeField] private Text quizIndexText,subjectTitleText;
+     [SerializeField] private Text subjectTitleText;
+     [SerializeField] private Transform answerProgressPanel;
+     [SerializeField] private GameObject answerIconPrefab;
+     [SerializeField] private Sprite unansweredSprite, correctSprite, incorrectSprite;
 //     private AudioClip _addMedalSound;
 //     private AudioClip _correctSound;
 //     private AudioClip _incorrectSound;
@@ -25,6 +27,7 @@ public class GameScene : MonoBehaviour
      private List<QuizResultData> _quizResults;
      private QuizData[] _quizzes;
      private int _correctCount;
+     private List<Image> answerIcons = new List<Image>();
 //     private AudioClip _resultSound;
 
      private async void Start()
@@ -40,6 +43,14 @@ public class GameScene : MonoBehaviour
          // 教科名とチャプター番号を表示
          subjectTitleText.text = $"{Const.GameSceneParam.Subject}\n{Const.GameSceneParam.ChapterNumber}";
          
+         for (int i = 0; i < _quizzes.Length; i++)
+         {
+             var iconObj = Instantiate(answerIconPrefab, answerProgressPanel);
+             var image = iconObj.GetComponent<Image>();
+             image.sprite = unansweredSprite;
+             answerIcons.Add(image);
+         }
+
          // _correctSound = Resources.Load<AudioClip>("SE/correct");
          // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
          // _addMedalSound = Resources.Load<AudioClip>("SE/addMedal");
@@ -62,10 +73,7 @@ public class GameScene : MonoBehaviour
          foreach (Transform child in contentsTransform)
              if (child != uiPanel.transform)
                  Destroy(child.gameObject);
-
          
-         quizIndexSlider.value = (_quizIndex + 1f) / _quizzes.Length;
-         quizIndexText.text = $"{_quizIndex + 1} / {_quizzes.Length}";
          // _audioSource.PlayOneShot(_nextQuizSound);
 
          var quizObj = await Utils.InstantiatePrefab("Prefabs/Game/Quiz", contentsTransform);
@@ -86,6 +94,8 @@ public class GameScene : MonoBehaviour
                      AnswerWord = answerWord
                  });
 
+                 answerIcons[_quizIndex].sprite = isCorrect ? correctSprite : incorrectSprite;
+                 
                  _quizIndex++;
 
                  if (_quizIndex < _quizzes.Length)

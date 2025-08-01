@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class SubjectButton : MonoBehaviour
 {
-   [SerializeField] private Text subjectName;
    [SerializeField] private Image backgroundImage;
    
    [SerializeField] private Sprite mathSprite;
@@ -20,7 +19,6 @@ public class SubjectButton : MonoBehaviour
    public void Setup(string subjectName, Action onClicked)
    {
        this.onClicked = onClicked;
-       this.subjectName.text = subjectName;
        
        switch (subjectName)
        {
