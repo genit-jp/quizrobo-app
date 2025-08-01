@@ -1,0 +1,15 @@
+key,value,max_length
+ios_name,Drum Gig,30
+ios_subtitle,ライブ感覚ドラム演奏アプリ,30
+ios_description,Drum Gigは、スマホ一台で本物のドラムセットをライブさながらに演奏できる音楽アプリです。高精度タッチレスポンスとハイクオリティサウンドで、ステージに立っているような臨場感を実現。練習用メトロノームやレッスンビデオ、セッションモードで世界中のプレイヤーと共演。録音・シェア機能でパフォーマンスを友達に共有しよう！初心者向けチュートリアルからプロ向けカスタムキット設定まで、あらゆるレベルに対応。今すぐ『Drum Gig』でビートを刻もう！,4000
+ios_keywords,"ドラム,ライブ,ビート,リズムゲーム,音楽,セッション,バンド,演奏",100
+ios_promotional_text,ステージに立つ高揚感をスマホで。『Drum Gig』でいつでもどこでもライブドラム！,170
+ios_release_notes,"新しい機能を追加しました。",4000
+ios_marketing_url,https://www.genit.jp/,
+ios_support_url,https://www.genit.jp/contact/,
+ios_privacy_url,https://www.genit.jp/privacypolicy/,
+android_title,Drum Gig,30
+android_short_description,ライブステージでドラムを叩く爽快感をスマホで体験！初心者からプロまで楽しめるドラムアプリ。,80
+android_full_description,Drum Gigは、リアルなドラムサウンドと直感的な操作で、ライブさながらの演奏体験を提供するドラムアプリです。高精度タッチレスポンスにより、複雑なフレーズや高速連打もストレスなく再現。練習をサポートするメトロノーム機能、テンポ別レッスン、録音・再生機能を搭載。オンラインセッションモードでは世界中のユーザーと即興セッションが可能です。カスタムキット設定でシンバルやスネアの種類を自由に変更し、あなた好みのサウンドを作りましょう。さらに、演奏動画をワンタップでSNSへシェア。初心者も経験者も、今すぐDrum Gigでビートを刻みましょう！,4000
+android_video_url,https://youtu.be/MIqGlQpHG1M,
+android_whats_new,"新しい機能を追加しました。",500

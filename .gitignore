@@ -80,3 +80,5 @@ crashlytics-build.properties
 
 
 mono_crash*
+
+.env

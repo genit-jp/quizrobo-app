@@ -1,11 +1,8 @@
 ﻿#if UNITY_IOS
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using UnityEditor.iOS.Xcode;
-using System.IO;
+using UnityEngine;
 
 public class XcodeSetPodsSigning : MonoBehaviour
 {
@@ -20,10 +17,21 @@ public class XcodeSetPodsSigning : MonoBehaviour
         using (StreamWriter sw = File.AppendText(buildPath + "/Podfile"))
         {
             sw.WriteLine("post_install do |installer|");
+
+            sw.WriteLine("installer.pods_project.targets.each do |target|");
+            sw.WriteLine("if target.name == 'BoringSSL-GRPC'");
+            sw.WriteLine("target.source_build_phase.files.each do |file|");
+            sw.WriteLine("if file.settings && file.settings['COMPILER_FLAGS']");
+            sw.WriteLine("flags = file.settings['COMPILER_FLAGS'].split");
+            sw.WriteLine("flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }");
+            sw.WriteLine("file.settings['COMPILER_FLAGS'] = flags.join(' ')");
+            sw.WriteLine("end\nend\nend\nend");
+
             sw.WriteLine("installer.generated_projects.each do |project|");
             sw.WriteLine("project.targets.each do |target|");
             sw.WriteLine("target.build_configurations.each do |config|");
             sw.WriteLine("config.build_settings[\"DEVELOPMENT_TEAM\"] = \"VJ4WHTV2TN\"");
+            sw.WriteLine("config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'");
             sw.WriteLine("end\nend\nend\nend");
         }
     }
