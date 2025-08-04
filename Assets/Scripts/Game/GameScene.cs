@@ -28,6 +28,7 @@ public class GameScene : MonoBehaviour
      private QuizData[] _quizzes;
      private int _correctCount;
      private List<Image> answerIcons = new List<Image>();
+     private EnemyManager _enemyManager;
     
 //     private AudioClip _resultSound;
 
@@ -56,8 +57,8 @@ public class GameScene : MonoBehaviour
          await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
          
          // EnemyManagerを使用して敵を表示
-         var enemyManager = gameObject.AddComponent<EnemyManager>();
-         enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
+         _enemyManager = gameObject.AddComponent<EnemyManager>();
+         _enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
          
          await SetRobo();
          await StartNextQuiz();
@@ -88,6 +89,11 @@ public class GameScene : MonoBehaviour
              {
                  quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
+
+                 if (isCorrect)
+                 {
+                     _enemyManager.AttackNextEnemy(10);
+                 }
 
                  // クイズ結果を記録
                  _quizResults.Add(new QuizResultData

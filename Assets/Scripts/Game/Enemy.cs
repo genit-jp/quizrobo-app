@@ -7,11 +7,16 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private Image enemyImage;
     [SerializeField] private Slider hpSlider;
-    
-    private int _currentHp, _maxHp;
+    [SerializeField] private Text hpText;
 
-    public void Setup(string id, int maxHp, System.Action onEnemyDefeated= null)
+    private System.Action _onEnemyDefeated;
+    private int _currentHp, _maxHp;
+    public bool IsDefeated => _currentHp <= 0;
+
+    public void Setup(string id, int maxHp,　System.Action onEnemyDefeated = null)
     {
+        _maxHp = maxHp;
+        _currentHp = maxHp;
         string resourcePath = $"Images/Enemy/{id}";
         var sprite = Resources.Load<Sprite>(resourcePath);
         if (sprite != null)
@@ -24,11 +29,11 @@ public class Enemy : MonoBehaviour
         }
         
         SetSprite(id);
-        SetSlider();
+        UpdateHpUI();
 
         // ここで敵の行動や攻撃のロジックを追加することができます
     }
-    
+
     private void SetSprite(string id)
     {
         string path = $"Images/Enemy/{id}";
@@ -44,10 +49,25 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void SetSlider()
+    public void TakeDamage(int damage)
+    {
+        if (IsDefeated) return;
+
+        _currentHp -= damage;
+        _currentHp = Mathf.Max(_currentHp, 0);
+        UpdateHpUI();
+
+        if (_currentHp == 0)
+        {
+            _onEnemyDefeated?.Invoke();
+        }
+    }
+
+    private void UpdateHpUI()
     {
         hpSlider.maxValue = _maxHp;
         hpSlider.value = _currentHp;
+        hpText.text = $"{_currentHp.ToString()}/{_maxHp.ToString()}";
     }
     
 }
