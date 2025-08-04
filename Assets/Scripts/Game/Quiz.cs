@@ -19,9 +19,35 @@ public class Quiz : MonoBehaviour
     [SerializeField] private Image _image;
     [SerializeField] private GameObject _choiceButtonContainer;
     [SerializeField]private GameObject _skipButton;
-    private FourChoiceButtonUI _quizUI;
+    [SerializeField] private Text timerText;
+    [SerializeField] private float timeLimit = 10f;
+    
+    private float _remainingTime;
+    private bool _isTiming;
+
+    private MonoBehaviour _quizUI; // Can be either FourChoiceButtonUI or NumpadUI
     private Action<bool, string> _answeredByUser;
 
+    void Start()
+    {
+        StartTimer();
+    }
+    
+    void Update()
+    {
+        if (_isTiming)
+        {
+            _remainingTime -= Time.deltaTime;
+            timerText.text = $"{Mathf.CeilToInt(_remainingTime)}秒";
+
+            if (_remainingTime <= 0f)
+            {
+                _isTiming = false;
+                OnTimeUp();
+            }
+        }
+    }
+    
     public async void Setup(QuizData quizData, int quizIndex, Action<bool, string> answeredByUser)
     {
         // if (QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
@@ -30,7 +56,12 @@ public class Quiz : MonoBehaviour
         // }
 
         string question = quizData.question;
-        _answeredByUser = answeredByUser;
+        
+        _answeredByUser = (isCorrect, answer) =>
+        {
+            StopTimer(); // ⏱タイマー停止！
+            answeredByUser?.Invoke(isCorrect, answer);
+        };
 
         // 問題文の高さを調整
         string planeText = GetQuestionPlainText(question); // マークアップを除去した問題文
@@ -46,21 +77,40 @@ public class Quiz : MonoBehaviour
         // }
         _quizText.uneditedText = GetQuestionRichText(question);
         
-        Debug.Log("Attempting to instantiate FourChoiceButtonUI");
-        var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/FourChoiceButtonUI", _choiceButtonContainer.transform);
-        Debug.Log($"Instantiated object: {(instantiatedObj != null ? instantiatedObj.name : "null")}");
+        // Check if this is a numeric answer quiz (assumes numeric answers are required for NumpadUI)
+        bool isNumericQuiz = IsNumericAnswer(quizData.answer);
+        
+        if (isNumericQuiz)
+        {
+            Debug.Log("Using NumpadUI for numeric quiz");
+            var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/NumpadUI", _choiceButtonContainer.transform);
+            var numpadUI = instantiatedObj.GetComponent<NumpadUI>();
+            numpadUI.Setup(quizData, _answeredByUser);
+            _quizUI = numpadUI;
+        }
+        else
+        {
+            Debug.Log("Using FourChoiceButtonUI for non-numeric quiz");
+            var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/FourChoiceButtonUI", _choiceButtonContainer.transform);
+            var fourChoiceUI = instantiatedObj.GetComponent<FourChoiceButtonUI>();
+            fourChoiceUI.Setup(quizData, _answeredByUser);
+            _quizUI = fourChoiceUI;
+        }
 
-        _quizUI = instantiatedObj.GetComponent<FourChoiceButtonUI>();
-        Debug.Log($"QuizUI component: {(_quizUI != null ? "found" : "not found")}");
-
-        _quizUI.Setup(quizData, _answeredByUser);
-
+        StartTimer();
     }
 
     public void DestroyGameUI()
     {
         _skipButton.SetActive(false);
-        _quizUI.DestroyGameUI();
+        if (_quizUI is FourChoiceButtonUI fourChoiceUI)
+        {
+            fourChoiceUI.DestroyGameUI();
+        }
+        else if (_quizUI is NumpadUI numpadUI)
+        {
+            numpadUI.DestroyGameUI();
+        }
     }
 
     private string GetQuestionRichText(string question)
@@ -130,8 +180,32 @@ public class Quiz : MonoBehaviour
         }
     }
     
+    private void StartTimer()
+    {
+        _remainingTime = timeLimit;
+        _isTiming = true;
+    }
+
+    private void StopTimer()
+    {
+        _isTiming = false;
+    }
+    
+    private void OnTimeUp()
+    {
+        // タイムアップ時の処理（不正解として扱うなど）
+        Debug.Log("時間切れ！");
+        // 必要であればコールバックでGameSceneに通知する
+    }
+    
     public void OnClickSkipButton()
     {
         _answeredByUser(false, "");
+    }
+    
+    private bool IsNumericAnswer(string answer)
+    {
+        // Check if the answer string contains only digits
+        return !string.IsNullOrEmpty(answer) && answer.All(char.IsDigit);
     }
 }
