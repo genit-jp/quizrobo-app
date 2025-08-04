@@ -19,9 +19,35 @@ public class Quiz : MonoBehaviour
     [SerializeField] private Image _image;
     [SerializeField] private GameObject _choiceButtonContainer;
     [SerializeField]private GameObject _skipButton;
+    [SerializeField] private Text timerText;
+    [SerializeField] private float timeLimit = 10f;
+    
+    private float _remainingTime;
+    private bool _isTiming;
+
     private MonoBehaviour _quizUI; // Can be either FourChoiceButtonUI or NumpadUI
     private Action<bool, string> _answeredByUser;
 
+    void Start()
+    {
+        StartTimer();
+    }
+    
+    void Update()
+    {
+        if (_isTiming)
+        {
+            _remainingTime -= Time.deltaTime;
+            timerText.text = $"{Mathf.CeilToInt(_remainingTime)}秒";
+
+            if (_remainingTime <= 0f)
+            {
+                _isTiming = false;
+                OnTimeUp();
+            }
+        }
+    }
+    
     public async void Setup(QuizData quizData, int quizIndex, Action<bool, string> answeredByUser)
     {
         // if (QuizSelectManager.GetInstance().GetPlayMode() == Const.PlayMode.Calculation)
@@ -30,7 +56,12 @@ public class Quiz : MonoBehaviour
         // }
 
         string question = quizData.question;
-        _answeredByUser = answeredByUser;
+        
+        _answeredByUser = (isCorrect, answer) =>
+        {
+            StopTimer(); // ⏱タイマー停止！
+            answeredByUser?.Invoke(isCorrect, answer);
+        };
 
         // 問題文の高さを調整
         string planeText = GetQuestionPlainText(question); // マークアップを除去した問題文
@@ -66,6 +97,7 @@ public class Quiz : MonoBehaviour
             _quizUI = fourChoiceUI;
         }
 
+        StartTimer();
     }
 
     public void DestroyGameUI()
@@ -146,6 +178,24 @@ public class Quiz : MonoBehaviour
         {
             return 400;
         }
+    }
+    
+    private void StartTimer()
+    {
+        _remainingTime = timeLimit;
+        _isTiming = true;
+    }
+
+    private void StopTimer()
+    {
+        _isTiming = false;
+    }
+    
+    private void OnTimeUp()
+    {
+        // タイムアップ時の処理（不正解として扱うなど）
+        Debug.Log("時間切れ！");
+        // 必要であればコールバックでGameSceneに通知する
     }
     
     public void OnClickSkipButton()
