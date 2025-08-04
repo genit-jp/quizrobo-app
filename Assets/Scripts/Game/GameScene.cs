@@ -162,7 +162,7 @@ public class GameScene : MonoBehaviour
              // ❗敵が逃げたダイアログ
              var dialogObj = await Utils.OpenDialog("Prefabs/Common/CommonDialog", transform);
              var commonDialog = dialogObj.GetComponent<CommonDialog>();
-             commonDialog.Setup("クエスト失敗", "敵が逃げてしまった！\n次回はもっとがんばろう！", (result) =>
+             commonDialog.Setup("クエスト失敗", "敵が逃げてしまった！\nロボをカスタマイズして再挑戦しよう！", (result) =>
              {
                  if (isSaved) EndScene();
              }, CommonDialog.Mode.OK);
