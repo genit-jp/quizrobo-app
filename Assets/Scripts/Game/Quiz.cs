@@ -19,7 +19,7 @@ public class Quiz : MonoBehaviour
     [SerializeField] private Image _image;
     [SerializeField] private GameObject _choiceButtonContainer;
     [SerializeField]private GameObject _skipButton;
-    private FourChoiceButtonUI _quizUI;
+    private MonoBehaviour _quizUI; // Can be either FourChoiceButtonUI or NumpadUI
     private Action<bool, string> _answeredByUser;
 
     public async void Setup(QuizData quizData, int quizIndex, Action<bool, string> answeredByUser)
@@ -46,21 +46,39 @@ public class Quiz : MonoBehaviour
         // }
         _quizText.uneditedText = GetQuestionRichText(question);
         
-        Debug.Log("Attempting to instantiate FourChoiceButtonUI");
-        var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/FourChoiceButtonUI", _choiceButtonContainer.transform);
-        Debug.Log($"Instantiated object: {(instantiatedObj != null ? instantiatedObj.name : "null")}");
-
-        _quizUI = instantiatedObj.GetComponent<FourChoiceButtonUI>();
-        Debug.Log($"QuizUI component: {(_quizUI != null ? "found" : "not found")}");
-
-        _quizUI.Setup(quizData, _answeredByUser);
+        // Check if this is a numeric answer quiz (assumes numeric answers are required for NumpadUI)
+        bool isNumericQuiz = IsNumericAnswer(quizData.answer);
+        
+        if (isNumericQuiz)
+        {
+            Debug.Log("Using NumpadUI for numeric quiz");
+            var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/NumpadUI", _choiceButtonContainer.transform);
+            var numpadUI = instantiatedObj.GetComponent<NumpadUI>();
+            numpadUI.Setup(quizData, _answeredByUser);
+            _quizUI = numpadUI;
+        }
+        else
+        {
+            Debug.Log("Using FourChoiceButtonUI for non-numeric quiz");
+            var instantiatedObj = await Genit.Utils.InstantiatePrefab("Prefabs/Game/FourChoiceButtonUI", _choiceButtonContainer.transform);
+            var fourChoiceUI = instantiatedObj.GetComponent<FourChoiceButtonUI>();
+            fourChoiceUI.Setup(quizData, _answeredByUser);
+            _quizUI = fourChoiceUI;
+        }
 
     }
 
     public void DestroyGameUI()
     {
         _skipButton.SetActive(false);
-        _quizUI.DestroyGameUI();
+        if (_quizUI is FourChoiceButtonUI fourChoiceUI)
+        {
+            fourChoiceUI.DestroyGameUI();
+        }
+        else if (_quizUI is NumpadUI numpadUI)
+        {
+            numpadUI.DestroyGameUI();
+        }
     }
 
     private string GetQuestionRichText(string question)
@@ -133,5 +151,11 @@ public class Quiz : MonoBehaviour
     public void OnClickSkipButton()
     {
         _answeredByUser(false, "");
+    }
+    
+    private bool IsNumericAnswer(string answer)
+    {
+        // Check if the answer string contains only digits
+        return !string.IsNullOrEmpty(answer) && answer.All(char.IsDigit);
     }
 }
