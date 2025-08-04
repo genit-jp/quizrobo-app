@@ -16,7 +16,7 @@ public static class QuizGenerator
         return GenerateQuizDataList();
     }
     
-    public static QuizData[] GenerateQuizDataList()
+    private static QuizData[] GenerateQuizDataList()
     {
         var quizDataArray = new QuizData[10];
         
@@ -119,9 +119,7 @@ public static class QuizGenerator
         // Ensure non-negative result
         if (a < b)
         {
-            int temp = a;
-            a = b;
-            b = temp;
+            (a, b) = (b, a);
         }
         
         int answer = a - b;
@@ -132,35 +130,38 @@ public static class QuizGenerator
     
     private static (int a, int b, int answer, string question) GenerateMultiplicationProblem()
     {
-        int a, b;
-        int multiType = Random.Range(0, 3);
-        
-        switch (multiType)
+        int a = 0, b = 0, answer = 0;
+        int attempt = 0;
+
+        while (true)
         {
-            case 0:
-                // 1-digit × 1-digit
+            attempt++;
+            if (attempt > 100) // 安全対策
+            {
                 a = Random.Range(1, 10);
                 b = Random.Range(1, 10);
                 break;
-            case 1:
-                // 1-digit × 2-digit
+            }
+
+            int multiType = Random.Range(0, 2); // 0: 1桁×1桁, 1: 2桁×2桁制限付き
+
+            if (multiType == 0)
+            {
                 a = Random.Range(1, 10);
+                b = Random.Range(1, 10);
+                break;
+            }
+            else
+            {
+                a = Random.Range(10, 100);
                 b = Random.Range(10, 100);
-                break;
-            case 2:
-                // 1-digit × 3-digit
-                a = Random.Range(1, 10);
-                b = Random.Range(100, 1000);
-                break;
-            default:
-                a = Random.Range(1, 10);
-                b = Random.Range(1, 10);
-                break;
+                if (a * b <= 100)
+                    break;
+            }
         }
-        
-        int answer = a * b;
+
+        answer = a * b;
         string question = $"{a} × {b} = ?";
-        
         return (a, b, answer, question);
     }
 }
