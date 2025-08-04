@@ -5,8 +5,14 @@ using UnityEngine.UI;
 public class EnemyManager : MonoBehaviour
 {
 
+    private List<Enemy> _enemies = new List<Enemy>();
+
+    public bool AllEnemiesDefeated => _enemies.TrueForAll(e => e.IsDefeated);
+    
     public void SetupEnemies(int chapterNumber, Transform enemyArea)
     {
+        _enemies.Clear();
+        
         var enemyDataText = Resources.Load<TextAsset>("Data/enemy_data");
         if (enemyDataText == null)
         {
@@ -23,13 +29,17 @@ public class EnemyManager : MonoBehaviour
             return;
         }
 
-        string enemyPattern = enemyPatterns[chapterIndex].Trim();
+        string rawLine = enemyPatterns[chapterIndex].Trim();
+        string[] parts = rawLine.Split(new[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+        string enemyPattern = parts.Length >= 2 ? parts[1] : parts[0];
+
 
         // 古い敵を削除
         foreach (Transform child in enemyArea)
             Destroy(child.gameObject);
 
         int enemyCount = Mathf.Min(enemyPattern.Length, 4);
+        Debug.Log($"Chapter {chapterNumber}: Spawning {enemyCount} enemies with pattern '{enemyPattern}'");
         for (int i = 0; i < enemyCount; i++)
         {
             char enemyChar = enemyPattern[i];
@@ -38,30 +48,30 @@ public class EnemyManager : MonoBehaviour
             
             GameObject enemyPrefab = Resources.Load<GameObject>("Prefabs/Game/Enemy");
             
-            if (enemyPrefab != null)
-            {
-                // プレハブをインスタンス化
-                GameObject enemyObj = Instantiate(enemyPrefab, enemyArea);
-                enemyObj.name = $"Enemy_{enemyId}_{i}";
+            // プレハブをインスタンス化
+            GameObject enemyObj = Instantiate(enemyPrefab, enemyArea);
+            enemyObj.name = $"Enemy_{enemyId}_{i}";
                 
-                Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
-                if (enemyComponent != null)
-                {
-                    int maxHp = Const.enemyHpTable.GetValueOrDefault(enemyChar, 100);
-                    enemyComponent.Setup(enemyId, maxHp);
-                }
-                else
-                {
-                    Debug.LogError("Enemy component not found on the prefab!");
-                }
-            }
-            else
+            Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
+            
+            if (enemyComponent == null) continue;
+            int maxHp = Const.enemyHpTable.GetValueOrDefault(enemyChar, 100);
+            enemyComponent.Setup(enemyId, maxHp);
+                
+            _enemies.Add(enemyComponent);
+        }
+    }
+    
+    public void AttackNextEnemy(int damage)
+    {
+        foreach (var enemy in _enemies)
+        {
+            if (!enemy.IsDefeated)
             {
-                Debug.LogError("Enemy prefab not found at: Prefabs/Game/Enemy");
+                enemy.TakeDamage(damage);
+                break;
             }
         }
-
-        Debug.Log($"Chapter {chapterNumber}: Spawned {enemyCount} enemies from pattern '{enemyPattern}'");
     }
 }
 

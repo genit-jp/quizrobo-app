@@ -28,6 +28,10 @@ public class GameScene : MonoBehaviour
      private QuizData[] _quizzes;
      private int _correctCount;
      private List<Image> answerIcons = new List<Image>();
+     private EnemyManager _enemyManager;
+     private bool _allEnemiesDefeated;
+     
+     private bool _gameEnded = false;
     
 //     private AudioClip _resultSound;
 
@@ -56,8 +60,8 @@ public class GameScene : MonoBehaviour
          await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
          
          // EnemyManagerを使用して敵を表示
-         var enemyManager = gameObject.AddComponent<EnemyManager>();
-         enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
+         _enemyManager = gameObject.AddComponent<EnemyManager>();
+         _enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
          
          await SetRobo();
          await StartNextQuiz();
@@ -88,6 +92,18 @@ public class GameScene : MonoBehaviour
              {
                  quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
+
+                 if (isCorrect)
+                 {
+                     _enemyManager.AttackNextEnemy(1);
+                     
+                     if (_enemyManager.AllEnemiesDefeated && !_gameEnded)
+                     {
+                         _gameEnded = true;
+                         EndGame();
+                         return;
+                     }
+                 }
 
                  // クイズ結果を記録
                  _quizResults.Add(new QuizResultData
@@ -123,19 +139,35 @@ public class GameScene : MonoBehaviour
      
      private async void EndGame()
      {
+         _allEnemiesDefeated = _enemyManager.AllEnemiesDefeated;
          foreach (var result in _quizResults)
          {
              if (result.IsCorrect)
                  _correctCount++;
          }
          var isSaved = false;
-         Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
-         var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
-         var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
-         resultDialog.Setup(_quizResults , () =>
+         
+         if (_allEnemiesDefeated)
+         {
+             Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
+             var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
+             var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
+             resultDialog.Setup(_quizResults , () =>
+                 {
+                     if (isSaved) AdManager.Instance.ShowInterstitialAd(() => EndScene());
+                 });
+         }
+         else
+         {
+             // ❗敵が逃げたダイアログ
+             var dialogObj = await Utils.OpenDialog("Prefabs/Common/CommonDialog", transform);
+             var commonDialog = dialogObj.GetComponent<CommonDialog>();
+             commonDialog.Setup("クエスト失敗", "敵が逃げてしまった！\n次回はもっとがんばろう！", (result) =>
              {
-                 if (isSaved) AdManager.Instance.ShowInterstitialAd(() => EndScene());
-             });
+                 if (isSaved) EndScene();
+             }, CommonDialog.Mode.OK);
+         }
+
          // _audioSource.PlayOneShot(_resultSound);
          //
          // SaveAnswerData();
