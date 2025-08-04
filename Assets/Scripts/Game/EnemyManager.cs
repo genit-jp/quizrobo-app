@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,8 +47,7 @@ public class EnemyManager : MonoBehaviour
                 Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
                 if (enemyComponent != null)
                 {
-                    // デフォルトのHP値を設定（必要に応じて調整）
-                    int maxHp = 100;
+                    int maxHp = Const.enemyHpTable.GetValueOrDefault(enemyChar, 100);
                     enemyComponent.Setup(enemyId, maxHp);
                 }
                 else

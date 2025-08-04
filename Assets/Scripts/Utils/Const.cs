@@ -109,7 +109,13 @@ public class Const
         { "Tail", "しっぽ" }
     };
     
-    
+    public static readonly Dictionary<char, int> enemyHpTable = new()
+    {
+        { 'A', 10 },
+        { 'B', 60 },
+        { 'C', 360 },
+        { 'D', 2000 }
+    };
     
     public static class GameSceneParam
     {
