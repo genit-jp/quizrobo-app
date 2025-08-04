@@ -109,6 +109,15 @@ public class Const
         { "Tail", "しっぽ" }
     };
     
+    public static readonly Dictionary<string, string> DefaultPartImageMap = new Dictionary<string, string>
+    {
+        { "あたま", "default_head" },
+        { "からだ", "default_body" },
+        { "うで",   "default_arms" },
+        { "あし",   "default_legs" },
+        { "しっぽ", "default_tail" }
+    };
+    
     public static readonly Dictionary<char, int> enemyHpTable = new()
     {
         { 'A', 10 },
