@@ -36,84 +36,92 @@ public class SelectChallengeStagePanel : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
-        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
-        _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(_subject, challengeLevel);
+        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
+        _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(_subject, challengeLevel.ToString());
         SetChapterButtons();
     }
     
     public void Setup(string subject, Action startGame)
     {
-        _subject = subject;
+        _subject = "算数"; // ← ここで固定
+    
         title.text = _subject;
-        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject]);
-        level.text = Const.DIFFICULTY_NAME_MAP[challengeLevel];
         _onStartGame = startGame;
-        _chapters = MasterData.GetInstance().GetChaptersBySubjectAndLevel(subject, challengeLevel);
-        
-        // 教科によって背景を変更
-        int spriteIndex = subject switch
-        {
-            "国語" => 0,
-            "算数" => 1,
-            "理科" => 2,
-            "社会" => 3,
-            "英語" => 4,
-            _ => 0
-        };
-        
+
+        // 背景画像も算数で固定
+        int spriteIndex = 1; // 算数 → index 1
         if (backGround != null && backgroundSprites != null && spriteIndex < backgroundSprites.Length)
         {
             backGround.sprite = backgroundSprites[spriteIndex];
         }
-        
+
         SetChapterButtons();
     }
 
+
     private async void SetChapterButtons()
+{
+    foreach (Transform child in chapterButtonParent)
     {
-        foreach (Transform child in chapterButtonParent)
-        {
-            Destroy(child.gameObject); // 既存のボタンを削除
-        }
-        
-        // StartPointを最初に配置
-        var startPointObj = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/StartPoint", chapterButtonParent);
-        var startPointRect = startPointObj.GetComponent<RectTransform>();
-        startPointRect.anchorMin = startPointRect.anchorMax = new Vector2(0.5f, 1f);
-        startPointRect.pivot = new Vector2(0.5f, 1f);
-        startPointRect.anchoredPosition = new Vector2(0, -300f);
-
-        int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
-        int chapterCount = _chapters.Length;
-        
-        float offsetX = 150f;            
-        float verticalOffset = 450f;
-
-        for (int i = 0; i < chapterCount; i++)
-        {
-            var chapterData = _chapters[i];
-            var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/SubjectSelect/ChapterStar"), chapterButtonParent);
-            chapterButton.Setup(chapterData, ShowChallengeDialog, _subject);
-            
-            var rect = chapterButton.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-
-            // ボタンの高さのを使って縦に等間隔に並べる
-            float buttonHeight = rect.sizeDelta.y * 0.7f;
-            float y = verticalOffset + i * buttonHeight;
-            float x = (i % 2 == 0) ? offsetX : -offsetX;
-
-            rect.anchoredPosition = new Vector2(x, -y);
-            
-            if (chapterData.chapterNumber == maxClearedChapterNumber)
-            {
-                _currentChapterStar = chapterButton;
-            }
-        }
-        PlaceRobotOnChapter();
+        Destroy(child.gameObject); // 既存のボタンを削除
     }
+
+    // StartPoint を配置
+    var startPointObj = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/StartPoint", chapterButtonParent);
+    var startPointRect = startPointObj.GetComponent<RectTransform>();
+    startPointRect.anchorMin = startPointRect.anchorMax = new Vector2(0.5f, 1f);
+    startPointRect.pivot = new Vector2(0.5f, 1f);
+    startPointRect.anchoredPosition = new Vector2(0, -300f);
+
+    // enemy_data.txt を読み込み
+    var enemyDataText = Resources.Load<TextAsset>("Data/enemy_data");
+    if (enemyDataText == null)
+    {
+        Debug.LogError("enemy_data.txt not found");
+        return;
+    }
+
+    string[] lines = enemyDataText.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    int chapterCount = lines.Length;
+    int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber("算数");
+
+    float offsetX = 150f;
+    float verticalOffset = 450f;
+
+    for (int i = 0; i < chapterCount; i++)
+    {
+        int chapterNumber = i + 1;
+
+        var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/SubjectSelect/ChapterStar"), chapterButtonParent);
+        
+        // chapterData を自前で構築（subject は固定で "算数"）
+        ChapterData chapterData = new ChapterData
+        {
+            chapterNumber = chapterNumber,
+            subject = "算数"
+        };
+
+        chapterButton.Setup(chapterData, ShowChallengeDialog, "算数");
+
+        var rect = chapterButton.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+
+        float buttonHeight = rect.sizeDelta.y * 0.7f;
+        float y = verticalOffset + i * buttonHeight;
+        float x = (i % 2 == 0) ? offsetX : -offsetX;
+
+        rect.anchoredPosition = new Vector2(x, -y);
+
+        if (chapterNumber == maxClearedChapterNumber)
+        {
+            _currentChapterStar = chapterButton;
+        }
+    }
+
+    PlaceRobotOnChapter();
+}
+
     
     public void OnClickLevelChangeButton()
     {
@@ -124,7 +132,7 @@ public class SelectChallengeStagePanel : MonoBehaviour
 
     private async void OnSelectLevel(string challengeLevel)
     {
-        await UserDataManager.GetInstance().SetChallengeLevel(Const.SUBJECT_NAME_MAP[_subject], challengeLevel);
+        await UserDataManager.GetInstance().SetChallengeLevel(int.Parse(challengeLevel));
     }
     
     private async void ShowChallengeDialog(ChapterData data)

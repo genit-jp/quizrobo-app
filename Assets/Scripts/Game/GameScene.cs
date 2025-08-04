@@ -12,10 +12,10 @@ public class GameScene : MonoBehaviour
 //     [SerializeField] private AudioSource _audioSource;
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
-     [SerializeField] private Text subjectTitleText;
      [SerializeField] private Transform answerProgressPanel;
-     [SerializeField] private GameObject answerIconPrefab;
+     [SerializeField] private GameObject answerIconPrefab, robo;
      [SerializeField] private Sprite unansweredSprite, correctSprite, incorrectSprite;
+     [SerializeField] private Transform enemyArea;
 //     private AudioClip _addMedalSound;
 //     private AudioClip _correctSound;
 //     private AudioClip _incorrectSound;
@@ -28,20 +28,16 @@ public class GameScene : MonoBehaviour
      private QuizData[] _quizzes;
      private int _correctCount;
      private List<Image> answerIcons = new List<Image>();
+    
 //     private AudioClip _resultSound;
 
      private async void Start()
      {
          Debug.Log("GameScene Start");
-         _quizzes = new QuizSelectManager().PrepareQuizzesByChapter(
-             Const.GameSceneParam.Subject,
-             Const.GameSceneParam.DifficultyLevel,
-             Const.GameSceneParam.ChapterNumber
-         );
-         _quizResults = new List<QuizResultData>();
          
-         // 教科名とチャプター番号を表示
-         subjectTitleText.text = $"{Const.GameSceneParam.Subject}\n{Const.GameSceneParam.ChapterNumber}";
+         _quizzes = QuizGenerator.GenerateRandomQuizList();
+         
+         _quizResults = new List<QuizResultData>();
          
          for (int i = 0; i < _quizzes.Length; i++)
          {
@@ -57,9 +53,16 @@ public class GameScene : MonoBehaviour
          // _nextQuizSound = Resources.Load<AudioClip>("SE/nextQuiz");
          // _resultSound = Resources.Load<AudioClip>("SE/result");
          //
-         // await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
+         await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
+         
+         // EnemyManagerを使用して敵を表示
+         var enemyManager = gameObject.AddComponent<EnemyManager>();
+         enemyManager.SetupEnemies(Const.GameSceneParam.ChapterNumber, enemyArea);
+         
+         await SetRobo();
          await StartNextQuiz();
      }
+    
 
      private async UniTask StartNextQuiz()
      {
@@ -86,7 +89,7 @@ public class GameScene : MonoBehaviour
                  quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
 
-                 // クイズ結果を記録（← ここ追加）
+                 // クイズ結果を記録
                  _quizResults.Add(new QuizResultData
                  {
                      Quiz = _quizzes[_quizIndex],
@@ -96,15 +99,27 @@ public class GameScene : MonoBehaviour
 
                  answerIcons[_quizIndex].sprite = isCorrect ? correctSprite : incorrectSprite;
                  
-                 _quizIndex++;
-
-                 if (_quizIndex < _quizzes.Length)
-                     await StartNextQuiz();
-                 else
-                     EndGame(); // ← 最後のクイズならResultDialogへ
+                 // JudgeScreenを表示
+                 var judgeScreenObj = await Utils.InstantiatePrefab("Prefabs/Game/JudgeScreen", transform);
+                 var judgeScreen = judgeScreenObj.GetComponent<JudgeScreen>();
+                 
+                 // JudgeScreenをセットアップ
+                 judgeScreen.Setup(isCorrect, _quizzes[_quizIndex], () =>
+                 {
+                     // JudgeScreenを破棄
+                     Destroy(judgeScreenObj);
+                     
+                     // 次のクイズへ進む
+                     _quizIndex++;
+                     
+                     if (_quizIndex < _quizzes.Length)
+                         StartNextQuiz();
+                     else
+                         EndGame(); // 最後のクイズならResultDialogへ
+                 });
              });
      }
-
+     
      
      private async void EndGame()
      {
@@ -182,6 +197,28 @@ public class GameScene : MonoBehaviour
                  go.SetActive(true);
 
          SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
+     }
+     
+     
+     private async UniTask SetRobo()
+     {
+         // ユーザーの選択したロボットデータを取得
+         var userDataManager = UserDataManager.GetInstance();
+         var userData = userDataManager.GetUserData();
+         var selectedRoboId = userData.selectedRoboId ?? "default";
+         
+         var roboCustomDataDict = userDataManager.GetRoboCustomData(selectedRoboId);
+         if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(selectedRoboId))
+         {
+             var roboCustomData = roboCustomDataDict[selectedRoboId];
+             
+             // RoboSettingManagerを使用してロボットを表示
+             await RoboSettingManager.DisplayRobo(robo, roboCustomData);
+         }
+         else
+         {
+             Debug.LogWarning($"RoboCustomData not found for selectedRoboId: {selectedRoboId}");
+         }
      }
      
      public async void OnClickPauseButton()

@@ -21,7 +21,7 @@ public class UserDataManager
     public static readonly string USER_DATA_KEY_LAST_LOGIN_DATE = "lastLoginDateTime";
     public static readonly string USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM = "consecutiveLoginNum";
     public static readonly string USER_DATA_KEY_TOTAL_LOGIN_NUM = "totalLoginNum";
-    public static readonly string USER_DATA_KEY_CHALLENGE_LEVELS_KEY = "challengeLevels";
+    public static readonly string USER_DATA_KEY_CHALLENGE_LEVEL = "challengeLevel";
     public static readonly string USER_DATA_KEY_SELECTED_ROBO_ID = "selectedRoboId";
     public static readonly string USER_DATA_KEY_PLAYER_STATUS = "playerStatus";
     private static UserDataManager _instance;
@@ -50,7 +50,7 @@ public class UserDataManager
         await SetDefaultValue(USER_DATA_KEY_LAST_LOGIN_DATE, 0);
         await SetDefaultValue(USER_DATA_KEY_CONSECUTIVE_LOGIN_NUM, 0);
         await SetDefaultValue(USER_DATA_KEY_TOTAL_LOGIN_NUM, 0);
-        await SetDefaultDictionaryValue(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, Const.DEFAULT_CHALLENGE_LEVELS);
+        await SetDefaultValue(USER_DATA_KEY_CHALLENGE_LEVEL, 1);
         await SetDefaultValue(USER_DATA_KEY_SELECTED_ROBO_ID, "default");
         await SetDefaultValue(USER_DATA_KEY_PLAYER_STATUS, new PlayerStatus());
     }
@@ -341,20 +341,15 @@ public class UserDataManager
         return defaultValue;
     }
     
-    public async UniTask SetChallengeLevel(string subject, string level)
+    public async UniTask SetChallengeLevel(int level)
     {
-        var userData = GetUserData();
-        var challengeLevels = userData.challengeLevels ?? new Dictionary<string, string>();
-        
-        challengeLevels[subject] = level;
-        
-        await SetUserData(USER_DATA_KEY_CHALLENGE_LEVELS_KEY, challengeLevels);
+        await SetUserData(USER_DATA_KEY_CHALLENGE_LEVEL, level);
     }
 
-    public string GetChallengeLevel(string subject)
+    public int GetChallengeLevel()
     {
         var userData = GetUserData();
-        return userData.challengeLevels[subject];
+        return userData.challengeLevel;
     }
     
     public async UniTask UpdatePlayerStatus(PlayerStatus playerStatus)
@@ -425,7 +420,7 @@ public class UserDataManager
         [FirestoreProperty] public int consecutiveLoginNum { get; set; }
         [FirestoreProperty] public int totalLoginNum { get; set; }
         
-        [FirestoreProperty] public Dictionary<string, string> challengeLevels { get; set; } = new();
+        [FirestoreProperty] public int challengeLevel { get; set; } = 1; 
         
         [FirestoreProperty] public string selectedRoboId { get; set; } 
         

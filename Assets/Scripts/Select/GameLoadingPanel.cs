@@ -64,21 +64,4 @@ public class GameLoadingPanel : MonoBehaviour
         }
         gameObject.SetActive(false); // シーンロード完了後、LoadPanelを非アクティブにする
     }
-
-
-
-    private async UniTask SetImgAsync(QuizData quizData)
-    {
-        UnityWebRequest request = UnityWebRequestTexture.GetTexture(quizData.imgPath);
-        await request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-        {
-            Debug.LogError($"Image download error: {request.error}");
-        }
-        else
-        {
-            quizData.imgTexture = DownloadHandlerTexture.GetContent(request);
-        }
-    }
 }
