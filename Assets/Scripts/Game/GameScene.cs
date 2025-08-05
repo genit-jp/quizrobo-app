@@ -211,21 +211,27 @@ public class GameScene : MonoBehaviour
          var userDataManager = UserDataManager.GetInstance();
          var playerStatus = userDataManager.GetPlayerStatus();
          
-         // LevelingSystemを使用してEXPを計算
-         int expFromCorrectAnswers = LevelingSystem.CalculateExpFromCorrectAnswers(_correctCount);
-         
-         // 現在のEXPに加算
-         playerStatus.exp += expFromCorrectAnswers;
-         
-         playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
+         // ゲームクリア時のみEXPを加算
+         if (_allEnemiesDefeated)
+         {
+             // 敵のHP合計値をEXPとして加算
+             int totalEnemyHp = _enemyManager.GetTotalEnemyHp();
+             playerStatus.exp += totalEnemyHp;
+             
+             playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
+             
+             Debug.Log($"Game Clear! Player Status Updated - EXP: {playerStatus.exp} (+{totalEnemyHp}), Level: {playerStatus.level}");
+         }
+         else
+         {
+             Debug.Log("Game Over - No EXP gained");
+         }
          
          // HPを10加算（仮の値）
          playerStatus.hp = Mathf.Min(playerStatus.hp + LevelingSystem.RecoveryHpPerQuest, 100);
          
          // PlayerStatusを保存
          await userDataManager.UpdatePlayerStatus(playerStatus);
-         
-         Debug.Log($"Player Status Updated - EXP: {playerStatus.exp} (+{expFromCorrectAnswers}), HP: {playerStatus.hp} (+10)");
      }
 
      private void EndScene()
