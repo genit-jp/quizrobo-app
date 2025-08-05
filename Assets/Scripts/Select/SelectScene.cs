@@ -120,6 +120,7 @@ public class SelectScene : MonoBehaviour
         {
             Destroy(child.gameObject); // 既存のボタンを削除
         }
+        
 
         // StartPoint を配置
         var startPointObj = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/StartPoint", chapterButtonParent);
@@ -174,6 +175,14 @@ public class SelectScene : MonoBehaviour
             }
         }
 
+        // chapterButtonParent の RectTransform を取得
+        var contentRect = chapterButtonParent.GetComponent<RectTransform>();
+
+        // 最後のボタンの位置を基に Content の高さを更新
+        float totalHeight = verticalOffset + chapterCount * 100f; // 100f はボタンの高さとマージンの目安
+        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, totalHeight);
+
+        
         PlaceRobotOnChapter();
     }
     
