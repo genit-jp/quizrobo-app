@@ -114,20 +114,12 @@ public class SelectScene : MonoBehaviour
         SetChapterButtons();
     }
 
-    private async void SetChapterButtons()
+    private void SetChapterButtons()
     {
         foreach (Transform child in chapterButtonParent)
         {
             Destroy(child.gameObject); // 既存のボタンを削除
         }
-        
-
-        // StartPoint を配置
-        var startPointObj = await Utils.InstantiatePrefab("Prefabs/Select/SubjectSelect/StartPoint", chapterButtonParent);
-        var startPointRect = startPointObj.GetComponent<RectTransform>();
-        startPointRect.anchorMin = startPointRect.anchorMax = new Vector2(0.5f, 1f);
-        startPointRect.pivot = new Vector2(0.5f, 1f);
-        startPointRect.anchoredPosition = new Vector2(0, -300f);
 
         // enemy_data.txt を読み込み
         var enemyDataText = Resources.Load<TextAsset>("Data/enemy_data");
@@ -142,7 +134,8 @@ public class SelectScene : MonoBehaviour
         int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber("算数");
 
         float offsetX = 150f;
-        float verticalOffset = 450f;
+        float verticalOffset = 10f;
+        float buttonHeight = 0f; // ボタンの高さを後で計算するために初期化
 
         for (int i = 0; i < chapterCount; i++)
         {
@@ -163,7 +156,7 @@ public class SelectScene : MonoBehaviour
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
             rect.pivot = new Vector2(0.5f, 1f);
 
-            float buttonHeight = rect.sizeDelta.y * 0.7f;
+            buttonHeight = rect.sizeDelta.y * 0.7f;
             float y = verticalOffset + i * buttonHeight;
             float x = (i % 2 == 0) ? offsetX : -offsetX;
 
@@ -179,10 +172,10 @@ public class SelectScene : MonoBehaviour
         var contentRect = chapterButtonParent.GetComponent<RectTransform>();
 
         // 最後のボタンの位置を基に Content の高さを更新
-        float totalHeight = verticalOffset + chapterCount * 100f; // 100f はボタンの高さとマージンの目安
+        float totalHeight = verticalOffset + (chapterCount + 2) * buttonHeight; 
         contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, totalHeight);
+        Debug.Log(contentRect.sizeDelta);
 
-        
         PlaceRobotOnChapter();
     }
     
