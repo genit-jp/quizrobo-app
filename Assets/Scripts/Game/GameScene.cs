@@ -202,7 +202,7 @@ public class GameScene : MonoBehaviour
 
          //　進捗データを保存
          // 教科名とともに保存
-         await UserDataManager.GetInstance().SaveChapterProgress(Const.GameSceneParam.Subject, progressData);
+         await UserDataManager.GetInstance().SaveChapterProgress(progressData);
      }
 
      private async UniTask SavePlayerStatus()
