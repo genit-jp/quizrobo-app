@@ -193,9 +193,7 @@ public class Quiz : MonoBehaviour
     
     private void OnTimeUp()
     {
-        // タイムアップ時の処理（不正解として扱うなど）
-        Debug.Log("時間切れ！");
-        // 必要であればコールバックでGameSceneに通知する
+        _answeredByUser(false, "");
     }
     
     public void OnClickSkipButton()
