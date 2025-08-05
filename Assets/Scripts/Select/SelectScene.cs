@@ -12,6 +12,9 @@ public class SelectScene : MonoBehaviour
 {
     [SerializeField] private GameLoadingPanel gameLoadingScene;
     [SerializeField] private Transform chapterButtonParent;
+    [SerializeField] private Slider expSlider;
+    [SerializeField] private Text levelText;
+    [SerializeField] private Image partsImage;
     
     private ChapterStar _currentChapterStar;
     
@@ -45,6 +48,7 @@ public class SelectScene : MonoBehaviour
             }
         };
         
+        // SetTopBar();
         SetChapterButtons();
         
     }
@@ -172,6 +176,26 @@ public class SelectScene : MonoBehaviour
 
         PlaceRobotOnChapter();
     }
+    
+    // private void SetTopBar()
+    // {
+    //     var userDataManager = UserDataManager.GetInstance();
+    //     var userData = userDataManager.GetUserData();
+    //     
+    //     // レベルと経験値の表示
+    //     levelText.text = $"Lv. {userData.level}";
+    //     expSlider.value = (float)userData.exp / LevelingSystem.GetExpToLevelUp(userData.level);
+    //     
+    //     // パーツ画像の設定
+    //     if (userData.selectedRoboId != null)
+    //     {
+    //         var roboCustomDataDict = userDataManager.GetRoboCustomData(userData.selectedRoboId);
+    //         if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(userData.selectedRoboId))
+    //         {
+    //             partsImage.sprite = roboCustomDataDict[userData.selectedRoboId].GetPartSprite();
+    //         }
+    //     }
+    // }
     
     private async void ShowChallengeDialog(ChapterData data)
     {
