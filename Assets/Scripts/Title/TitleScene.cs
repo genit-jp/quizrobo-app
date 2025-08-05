@@ -54,11 +54,18 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
         _tapToStartText.gameObject.SetActive(true);
         
         // Resources フォルダからタイムスタンプファイルを読み込み
-        TextAsset timeStampAsset = Resources.Load<TextAsset>("BuildNumber");
-
-        if (timeStampAsset != null)
+        try
         {
-            this._versionText.text = $"version: {Application.version}({timeStampAsset.text})";
+            TextAsset timeStampAsset = Resources.Load<TextAsset>("BuildNumber");
+
+            if (timeStampAsset != null)
+            {
+                this._versionText.text = $"version: {Application.version}({timeStampAsset.text})";
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to load build timestamp: {e.Message}");
         }
     }
 

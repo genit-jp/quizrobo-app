@@ -58,19 +58,6 @@ public class MasterData
         return _masterData;
     }
     
-    public ChapterData[] GetChaptersBySubjectAndLevel(string subject, string difficultyLevel)
-    {
-        if (_masterData == null || _masterData.chapters == null)
-        {
-            return new ChapterData[0];
-        }
-    
-        return _masterData.chapters
-            .Where(chapter => 
-                chapter.subject == subject && 
-                chapter.difficultyLevel == difficultyLevel)
-            .ToArray();
-    }
     public RoboData[] GetRoboDataByPartType(string partType)
     {
         Debug.Log("Fetching RoboData by part type: " + partType);
@@ -78,22 +65,18 @@ public class MasterData
         return robos.Where(robo => robo.type.ToLower() == lowerPartType).ToArray();
     }
     
-    public EnemyData GetRandomEnemyData()
-    {
-        if (enemies == null || enemies.Length == 0)
-        {
-            Debug.LogWarning("No enemy data available.");
-            return null;
-        }
-        
-        // ランダムに敵データを選択
-        int randomIndex = UnityEngine.Random.Range(0, enemies.Length);
-        return enemies[randomIndex];
-    }
-
     
     public string[] AllSubjects()
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
     }
+    
+    public RoboData GetNextRoboByExp(int myExp)
+    {
+        return robos
+            .Where(robo => robo.exp_required > myExp)
+            .OrderBy(robo => robo.exp_required)
+            .FirstOrDefault();
+    }
+
 }

@@ -250,19 +250,6 @@ public class UserDataManager
         }, null);
     }
 
-    public int GetMaxChapterNumber(string subjectName)
-    {
-        if (_chapterProgressData.ContainsKey(subjectName))
-        {
-            var progressData = _chapterProgressData[subjectName];
-            if (int.TryParse(progressData.chapterId, out int chapterNum))
-            {
-                return chapterNum;
-            }
-        }
-        return 0; 
-    }
-
     public void AddUserDataUpdateListener(Action action)
     {
         if (!_userDataActions.Contains(action)) _userDataActions.Add(action);
