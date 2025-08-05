@@ -10,4 +10,5 @@ public class RoboData
     public string type = "";
     public string title;
     public string titleJp;
+    public int atk = 0;
 }

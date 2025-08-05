@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using System.Linq;
 
 public class GameScene : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class GameScene : MonoBehaviour
      private bool _allEnemiesDefeated;
      
      private bool _gameEnded = false;
+     private int _totalAttackPower = 10; // デフォルト攻撃力
     
 //     private AudioClip _resultSound;
 
@@ -95,7 +97,8 @@ public class GameScene : MonoBehaviour
 
                  if (isCorrect)
                  {
-                     _enemyManager.AttackNextEnemy(1);
+                     //攻撃力の計算
+                     _enemyManager.AttackNextEnemy(_totalAttackPower);
                      
                      if (_enemyManager.AllEnemiesDefeated && !_gameEnded)
                      {
@@ -246,11 +249,41 @@ public class GameScene : MonoBehaviour
              
              // RoboSettingManagerを使用してロボットを表示
              await RoboSettingManager.DisplayRobo(robo, roboCustomData);
+             
+             // 攻撃力を計算
+             _totalAttackPower = CalculateTotalAttackPower(roboCustomData);
+             Debug.Log($"Total Attack Power: {_totalAttackPower}");
          }
          else
          {
              Debug.LogWarning($"RoboCustomData not found for selectedRoboId: {selectedRoboId}");
          }
+     }
+     
+     private int CalculateTotalAttackPower(UserDataManager.RoboCustomData roboCustomData)
+     {
+         var masterData = MasterData.GetInstance();
+         int totalAtk = 0;
+         
+         // 各パーツIDからRoboDataを取得してatkを合計
+         var headData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.headId);
+         if (headData != null) totalAtk += headData.atk;
+         
+         var bodyData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.bodyId);
+         if (bodyData != null) totalAtk += bodyData.atk;
+         
+         var armsData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.armsId);
+         if (armsData != null) totalAtk += armsData.atk;
+         
+         var legsData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.legsId);
+         if (legsData != null) totalAtk += legsData.atk;
+         
+         var tailData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.tailId);
+         if (tailData != null) totalAtk += tailData.atk;
+         
+         Debug.Log(totalAtk);
+         // 最小攻撃力を1に保証
+         return Mathf.Max(totalAtk, 1);
      }
      
      public async void OnClickPauseButton()
