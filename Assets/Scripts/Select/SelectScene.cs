@@ -16,8 +16,6 @@ public class SelectScene : MonoBehaviour
     [SerializeField] private Text levelText;
     [SerializeField] private Image partsImage;
     
-    private ChapterStar _currentChapterStar;
-    
 
     private int _selectedGrade;
     private TimeDispatcher _timer;
@@ -131,7 +129,6 @@ public class SelectScene : MonoBehaviour
 
         string[] lines = enemyDataText.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         int chapterCount = lines.Length;
-        int maxClearedChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber("算数");
 
         float offsetX = 150f;
         float verticalOffset = 10f;
@@ -147,10 +144,9 @@ public class SelectScene : MonoBehaviour
             ChapterData chapterData = new ChapterData
             {
                 chapterNumber = chapterNumber,
-                subject = "算数"
             };
 
-            chapterButton.Setup(chapterData, ShowChallengeDialog, "算数");
+            chapterButton.Setup(chapterData, ShowChallengeDialog);
 
             var rect = chapterButton.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
@@ -161,11 +157,6 @@ public class SelectScene : MonoBehaviour
             float x = (i % 2 == 0) ? offsetX : -offsetX;
 
             rect.anchoredPosition = new Vector2(x, -y);
-
-            if (chapterNumber == maxClearedChapterNumber)
-            {
-                _currentChapterStar = chapterButton;
-            }
         }
 
         // chapterButtonParent の RectTransform を取得
@@ -209,7 +200,6 @@ public class SelectScene : MonoBehaviour
         {
             if (result == CommonDialog.Result.OK)
             {
-                Const.GameSceneParam.Subject = data.subject;
                 Const.GameSceneParam.DifficultyLevel = data.difficultyLevel;
                 Const.GameSceneParam.ChapterNumber = data.chapterNumber;
                 
@@ -226,46 +216,43 @@ public class SelectScene : MonoBehaviour
         RectTransform targetRect = null;
         float adjustedY = 0f;
 
-        if (_currentChapterStar != null)
-        {
-            targetRect = _currentChapterStar.GetComponent<RectTransform>();
-            adjustedY = 100f;
-        }
-        else
-        {
-            // StartPoint にロボを配置（最初に生成されていると仮定）
-            foreach (Transform child in chapterButtonParent)
+        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
+        
+        foreach (Transform child in chapterButtonParent)
+        {if (child == null) continue;
+            
+            var chapterStar = child.GetComponent<ChapterStar>();
+            if (chapterStar != null)
             {
-                if (child.name.Contains("StartPoint"))
+                var chapterData = chapterStar.GetChapterData(); // ← ChapterData を返す getter を ChapterStar に追加してください
+                if (chapterData.chapterNumber == challengeLevel)
                 {
                     targetRect = child.GetComponent<RectTransform>();
-                    adjustedY = 0f;
                     break;
                 }
             }
-
-            if (targetRect == null)
-            {
-                Debug.LogWarning("StartPoint が見つかりませんでした");
-                return;
-            }
         }
 
+        if (targetRect == null)
+        {
+            Debug.LogError("指定された challengeLevel に対応する ChapterStar が見つかりませんでした");
+            return;
+        }
+        
+        var robotAnchoredPos = targetRect.anchoredPosition;
+        var robotAnchorMin = new Vector2(0.5f, 1f);
+        var robotAnchorMax = new Vector2(0.5f, 1f);
+        var robotPivot = new Vector2(0.5f, 0.5f);
+        
         // ロボットプレハブを生成
         var roboPrefab = await Utils.InstantiatePrefab("Prefabs/Robo/RoboPrefab", chapterButtonParent);
         var roboRect = roboPrefab.GetComponent<RectTransform>();
 
-        // アンカー・ピボット設定
-        roboRect.anchorMin = roboRect.anchorMax = new Vector2(0.5f, 1f);
-        roboRect.pivot = new Vector2(0.5f, 0.5f); // 下部中央を基準点に
-
-        // ロボットの位置を targetRect の下に配置
-        roboRect.anchoredPosition = new Vector2(
-            targetRect.anchoredPosition.x,
-            targetRect.anchoredPosition.y - adjustedY
-        );
-
-        // ロボットのサイズを調整（必要に応じて）
+        roboRect.anchorMin = robotAnchorMin;
+        roboRect.anchorMax = robotAnchorMax;
+        roboRect.pivot = robotPivot;
+        
+        roboRect.anchoredPosition = new Vector2(robotAnchoredPos.x, robotAnchoredPos.y - adjustedY);
         roboRect.localScale = new Vector3(0.5f, 0.5f, 1f);
 
         // ユーザーの選択したロボットデータを設定

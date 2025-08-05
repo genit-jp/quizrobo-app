@@ -10,7 +10,8 @@ public class ChapterStar : MonoBehaviour
     [SerializeField] private GameObject mask, kirakiraOdd, kirakiraEven;
     
     private int _maxChapterNumber;
-    private string _subject;
+    private ChapterData _chapterData; // ← 追加
+
     
     private void Start()
     {
@@ -27,17 +28,17 @@ public class ChapterStar : MonoBehaviour
         _maxChapterNumber = UserDataManager.GetInstance().GetChallengeLevel();
     }
     
-    public void Setup(ChapterData data, System.Action<ChapterData> onClick, string subject)
+    public void Setup(ChapterData data, System.Action<ChapterData> onClick)
     {
-        _subject = subject;
+        _chapterData = data;
         OnChapterProgressDataUpdated();
-        chapterNumberText.text = data.chapterNumber.ToString();
-        bool isLocked = data.chapterNumber > _maxChapterNumber + 1;
+        chapterNumberText.text = _chapterData.chapterNumber.ToString();
+        bool isLocked = _chapterData.chapterNumber > _maxChapterNumber;
         mask.SetActive(isLocked);
-        button.onClick.AddListener(() => onClick?.Invoke(data));
+        button.onClick.AddListener(() => onClick?.Invoke(_chapterData));
         
         // 奇数と偶数でキラキラの表示を切り替える
-        if (data.chapterNumber % 2 == 0) // 偶数の場合
+        if (_chapterData.chapterNumber % 2 == 0) // 偶数の場合
         {
             kirakiraEven.SetActive(true);
             kirakiraOdd.SetActive(false);
@@ -49,4 +50,10 @@ public class ChapterStar : MonoBehaviour
         }
         
     }
+    
+    public ChapterData GetChapterData()
+    {
+        return _chapterData;
+    }  
 }
+

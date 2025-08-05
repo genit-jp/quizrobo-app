@@ -215,12 +215,14 @@ public class UserDataManager
         foreach (var documentSnapshot in snapshot.Documents)
         {
             var progressData = documentSnapshot.ConvertTo<ChapterProgressData>();
-            if (!string.IsNullOrEmpty(progressData.subject))
+            string subjectName = documentSnapshot.Id; // ← ドキュメントIDをsubject名とする
+
+            if (!string.IsNullOrEmpty(subjectName))
             {
-                _chapterProgressData[progressData.subject] = progressData;
+                _chapterProgressData[subjectName] = progressData;
             }
         }
-        
+
         // ChapterProgressData更新リスナーを呼び出す
         mainThread.Post(__ =>
         {
@@ -228,11 +230,9 @@ public class UserDataManager
         }, null);
     }
 
-    public async UniTask SaveChapterProgress(string subjectName, ChapterProgressData progressData)
+
+    public async UniTask SaveChapterProgress(ChapterProgressData progressData)
     {
-        progressData.subject = subjectName;
-        _chapterProgressData[subjectName] = progressData;
-        
         // ランダムなドキュメントIDを生成
         var documentId = Utils.GenerateRandomString(20);
         
@@ -394,8 +394,6 @@ public class UserDataManager
     public class ChapterProgressData
     {
         [FirestoreProperty] public string chapterId { get; set; }
-        
-        [FirestoreProperty] public string subject { get; set; }
 
         [FirestoreProperty] public long dateTime { get; set; }
 
