@@ -203,6 +203,11 @@ public class UserDataManager
         return ownedRoboPartsIds.Contains(partId);
     }
 
+    public List<string> OwnedRoboPartsIds()
+    {
+        return new List<string>(ownedRoboPartsIds);
+    }
+    
     private async void FetchChapterProgressData()
     {
         var snapshot = await FirebaseFirestore.DefaultInstance

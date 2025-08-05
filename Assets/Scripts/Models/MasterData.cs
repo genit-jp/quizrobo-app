@@ -71,10 +71,10 @@ public class MasterData
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
     }
     
-    public RoboData GetNextRoboByExp(int myExp)
+    public RoboData GetNextUnownedRoboByExp(List<string> ownedRoboIds)
     {
         return robos
-            .Where(robo => robo.exp_required > myExp)
+            .Where(robo => !ownedRoboIds.Contains(robo.id))
             .OrderBy(robo => robo.exp_required)
             .FirstOrDefault();
     }

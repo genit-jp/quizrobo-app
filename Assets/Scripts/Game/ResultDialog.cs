@@ -12,11 +12,13 @@ public class ResultDialog: DialogBaseListener
 {
     [SerializeField] private GameObject _scrollViewContent, _roboContent;
     [SerializeField] private Slider expSlider;
-    [SerializeField] private Text levelText;
+    [SerializeField] private Image rewardItemImage;
     private Action _onOkButtonClicked;
     
     public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
     {
+        _onOkButtonClicked = onOkButtonClicked;
+        
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
         foreach (var quizResult in quizResults)
@@ -39,26 +41,32 @@ public class ResultDialog: DialogBaseListener
         // プレイヤーステータスを表示
         var playerStatus = userDataManager.GetPlayerStatus();
         int currentExp = playerStatus.exp;
-        int level = LevelingSystem.CalculateLevelFromExp(currentExp);
-        
-        // 現在のレベルまでに必要だったEXPを計算
-        int expToCurrentLevel = 0;
-        for (int i = 1; i < level; i++)
-        {
-            expToCurrentLevel += LevelingSystem.GetExpToLevelUp(i);
-        }
         
         // 次のレベルまでに必要なEXP
-        int expForNextLevel = LevelingSystem.GetExpToLevelUp(level);
-        int expInCurrentLevel = currentExp - expToCurrentLevel;
-        Debug.Log(level.ToString());
-        // UIを更新
-        levelText.text = level.ToString();
+        var ownedRoboId = UserDataManager.GetInstance().OwnedRoboPartsIds();
+        var roboData = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
+        int expForNextLevel = roboData.exp_required;
         
-        expSlider.value = (float)expInCurrentLevel / expForNextLevel;
-        
-        _onOkButtonClicked = onOkButtonClicked;
+        expSlider.value = (float)currentExp / expForNextLevel;
+
+        // 報酬ロボパーツの画像を設定
+        if (!string.IsNullOrEmpty(roboData.id))
+        {
+            var rewardRoboId = roboData.id;
+            string spritePath = $"Images/Robo/{rewardRoboId}";
+            Sprite roboSprite = Resources.Load<Sprite>(spritePath);
+            
+            if (roboSprite != null && rewardItemImage != null)
+            {
+                rewardItemImage.sprite = roboSprite;
+            }
+            else
+            {
+                Debug.LogWarning($"Reward sprite not found at path: {spritePath}");
+            }
+        }
     }
+    
 
     public void OnClickHomeButton()
     {
