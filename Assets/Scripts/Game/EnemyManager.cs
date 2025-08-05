@@ -73,5 +73,15 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
+    
+    public int GetTotalEnemyHp()
+    {
+        int totalHp = 0;
+        foreach (var enemy in _enemies)
+        {
+            totalHp += enemy.GetMaxHp();
+        }
+        return totalHp;
+    }
 }
 

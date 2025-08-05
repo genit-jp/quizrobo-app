@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using System.Linq;
 
 public class GameScene : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class GameScene : MonoBehaviour
      private bool _allEnemiesDefeated;
      
      private bool _gameEnded = false;
+     private int _totalAttackPower = 10; // デフォルト攻撃力
     
 //     private AudioClip _resultSound;
 
@@ -95,7 +97,8 @@ public class GameScene : MonoBehaviour
 
                  if (isCorrect)
                  {
-                     _enemyManager.AttackNextEnemy(1);
+                     //攻撃力の計算
+                     _enemyManager.AttackNextEnemy(_totalAttackPower);
                      
                      if (_enemyManager.AllEnemiesDefeated && !_gameEnded)
                      {
@@ -149,6 +152,9 @@ public class GameScene : MonoBehaviour
          
          if (_allEnemiesDefeated)
          {
+             // 次のステージを解放
+             await UnlockNextStage();
+             
              Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
              var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
              var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
@@ -194,6 +200,7 @@ public class GameScene : MonoBehaviour
              totalCount = _quizResults.Count
          };
 
+         //　進捗データを保存
          // 教科名とともに保存
          await UserDataManager.GetInstance().SaveChapterProgress(Const.GameSceneParam.Subject, progressData);
      }
@@ -204,21 +211,27 @@ public class GameScene : MonoBehaviour
          var userDataManager = UserDataManager.GetInstance();
          var playerStatus = userDataManager.GetPlayerStatus();
          
-         // LevelingSystemを使用してEXPを計算
-         int expFromCorrectAnswers = LevelingSystem.CalculateExpFromCorrectAnswers(_correctCount);
-         
-         // 現在のEXPに加算
-         playerStatus.exp += expFromCorrectAnswers;
-         
-         playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
+         // ゲームクリア時のみEXPを加算
+         if (_allEnemiesDefeated)
+         {
+             // 敵のHP合計値をEXPとして加算
+             int totalEnemyHp = _enemyManager.GetTotalEnemyHp();
+             playerStatus.exp += totalEnemyHp;
+             
+             playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
+             
+             Debug.Log($"Game Clear! Player Status Updated - EXP: {playerStatus.exp} (+{totalEnemyHp}), Level: {playerStatus.level}");
+         }
+         else
+         {
+             Debug.Log("Game Over - No EXP gained");
+         }
          
          // HPを10加算（仮の値）
          playerStatus.hp = Mathf.Min(playerStatus.hp + LevelingSystem.RecoveryHpPerQuest, 100);
          
          // PlayerStatusを保存
          await userDataManager.UpdatePlayerStatus(playerStatus);
-         
-         Debug.Log($"Player Status Updated - EXP: {playerStatus.exp} (+{expFromCorrectAnswers}), HP: {playerStatus.hp} (+10)");
      }
 
      private void EndScene()
@@ -246,10 +259,58 @@ public class GameScene : MonoBehaviour
              
              // RoboSettingManagerを使用してロボットを表示
              await RoboSettingManager.DisplayRobo(robo, roboCustomData);
+             
+             // 攻撃力を計算
+             _totalAttackPower = CalculateTotalAttackPower(roboCustomData);
+             Debug.Log($"Total Attack Power: {_totalAttackPower}");
          }
          else
          {
              Debug.LogWarning($"RoboCustomData not found for selectedRoboId: {selectedRoboId}");
+         }
+     }
+     
+     private int CalculateTotalAttackPower(UserDataManager.RoboCustomData roboCustomData)
+     {
+         var masterData = MasterData.GetInstance();
+         int totalAtk = 0;
+         
+         // 各パーツIDからRoboDataを取得してatkを合計
+         var headData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.headId);
+         if (headData != null) totalAtk += headData.atk;
+         
+         var bodyData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.bodyId);
+         if (bodyData != null) totalAtk += bodyData.atk;
+         
+         var armsData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.armsId);
+         if (armsData != null) totalAtk += armsData.atk;
+         
+         var legsData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.legsId);
+         if (legsData != null) totalAtk += legsData.atk;
+         
+         var tailData = masterData.robos.FirstOrDefault(r => r.id == roboCustomData.tailId);
+         if (tailData != null) totalAtk += tailData.atk;
+         
+         Debug.Log(totalAtk);
+         // 最小攻撃力を1に保証
+         return Mathf.Max(totalAtk, 1);
+     }
+     
+     private async UniTask UnlockNextStage()
+     {
+         var userDataManager = UserDataManager.GetInstance();
+         int currentChallengeLevel = userDataManager.GetChallengeLevel();
+         int nextStageNumber = Const.GameSceneParam.ChapterNumber + 1;
+         
+         // 現在の保存値より大きい場合のみ更新
+         if (nextStageNumber > currentChallengeLevel)
+         {
+             await userDataManager.SetChallengeLevel(nextStageNumber);
+             Debug.Log($"Next stage unlocked: {nextStageNumber}");
+         }
+         else
+         {
+             Debug.Log($"Stage {nextStageNumber} is already unlocked. Current max: {currentChallengeLevel}");
          }
      }
      

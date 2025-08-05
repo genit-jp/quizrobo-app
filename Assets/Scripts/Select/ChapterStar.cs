@@ -24,7 +24,7 @@ public class ChapterStar : MonoBehaviour
     
     private void OnChapterProgressDataUpdated()
     {
-        _maxChapterNumber = UserDataManager.GetInstance().GetMaxChapterNumber(_subject);
+        _maxChapterNumber = UserDataManager.GetInstance().GetChallengeLevel();
     }
     
     public void Setup(ChapterData data, System.Action<ChapterData> onClick, string subject)

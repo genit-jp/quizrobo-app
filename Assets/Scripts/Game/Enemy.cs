@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour
     private System.Action _onEnemyDefeated;
     private int _currentHp, _maxHp;
     public bool IsDefeated => _currentHp <= 0;
+    public int GetMaxHp() => _maxHp;
 
     public void Setup(string id, int maxHp,　System.Action onEnemyDefeated = null)
     {
