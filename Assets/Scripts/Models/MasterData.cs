@@ -70,4 +70,13 @@ public class MasterData
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
     }
+    
+    public RoboData GetNextRoboByExp(int myExp)
+    {
+        return robos
+            .Where(robo => robo.exp_required > myExp)
+            .OrderBy(robo => robo.exp_required)
+            .FirstOrDefault();
+    }
+
 }

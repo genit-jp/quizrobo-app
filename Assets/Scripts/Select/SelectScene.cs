@@ -92,15 +92,57 @@ public class SelectScene : MonoBehaviour
         int currentExp = playerStatus.exp;
         int level = LevelingSystem.CalculateLevelFromExp(currentExp);
 
-        int expToCurrentLevel = 0;
-        for (int i = 1; i < level; i++)
-        {
-            expToCurrentLevel += LevelingSystem.GetExpToLevelUp(i);
-        }
-
-        int expForNextLevel = LevelingSystem.GetExpToLevelUp(level);
-        int expInCurrentLevel = currentExp - expToCurrentLevel;
+        // 次のロボパーツを取得
+        var nextRobo = MasterData.GetInstance().GetNextRoboByExp(currentExp);
         
+        if (nextRobo != null)
+        {
+            // 次のロボパーツまでの経験値
+            int nextExp = nextRobo.exp_required;
+            
+            // Sliderの更新
+            if (expSlider != null)
+            {
+                expSlider.value = (float)currentExp / nextExp;
+            }
+            
+            // テキストの更新
+            if (levelText != null)
+            {
+                levelText.text = $"Lv. {level} {currentExp} / {nextExp}";
+            }
+            
+            // ロボパーツ画像の更新
+            if (partsImage != null && !string.IsNullOrEmpty(nextRobo.id))
+            {
+                string spritePath = $"Images/Robo/{nextRobo.id}";
+                Sprite roboSprite = Resources.Load<Sprite>(spritePath);
+                
+                if (roboSprite != null)
+                {
+                    partsImage.sprite = roboSprite;
+                }
+                else
+                {
+                    Debug.LogWarning($"Sprite not found at path: {spritePath}");
+                }
+            }
+        }
+        else
+        {
+            // 最大レベルに到達している場合
+            if (expSlider != null)
+            {
+                expSlider.value = 1f; // 満タン表示
+            }
+            
+            if (levelText != null)
+            {
+                levelText.text = $"Lv. {level} MAX";
+            }
+            
+            Debug.Log("No next robo available - player has reached max level");
+        }
     }
     
     private void OnUserDataUpdated()
