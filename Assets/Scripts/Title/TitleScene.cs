@@ -13,6 +13,7 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
     [SerializeField] private RubyTextMeshProUGUI _tapToStartText;
     [SerializeField] private RubyTextMeshProUGUI _loadingText;
     [SerializeField] private Text _UserIdText;
+    [SerializeField] private Text _versionText;
     private bool _isFetchComplete;
     private FirebaseAuth auth;
 
@@ -51,6 +52,14 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
         _isFetchComplete = true;
         _loadingText.gameObject.SetActive(false);
         _tapToStartText.gameObject.SetActive(true);
+        
+        // Resources フォルダからタイムスタンプファイルを読み込み
+        TextAsset timeStampAsset = Resources.Load<TextAsset>("BuildNumber");
+
+        if (timeStampAsset != null)
+        {
+            this._versionText.text = $"version: {Application.version}({timeStampAsset.text})";
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
