@@ -152,6 +152,9 @@ public class GameScene : MonoBehaviour
          
          if (_allEnemiesDefeated)
          {
+             // 次のステージを解放
+             await UnlockNextStage();
+             
              Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
              var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
              var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
@@ -197,6 +200,7 @@ public class GameScene : MonoBehaviour
              totalCount = _quizResults.Count
          };
 
+         //　進捗データを保存
          // 教科名とともに保存
          await UserDataManager.GetInstance().SaveChapterProgress(Const.GameSceneParam.Subject, progressData);
      }
@@ -284,6 +288,24 @@ public class GameScene : MonoBehaviour
          Debug.Log(totalAtk);
          // 最小攻撃力を1に保証
          return Mathf.Max(totalAtk, 1);
+     }
+     
+     private async UniTask UnlockNextStage()
+     {
+         var userDataManager = UserDataManager.GetInstance();
+         int currentChallengeLevel = userDataManager.GetChallengeLevel();
+         int nextStageNumber = Const.GameSceneParam.ChapterNumber + 1;
+         
+         // 現在の保存値より大きい場合のみ更新
+         if (nextStageNumber > currentChallengeLevel)
+         {
+             await userDataManager.SetChallengeLevel(nextStageNumber);
+             Debug.Log($"Next stage unlocked: {nextStageNumber}");
+         }
+         else
+         {
+             Debug.Log($"Stage {nextStageNumber} is already unlocked. Current max: {currentChallengeLevel}");
+         }
      }
      
      public async void OnClickPauseButton()
