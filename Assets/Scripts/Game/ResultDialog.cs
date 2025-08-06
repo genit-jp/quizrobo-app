@@ -25,6 +25,7 @@ public class ResultDialog: DialogBaseListener
     {
         _onGoToNextButtonClicked = onGoToNextButtonClicked;
         _onGoToSelectButtonClicked = onGoToSelectButtonClicked;
+        rewardGetImage.SetActive(false);
 
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
