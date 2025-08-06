@@ -47,7 +47,7 @@ public class GameScene : MonoBehaviour
          _userData.AddRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
          Debug.Log("GameScene Start");
          
-         _quizzes = QuizGenerator.GenerateRandomQuizList();
+         _quizzes = QuizGenerator.GenerateRandomQuizList(Const.GameSceneParam.ChapterNumber);
          _quizResults = new List<QuizResultData>();
          
          for (int i = 0; i < _quizzes.Length; i++)
