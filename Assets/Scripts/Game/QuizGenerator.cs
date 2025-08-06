@@ -11,124 +11,153 @@ public static class QuizGenerator
         Multiplication
     }
 
-    public static QuizData[] GenerateRandomQuizList()
+    private class ChallengeLevelRule
     {
-        return GenerateQuizDataList();
+        public int MinLevel { get; set; }
+        public int MaxLevel { get; set; }
+    
+        public int DigitLevel { get; set; }
+        public List<QuizType> AllowedTypes { get; set; }
+        public int MaxProduct { get; set; } = 50;
+        public int ChoiceRange { get; set; } = 5;
+
+        public bool Matches(int level)
+        {
+            return level >= MinLevel && level <= MaxLevel;
+        }
+    }
+
+
+    private static readonly List<ChallengeLevelRule> _challengeRules = new()
+    {
+        new ChallengeLevelRule
+        {
+            MinLevel = 1,
+            MaxLevel = 10,
+            DigitLevel = 1,
+            AllowedTypes = new() { QuizType.Addition, QuizType.Subtraction }
+        },
+        new ChallengeLevelRule
+        {
+            MinLevel = 11,
+            MaxLevel = 20,
+            DigitLevel = 2,
+            AllowedTypes = new() { QuizType.Addition, QuizType.Subtraction }
+        },
+        new ChallengeLevelRule
+        {
+            MinLevel = 21,
+            MaxLevel = 40,
+            DigitLevel = 2,
+            AllowedTypes = new() { QuizType.Addition, QuizType.Subtraction, QuizType.Multiplication }
+        },
+        new ChallengeLevelRule
+        {
+            MinLevel = 41,
+            MaxLevel = int.MaxValue,
+            DigitLevel = 2,
+            AllowedTypes = new() { QuizType.Addition, QuizType.Subtraction, QuizType.Multiplication },
+            MaxProduct = 100
+        }
+    };
+
+
+    public static QuizData[] GenerateRandomQuizList(int challengeLevel)
+    {
+        return GenerateQuizDataList(challengeLevel);
     }
     
-    private static QuizData[] GenerateQuizDataList()
+    private static QuizData[] GenerateQuizDataList(int challengeLevel)
+{
+    var rule = _challengeRules.FirstOrDefault(r => r.Matches(challengeLevel));
+    if (rule == null)
     {
-        var quizDataArray = new QuizData[10];
-        
-        for (int i = 0; i < 10; i++)
-        {
-            // Generate random quiz type
-            var quizType = (QuizType)Random.Range(0, 3);
-            
-            int a, b, correctAnswer;
-            string question;
-            
-            switch (quizType)
-            {
-                case QuizType.Addition:
-                    (a, b, correctAnswer, question) = GenerateAdditionProblem();
-                    break;
-                case QuizType.Subtraction:
-                    (a, b, correctAnswer, question) = GenerateSubtractionProblem();
-                    break;
-                case QuizType.Multiplication:
-                    (a, b, correctAnswer, question) = GenerateMultiplicationProblem();
-                    break;
-                default:
-                    (a, b, correctAnswer, question) = GenerateAdditionProblem();
-                    break;
-            }
-            
-            // Generate choices with distractors
-            var choicesList = new List<int> { correctAnswer };
-            
-            while (choicesList.Count < 4)
-            {
-                int distractor = correctAnswer + Random.Range(-5, 6);
-                
-                if (distractor >= 0 && !choicesList.Contains(distractor))
-                {
-                    choicesList.Add(distractor);
-                }
-            }
-            
-            // Shuffle choices
-            choicesList = choicesList.OrderBy(x => Random.Range(0, int.MaxValue)).ToList();
-            
-            // Create QuizData
-            quizDataArray[i] = new QuizData
-            {
-                Id = $"auto_{i + 1}",
-                available = true,
-                subject = "算数",
-                question = question,
-                choices = choicesList.Select(x => x.ToString()).ToArray(),
-                answer = correctAnswer.ToString(),
-                difficultyLevels = "easy"
-            };
-        }
-        
-        return quizDataArray;
+        Debug.LogError($"No matching rule for challengeLevel: {challengeLevel}");
+        return new QuizData[0];
     }
-    
-    private static (int a, int b, int answer, string question) GenerateAdditionProblem()
+
+    var quizDataArray = new QuizData[10];
+
+    for (int i = 0; i < 10; i++)
     {
-        int a, b;
-        
-        if (Random.Range(0, 2) == 0)
+        // 許可されたタイプからランダム選択
+        var quizType = rule.AllowedTypes[Random.Range(0, rule.AllowedTypes.Count)];
+
+        int a, b, correctAnswer;
+        string question;
+
+        switch (quizType)
         {
-            // 1-digit + 1-digit
-            a = Random.Range(1, 10);
-            b = Random.Range(1, 10);
+            case QuizType.Addition:
+                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule.DigitLevel);
+                break;
+            case QuizType.Subtraction:
+                (a, b, correctAnswer, question) = GenerateSubtractionProblem(rule.DigitLevel);
+                break;
+            case QuizType.Multiplication:
+                (a, b, correctAnswer, question) = GenerateMultiplicationProblem(rule.DigitLevel, rule.MaxProduct);
+                break;
+            default:
+                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule.DigitLevel);
+                break;
         }
-        else
+
+        // 選択肢の生成（ChoiceRange を使用）
+        var choicesList = new List<int> { correctAnswer };
+        while (choicesList.Count < 4)
         {
-            // 2-digit + 2-digit
-            a = Random.Range(10, 100);
-            b = Random.Range(10, 100);
+            int distractor = correctAnswer + Random.Range(-rule.ChoiceRange, rule.ChoiceRange + 1);
+            if (distractor >= 0 && !choicesList.Contains(distractor))
+            {
+                choicesList.Add(distractor);
+            }
         }
-        
+
+        // シャッフル
+        choicesList = choicesList.OrderBy(x => Random.Range(0, int.MaxValue)).ToList();
+
+        quizDataArray[i] = new QuizData
+        {
+            Id = $"auto_{i + 1}",
+            available = true,
+            question = question,
+            choices = choicesList.Select(x => x.ToString()).ToArray(),
+            answer = correctAnswer.ToString(),
+        };
+    }
+
+    return quizDataArray;
+}
+
+    
+    private static (int a, int b, int answer, string question) GenerateAdditionProblem(int digitLevel)
+    {
+        int min = digitLevel == 1 ? 1 : 10;
+        int max = digitLevel == 1 ? 10 : 100;
+
+        int a = Random.Range(min, max);
+        int b = Random.Range(min, max);
         int answer = a + b;
         string question = $"{a} + {b} = ?";
-        
         return (a, b, answer, question);
     }
-    
-    private static (int a, int b, int answer, string question) GenerateSubtractionProblem()
+
+    private static (int a, int b, int answer, string question) GenerateSubtractionProblem(int digitLevel)
     {
-        int a, b;
-        
-        if (Random.Range(0, 2) == 0)
-        {
-            // 1-digit - 1-digit
-            a = Random.Range(1, 10);
-            b = Random.Range(1, 10);
-        }
-        else
-        {
-            // 2-digit - 2-digit
-            a = Random.Range(10, 100);
-            b = Random.Range(10, 100);
-        }
-        
-        // Ensure non-negative result
-        if (a < b)
-        {
-            (a, b) = (b, a);
-        }
-        
+        int min = digitLevel == 1 ? 1 : 10;
+        int max = digitLevel == 1 ? 10 : 100;
+
+        int a = Random.Range(min, max);
+        int b = Random.Range(min, max);
+        if (a < b) (a, b) = (b, a);
+
         int answer = a - b;
         string question = $"{a} - {b} = ?";
-        
         return (a, b, answer, question);
     }
+
     
-    private static (int a, int b, int answer, string question) GenerateMultiplicationProblem()
+    private static (int a, int b, int answer, string question) GenerateMultiplicationProblem(int digitLevel, int maxProduct)
     {
         int a = 0, b = 0, answer = 0;
         int attempt = 0;
@@ -136,32 +165,26 @@ public static class QuizGenerator
         while (true)
         {
             attempt++;
-            if (attempt > 100) // 安全対策
+            if (attempt > 100)
             {
                 a = Random.Range(1, 10);
                 b = Random.Range(1, 10);
                 break;
             }
 
-            int multiType = Random.Range(0, 2); // 0: 1桁×1桁, 1: 2桁×2桁制限付き
+            int min = digitLevel == 1 ? 1 : 10;
+            int max = digitLevel == 1 ? 10 : 100;
 
-            if (multiType == 0)
-            {
-                a = Random.Range(1, 10);
-                b = Random.Range(1, 10);
+            a = Random.Range(min, max);
+            b = Random.Range(min, max);
+            if (a * b <= maxProduct)
                 break;
-            }
-            else
-            {
-                a = Random.Range(10, 100);
-                b = Random.Range(10, 100);
-                if (a * b <= 100)
-                    break;
-            }
         }
 
         answer = a * b;
         string question = $"{a} × {b} = ?";
         return (a, b, answer, question);
     }
+
+    
 }

@@ -27,7 +27,7 @@ public class SelectScene : MonoBehaviour
 #endif
 
         var masterData = MasterData.GetInstance();
-        var subjects = masterData.AllSubjects();
+        // var subjects = masterData.AllSubjects();
         _selectedGrade = UserDataManager.GetInstance().GetUserData().grade;
 
         AdManager.Instance.LoadBannerAd();

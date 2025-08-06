@@ -69,12 +69,7 @@ public class MasterData
     {
         return robos.FirstOrDefault(r => r.id == partId);
     }
-
     
-    public string[] AllSubjects()
-    {
-        return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
-    }
     
     public RoboData GetNextUnownedRoboByExp(List<string> ownedRoboIds)
     {
