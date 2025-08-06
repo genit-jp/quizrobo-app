@@ -33,16 +33,21 @@ public class GameScene : MonoBehaviour
      private bool _allEnemiesDefeated;
      
      private bool _gameEnded = false;
-     private int _totalAttackPower = 10; // デフォルト攻撃力
+     private int _totalAttackPower = 10;
+
+     private UserDataManager _userData;
+     
+     // デフォルト攻撃力
     
 //     private AudioClip _resultSound;
 
      private async void Start()
      {
+         _userData = UserDataManager.GetInstance();
+         _userData.AddRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
          Debug.Log("GameScene Start");
          
          _quizzes = QuizGenerator.GenerateRandomQuizList();
-         
          _quizResults = new List<QuizResultData>();
          
          for (int i = 0; i < _quizzes.Length; i++)
@@ -68,7 +73,16 @@ public class GameScene : MonoBehaviour
          await SetRobo();
          await StartNextQuiz();
      }
+
+     private void OnDisable()
+     {
+         _userData.RemoveRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
+     }
     
+     private async void OnRoboCustomDataUpdated()
+     {
+         await SetRobo();
+     }
 
      private async UniTask StartNextQuiz()
      {
@@ -207,8 +221,7 @@ public class GameScene : MonoBehaviour
      private async UniTask SavePlayerStatus()
      {
          // 現在のPlayerStatusを取得
-         var userDataManager = UserDataManager.GetInstance();
-         var playerStatus = userDataManager.GetPlayerStatus();
+         var playerStatus = _userData.GetPlayerStatus();
          
          // ゲームクリア時のみEXPを加算
          if (_allEnemiesDefeated)
@@ -217,15 +230,15 @@ public class GameScene : MonoBehaviour
              int totalEnemyHp = _enemyManager.GetTotalEnemyHp();
              playerStatus.exp += totalEnemyHp;
              
-             await userDataManager.UpdatePlayerStatus(playerStatus);
+             await _userData.UpdatePlayerStatus(playerStatus);
              
              //EXPが次の獲得EXPまでに達したときアイテムを獲得ただし受取はfalse
-             var ownedRoboId = userDataManager.OwnedRoboPartsIds();
+             var ownedRoboId = _userData.OwnedRoboPartsIds();
              var roboData = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
              if (roboData != null && playerStatus.exp >= roboData.exp_required)
              {
                  // ロボットを獲得
-                 await userDataManager.AddOwnedRoboPart(roboData.id, false);
+                 await _userData.AddOwnedRoboPart(roboData.id, false);
                  Debug.Log($"New Robo Part Unlocked: {roboData.id}");
              }
              else
@@ -305,14 +318,13 @@ public class GameScene : MonoBehaviour
      
      private async UniTask UnlockNextStage()
      {
-         var userDataManager = UserDataManager.GetInstance();
-         int currentChallengeLevel = userDataManager.GetChallengeLevel();
+         int currentChallengeLevel = _userData.GetChallengeLevel();
          int nextStageNumber = Const.GameSceneParam.ChapterNumber + 1;
          
          // 現在の保存値より大きい場合のみ更新
          if (nextStageNumber > currentChallengeLevel)
          {
-             await userDataManager.SetChallengeLevel(nextStageNumber);
+             await _userData.SetChallengeLevel(nextStageNumber);
              Debug.Log($"Next stage unlocked: {nextStageNumber}");
          }
          else

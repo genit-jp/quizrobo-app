@@ -28,6 +28,7 @@ public class UserDataManager
 
     private readonly List<Action> _userDataActions = new();
     private readonly List<Action> _chapterProgressDataActions = new();
+    private readonly List<Action> _roboCustomDataActions = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
     private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
     private readonly Dictionary<string, OwnedRoboPart> ownedRoboPartsMeta = new();
@@ -129,6 +130,27 @@ public class UserDataManager
         
             await SaveRoboCustomData("default", defaultRoboData);
         }
+        
+        // リスナーを設定
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("roboCustomData")
+            .Listen(snapshot =>
+            {
+                _roboCustomData.Clear();
+                foreach (var documentSnapshot in snapshot.Documents)
+                {
+                    var roboData = documentSnapshot.ConvertTo<RoboCustomData>();
+                    _roboCustomData[documentSnapshot.Id] = roboData;
+                }
+                
+                // RoboCustomData更新リスナーを呼び出す
+                mainThread.Post(__ =>
+                {
+                    foreach (var action in _roboCustomDataActions) action();
+                }, null);
+            });
     }
 
     public Dictionary<string, RoboCustomData> GetRoboCustomData(string roboId)
@@ -307,6 +329,18 @@ public class UserDataManager
     public void RemoveChapterProgressDataUpdateListener(Action action)
     {
         if (_chapterProgressDataActions.Contains(action)) _chapterProgressDataActions.Remove(action);
+    }
+    
+    public void AddRoboCustomDataUpdateListener(Action action)
+    {
+        if (!_roboCustomDataActions.Contains(action)) _roboCustomDataActions.Add(action);
+        
+        action();
+    }
+    
+    public void RemoveRoboCustomDataUpdateListener(Action action)
+    {
+        if (_roboCustomDataActions.Contains(action)) _roboCustomDataActions.Remove(action);
     }
 
     public UserData GetUserData()
