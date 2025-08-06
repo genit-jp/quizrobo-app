@@ -90,7 +90,6 @@ public class SelectScene : MonoBehaviour
     {
         var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
         int currentExp = playerStatus.exp;
-        int level = LevelingSystem.CalculateLevelFromExp(currentExp);
 
         
         // 次のロボパーツを取得
@@ -108,11 +107,6 @@ public class SelectScene : MonoBehaviour
                 expSlider.value = (float)currentExp / nextExp;
             }
             
-            // テキストの更新
-            if (levelText != null)
-            {
-                levelText.text = $"Lv. {level} {currentExp} / {nextExp}";
-            }
             
             // ロボパーツ画像の更新
             if (partsImage != null && !string.IsNullOrEmpty(nextRobo.id))
@@ -136,11 +130,6 @@ public class SelectScene : MonoBehaviour
             if (expSlider != null)
             {
                 expSlider.value = 1f; // 満タン表示
-            }
-            
-            if (levelText != null)
-            {
-                levelText.text = $"Lv. {level} MAX";
             }
             
             Debug.Log("No next robo available - player has reached max level");

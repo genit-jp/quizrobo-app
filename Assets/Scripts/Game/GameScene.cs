@@ -216,7 +216,6 @@ public class GameScene : MonoBehaviour
              // 敵のHP合計値をEXPとして加算
              int totalEnemyHp = _enemyManager.GetTotalEnemyHp();
              playerStatus.exp += totalEnemyHp;
-             playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
              
              await userDataManager.UpdatePlayerStatus(playerStatus);
              
