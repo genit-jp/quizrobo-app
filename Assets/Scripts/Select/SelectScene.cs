@@ -236,7 +236,7 @@ public class SelectScene : MonoBehaviour
     private async void PlaceRobotOnChapter()
     {
         RectTransform targetRect = null;
-        float adjustedY = 0f;
+        float adjustedY = 100f;
 
         var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
         
@@ -290,6 +290,11 @@ public class SelectScene : MonoBehaviour
             {
                 roboPrefabComponent.SetRobo(roboCustomDataDict[selectedRoboId]);
             }
+        }
+        
+        foreach (var image in roboPrefab.GetComponentsInChildren<Image>())
+        {
+            image.raycastTarget = false;
         }
     }
 
