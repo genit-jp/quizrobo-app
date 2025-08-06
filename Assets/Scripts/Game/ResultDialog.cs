@@ -13,15 +13,18 @@ public class ResultDialog: DialogBaseListener
     [SerializeField] private GameObject _scrollViewContent, _roboContent, rewardGetImage;
     [SerializeField] private Slider expSlider;
     [SerializeField] private Image rewardItemImage;
-    private Action _onOkButtonClicked;
-
+    
+    private Action _onGoToNextButtonClicked;
+    private Action _onGoToSelectButtonClicked;
+    private bool _userInteracted = false;
 
     private MasterData _masterData;
     private Dictionary<string, UserDataManager.RoboCustomData> _customRoboData;
 
-    public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
+    public async void Setup(List<QuizResultData> quizResults, Action onGoToNextButtonClicked, Action onGoToSelectButtonClicked)
     {
-        _onOkButtonClicked = onOkButtonClicked;
+        _onGoToNextButtonClicked = onGoToNextButtonClicked;
+        _onGoToSelectButtonClicked = onGoToSelectButtonClicked;
 
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
@@ -125,16 +128,33 @@ public class ResultDialog: DialogBaseListener
                 await userDataManager.AddOwnedRoboPart(partId, true);
             }
         }
+        
+        await UniTask.Delay(3000);
+
+        if (!_userInteracted)
+        {
+            Debug.Log("3秒経過。自動で次のチャプターに進みます");
+            Destroy(gameObject);
+            _onGoToNextButtonClicked?.Invoke();
+        }
     }
 
-
-    public void OnClickHomeButton()
+    public void OnClickGoToSelect()
     {
-        _onOkButtonClicked?.Invoke();
+        _userInteracted = true;
+        _onGoToSelectButtonClicked?.Invoke();
+    }
+
+    public void OnClickGoToNextButton()
+    {
+        Destroy(gameObject);
+        _userInteracted = true;
+        _onGoToNextButtonClicked?.Invoke();
     }
     
     public override bool OnClickBlocker()
     {
+        _userInteracted = true;
         return false;
     }
 }

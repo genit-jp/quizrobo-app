@@ -179,9 +179,21 @@ public class GameScene : MonoBehaviour
              Vector4 blockerColor = new Color(255f / 255f, 246f / 255f, 230f / 255f, 1.0f);
              var resultDialogObj = await Utils.OpenDialog("Prefabs/Game/ResultDialog", transform, blockerColor);
              var resultDialog = resultDialogObj.GetComponent<ResultDialog>();
-             resultDialog.Setup(_quizResults , () =>
+             resultDialog.Setup(
+                 _quizResults,
+                 () =>
                  {
-                     if (isSaved) AdManager.Instance.ShowInterstitialAd(() => EndScene());
+                     if (isSaved)
+                     {
+                         AdManager.Instance.ShowInterstitialAd(() => LoadNextChapter());
+                     }
+                 },
+                 () =>
+                 {
+                     if (isSaved)
+                     {
+                         AdManager.Instance.ShowInterstitialAd(() => EndScene());
+                     }
                  });
          }
          else
@@ -252,6 +264,20 @@ public class GameScene : MonoBehaviour
          }
          
          
+     }
+     
+     private async void LoadNextChapter()
+     {
+         var loadingPanelObj = await Utils.InstantiatePrefab("Prefabs/Common/LoadingPanel", transform);
+         await UniTask.Delay(200);
+         Const.GameSceneParam.ChapterNumber += 1; // チャプター番号更新
+         var scene = SceneManager.GetSceneByName("GameScene");
+         if (scene.isLoaded)
+             await SceneManager.UnloadSceneAsync(scene);
+
+         await SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
+         
+         Destroy(loadingPanelObj);
      }
 
      private void EndScene()
