@@ -152,6 +152,13 @@ public class GameScene : MonoBehaviour
          
          if (_allEnemiesDefeated)
          {
+             // チャプター進捗を保存
+             await SaveChapterProgress();
+         
+             // プレイヤーステータスを保存
+             await SavePlayerStatus();
+
+             isSaved = true;
              // 次のステージを解放
              await UnlockNextStage();
              
@@ -168,9 +175,9 @@ public class GameScene : MonoBehaviour
              // ❗敵が逃げたダイアログ
              var dialogObj = await Utils.OpenDialog("Prefabs/Common/CommonDialog", transform);
              var commonDialog = dialogObj.GetComponent<CommonDialog>();
-             commonDialog.Setup("クエスト失敗", "敵が逃げてしまった！\nロボをカスタマイズして再挑戦しよう！", (result) =>
+             commonDialog.Setup("敵が逃げてしまった", "EXPをためると新しいパーツをGET!\nロボをカスタマイズして再挑戦しよう！", (result) =>
              {
-                 if (isSaved) EndScene();
+                 EndScene();
              }, CommonDialog.Mode.OK);
          }
 
@@ -178,14 +185,7 @@ public class GameScene : MonoBehaviour
          //
          // SaveAnswerData();
          // SaveUserData();
-
-         // チャプター進捗を保存
-         await SaveChapterProgress();
          
-         // プレイヤーステータスを保存
-         await SavePlayerStatus();
-
-         isSaved = true;
          Debug.Log("AnswerData saved");
      }
 
@@ -201,7 +201,6 @@ public class GameScene : MonoBehaviour
          };
 
          //　進捗データを保存
-         // 教科名とともに保存
          await UserDataManager.GetInstance().SaveChapterProgress(progressData);
      }
 
@@ -217,21 +216,30 @@ public class GameScene : MonoBehaviour
              // 敵のHP合計値をEXPとして加算
              int totalEnemyHp = _enemyManager.GetTotalEnemyHp();
              playerStatus.exp += totalEnemyHp;
-             
              playerStatus.level = LevelingSystem.CalculateLevelFromExp(playerStatus.exp);
              
-             Debug.Log($"Game Clear! Player Status Updated - EXP: {playerStatus.exp} (+{totalEnemyHp}), Level: {playerStatus.level}");
+             await userDataManager.UpdatePlayerStatus(playerStatus);
+             
+             //EXPが次の獲得EXPまでに達したときアイテムを獲得ただし受取はfalse
+             var ownedRoboId = userDataManager.OwnedRoboPartsIds();
+             var roboData = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
+             if (roboData != null && playerStatus.exp >= roboData.exp_required)
+             {
+                 // ロボットを獲得
+                 await userDataManager.AddOwnedRoboPart(roboData.id, false);
+                 Debug.Log($"New Robo Part Unlocked: {roboData.id}");
+             }
+             else
+             {
+                 Debug.Log("No new Robo Part unlocked");
+             }
          }
          else
          {
              Debug.Log("Game Over - No EXP gained");
          }
          
-         // HPを10加算（仮の値）
-         playerStatus.hp = Mathf.Min(playerStatus.hp + LevelingSystem.RecoveryHpPerQuest, 100);
          
-         // PlayerStatusを保存
-         await userDataManager.UpdatePlayerStatus(playerStatus);
      }
 
      private void EndScene()

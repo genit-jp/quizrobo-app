@@ -92,8 +92,10 @@ public class SelectScene : MonoBehaviour
         int currentExp = playerStatus.exp;
         int level = LevelingSystem.CalculateLevelFromExp(currentExp);
 
+        
         // 次のロボパーツを取得
-        var nextRobo = MasterData.GetInstance().GetNextRoboByExp(currentExp);
+        var ownedRoboId = UserDataManager.GetInstance().OwnedRoboPartsIds();
+        var nextRobo = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
         
         if (nextRobo != null)
         {

@@ -65,16 +65,21 @@ public class MasterData
         return robos.Where(robo => robo.type.ToLower() == lowerPartType).ToArray();
     }
     
+    public RoboData GetRoboDataById(string partId)
+    {
+        return robos.FirstOrDefault(r => r.id == partId);
+    }
+
     
     public string[] AllSubjects()
     {
         return quizzes.Select(quiz => quiz.subject).Distinct().ToArray();
     }
     
-    public RoboData GetNextRoboByExp(int myExp)
+    public RoboData GetNextUnownedRoboByExp(List<string> ownedRoboIds)
     {
         return robos
-            .Where(robo => robo.exp_required > myExp)
+            .Where(robo => !ownedRoboIds.Contains(robo.id))
             .OrderBy(robo => robo.exp_required)
             .FirstOrDefault();
     }

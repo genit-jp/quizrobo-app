@@ -10,55 +10,123 @@ using Slider = UnityEngine.UI.Slider;
 
 public class ResultDialog: DialogBaseListener
 {
-    [SerializeField] private GameObject _scrollViewContent, _roboContent;
+    [SerializeField] private GameObject _scrollViewContent, _roboContent, rewardGetImage;
     [SerializeField] private Slider expSlider;
-    [SerializeField] private Text levelText;
+    [SerializeField] private Image rewardItemImage;
     private Action _onOkButtonClicked;
-    
+
+
+    private MasterData _masterData;
+    private Dictionary<string, UserDataManager.RoboCustomData> _customRoboData;
+
     public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
     {
+        _onOkButtonClicked = onOkButtonClicked;
+
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
         foreach (var quizResult in quizResults)
         {
             var gameObj = Instantiate(resource, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
-            
+
             gameObj.transform.SetParent(_scrollViewContent.transform, false);
             var resultContent = gameObj.GetComponent<ResultContent>();
             resultContent.Setup(quizResult);
         }
-        
+
         var userDataManager = UserDataManager.GetInstance();
-        var roboCustomDataDict = userDataManager.GetRoboCustomData(userDataManager.GetUserData().selectedRoboId);
-        if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(userDataManager.GetUserData().selectedRoboId))
+        _customRoboData = userDataManager.GetRoboCustomData(userDataManager.GetUserData().selectedRoboId);
+        if (_customRoboData != null && _customRoboData.ContainsKey(userDataManager.GetUserData().selectedRoboId))
         {
-            var roboCustomData = roboCustomDataDict[userDataManager.GetUserData().selectedRoboId];
+            var roboCustomData = _customRoboData[userDataManager.GetUserData().selectedRoboId];
             await RoboSettingManager.DisplayRobo(_roboContent, roboCustomData);
         }
-        
+
         // プレイヤーステータスを表示
         var playerStatus = userDataManager.GetPlayerStatus();
         int currentExp = playerStatus.exp;
-        int level = LevelingSystem.CalculateLevelFromExp(currentExp);
-        
-        // 現在のレベルまでに必要だったEXPを計算
-        int expToCurrentLevel = 0;
-        for (int i = 1; i < level; i++)
-        {
-            expToCurrentLevel += LevelingSystem.GetExpToLevelUp(i);
-        }
-        
+
         // 次のレベルまでに必要なEXP
-        int expForNextLevel = LevelingSystem.GetExpToLevelUp(level);
-        int expInCurrentLevel = currentExp - expToCurrentLevel;
-        Debug.Log(level.ToString());
-        // UIを更新
-        levelText.text = level.ToString();
-        
-        expSlider.value = (float)expInCurrentLevel / expForNextLevel;
-        
-        _onOkButtonClicked = onOkButtonClicked;
+        var ownedRoboId = UserDataManager.GetInstance().OwnedRoboPartsIds();
+        _masterData = MasterData.GetInstance();
+        var roboData = _masterData.GetNextUnownedRoboByExp(ownedRoboId);
+        int expForNextLevel = roboData.exp_required;
+
+        expSlider.value = (float)currentExp / expForNextLevel;
+
+        // 報酬ロボパーツの画像を設定
+        if (!string.IsNullOrEmpty(roboData.id))
+        {
+            var rewardRoboId = roboData.id;
+            string spritePath = $"Images/Robo/{rewardRoboId}";
+            Sprite roboSprite = Resources.Load<Sprite>(spritePath);
+
+            if (roboSprite != null && rewardItemImage != null)
+            {
+                rewardItemImage.sprite = roboSprite;
+            }
+            else
+            {
+                Debug.LogWarning($"Reward sprite not found at path: {spritePath}");
+            }
+        }
+
+        //新規取得ロボパーツの表示
+        var unclaimedIds = userDataManager.GetUnclaimedRewardRoboPartIds(currentExp);
+        if (unclaimedIds == null) return;
+        {
+            rewardGetImage.SetActive(true);
+            foreach (var partId in unclaimedIds)
+            {
+                // 🎨 画像表示やアニメ演出
+                string spritePath = $"Images/Robo/{partId}";
+                var sprite = Resources.Load<Sprite>(spritePath);
+                if (sprite != null)
+                {
+                    rewardItemImage.sprite = sprite;
+                    await UniTask.Delay(1500); // 演出時間
+                    
+                    var userData = userDataManager.GetUserData();
+                    var roboId = userData.selectedRoboId ?? "default";
+                    
+                    _customRoboData = userDataManager.GetRoboCustomData(roboId);
+                    if (_customRoboData.TryGetValue(roboId, out var roboCustomData))
+                    {
+                        
+                        var newAvailableRoboData = _masterData.GetRoboDataById(partId);
+
+                        if (newAvailableRoboData != null)
+                        {
+                            var type = newAvailableRoboData.type.ToLower(); // "arms" など
+
+                            switch (type)
+                            {
+                                case "head": roboCustomData.headId = partId; break;
+                                case "body": roboCustomData.bodyId = partId; break;
+                                case "arms": roboCustomData.armsId = partId; break;
+                                case "legs": roboCustomData.legsId = partId; break;
+                                case "tail": roboCustomData.tailId = partId; break;
+                                default:
+                                    Debug.LogWarning($"Unknown part type '{type}' for partId: {partId}");
+                                    break;
+                            }
+
+                            await userDataManager.SaveRoboCustomData(roboId, roboCustomData);
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"No RoboData found for partId: {partId}");
+                        }
+                    }
+
+                }
+
+                // ✅ purchased = true に更新
+                await userDataManager.AddOwnedRoboPart(partId, true);
+            }
+        }
     }
+
 
     public void OnClickHomeButton()
     {
