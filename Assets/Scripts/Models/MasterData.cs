@@ -65,6 +65,11 @@ public class MasterData
         return robos.Where(robo => robo.type.ToLower() == lowerPartType).ToArray();
     }
     
+    public RoboData GetRoboDataById(string partId)
+    {
+        return robos.FirstOrDefault(r => r.id == partId);
+    }
+
     
     public string[] AllSubjects()
     {

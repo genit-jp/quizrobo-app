@@ -15,6 +15,10 @@ public class ResultDialog: DialogBaseListener
     [SerializeField] private Image rewardItemImage;
     private Action _onOkButtonClicked;
 
+
+    private MasterData _masterData;
+    private Dictionary<string, UserDataManager.RoboCustomData> _customRoboData;
+
     public async void Setup(List<QuizResultData> quizResults, Action onOkButtonClicked)
     {
         _onOkButtonClicked = onOkButtonClicked;
@@ -31,10 +35,10 @@ public class ResultDialog: DialogBaseListener
         }
 
         var userDataManager = UserDataManager.GetInstance();
-        var roboCustomDataDict = userDataManager.GetRoboCustomData(userDataManager.GetUserData().selectedRoboId);
-        if (roboCustomDataDict != null && roboCustomDataDict.ContainsKey(userDataManager.GetUserData().selectedRoboId))
+        _customRoboData = userDataManager.GetRoboCustomData(userDataManager.GetUserData().selectedRoboId);
+        if (_customRoboData != null && _customRoboData.ContainsKey(userDataManager.GetUserData().selectedRoboId))
         {
-            var roboCustomData = roboCustomDataDict[userDataManager.GetUserData().selectedRoboId];
+            var roboCustomData = _customRoboData[userDataManager.GetUserData().selectedRoboId];
             await RoboSettingManager.DisplayRobo(_roboContent, roboCustomData);
         }
 
@@ -44,7 +48,8 @@ public class ResultDialog: DialogBaseListener
 
         // 次のレベルまでに必要なEXP
         var ownedRoboId = UserDataManager.GetInstance().OwnedRoboPartsIds();
-        var roboData = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
+        _masterData = MasterData.GetInstance();
+        var roboData = _masterData.GetNextUnownedRoboByExp(ownedRoboId);
         int expForNextLevel = roboData.exp_required;
 
         expSlider.value = (float)currentExp / expForNextLevel;
@@ -80,6 +85,40 @@ public class ResultDialog: DialogBaseListener
                 {
                     rewardItemImage.sprite = sprite;
                     await UniTask.Delay(1500); // 演出時間
+                    
+                    var userData = userDataManager.GetUserData();
+                    var roboId = userData.selectedRoboId ?? "default";
+                    
+                    _customRoboData = userDataManager.GetRoboCustomData(roboId);
+                    if (_customRoboData.TryGetValue(roboId, out var roboCustomData))
+                    {
+                        
+                        var newAvailableRoboData = _masterData.GetRoboDataById(partId);
+
+                        if (newAvailableRoboData != null)
+                        {
+                            var type = newAvailableRoboData.type.ToLower(); // "arms" など
+
+                            switch (type)
+                            {
+                                case "head": roboCustomData.headId = partId; break;
+                                case "body": roboCustomData.bodyId = partId; break;
+                                case "arms": roboCustomData.armsId = partId; break;
+                                case "legs": roboCustomData.legsId = partId; break;
+                                case "tail": roboCustomData.tailId = partId; break;
+                                default:
+                                    Debug.LogWarning($"Unknown part type '{type}' for partId: {partId}");
+                                    break;
+                            }
+
+                            await userDataManager.SaveRoboCustomData(roboId, roboCustomData);
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"No RoboData found for partId: {partId}");
+                        }
+                    }
+
                 }
 
                 // ✅ purchased = true に更新
