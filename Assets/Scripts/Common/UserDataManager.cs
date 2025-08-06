@@ -30,6 +30,7 @@ public class UserDataManager
     private readonly List<Action> _chapterProgressDataActions = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
     private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
+    private readonly Dictionary<string, OwnedRoboPart> ownedRoboPartsMeta = new();
     private DocumentSnapshot _userData;
     private SynchronizationContext mainThread;
     
@@ -162,28 +163,40 @@ public class UserDataManager
             .Document(UserId)
             .Collection("ownedRoboPartsIds")
             .GetSnapshotAsync();
-        
+
         ownedRoboPartsIds.Clear();
+        ownedRoboPartsMeta.Clear();
+
         foreach (var documentSnapshot in snapshot.Documents)
         {
-            if (documentSnapshot.ContainsField("purchased") && documentSnapshot.GetValue<bool>("purchased"))
-            {
-                ownedRoboPartsIds.Add(documentSnapshot.Id);
-            }
+            bool isPurchased = false;
+
+            if (documentSnapshot.ContainsField("purchased"))
+                isPurchased = documentSnapshot.GetValue<bool>("purchased");
+
+            var partId = documentSnapshot.Id;
+
+            // メタ情報にすべて追加
+            ownedRoboPartsMeta[partId] = new OwnedRoboPart { purchased = isPurchased };
+
+            // true のみ別途 ID リストに保持
+            if (isPurchased)
+                ownedRoboPartsIds.Add(partId);
         }
-        
-        // デフォルトパーツを追加（初回起動時）
+
+        // 初回デフォルト（すべて true 扱いで追加）
         if (ownedRoboPartsIds.Count == 0)
         {
             var defaultParts = new List<string> { "default_head", "default_body", "default_arms", "default_legs", "default_tail" };
             foreach (var partId in defaultParts)
             {
-                await AddOwnedRoboPart(partId);
+                await AddOwnedRoboPart(partId, true);
             }
         }
     }
+
     
-    public async UniTask AddOwnedRoboPart(string partId)
+    public async UniTask AddOwnedRoboPart(string partId, bool forcedAdd)
     {
         if (!ownedRoboPartsIds.Contains(partId))
         {
@@ -194,7 +207,7 @@ public class UserDataManager
                 .Document(UserId)
                 .Collection("ownedRoboPartsIds")
                 .Document(partId)
-                .SetAsync(new Dictionary<string, object> { { "purchased", true } });
+                .SetAsync(new Dictionary<string, object> { { "purchased", forcedAdd } });
         }
     }
     
@@ -205,8 +218,25 @@ public class UserDataManager
 
     public List<string> OwnedRoboPartsIds()
     {
-        return new List<string>(ownedRoboPartsIds);
+        return ownedRoboPartsMeta
+            .Where(kvp => kvp.Value.purchased)
+            .Select(kvp => kvp.Key)
+            .ToList();
     }
+
+    public List<string> GetUnclaimedRewardRoboPartIds(int currentExp)
+    {
+        return ownedRoboPartsMeta
+            .Where(kvp =>
+                MasterData.GetInstance().robos.Any(robo =>
+                    robo.id == kvp.Key &&
+                    currentExp >= robo.exp_required &&
+                    kvp.Value.purchased == false
+                ))
+            .Select(kvp => kvp.Key)
+            .ToList();
+    }
+
     
     private async void FetchChapterProgressData()
     {
