@@ -29,6 +29,7 @@ public class UserDataManager
     private readonly List<Action> _userDataActions = new();
     private readonly List<Action> _chapterProgressDataActions = new();
     private readonly List<Action> _roboCustomDataActions = new();
+    private readonly List<Action> _ownedRoboPartsUpdateActions = new();
     private readonly Dictionary<string, RoboCustomData> _roboCustomData = new Dictionary<string, RoboCustomData>();
     private readonly Dictionary<string, ChapterProgressData> _chapterProgressData = new Dictionary<string, ChapterProgressData>();
     private readonly Dictionary<string, OwnedRoboPart> ownedRoboPartsMeta = new();
@@ -220,18 +221,51 @@ public class UserDataManager
     
     public async UniTask AddOwnedRoboPart(string partId, bool forcedAdd)
     {
-        if (!ownedRoboPartsIds.Contains(partId))
+        bool shouldNotify = false;
+
+        // すでにメタ情報に存在するかチェック（false → true 更新の可能性）
+        if (ownedRoboPartsMeta.ContainsKey(partId))
         {
-            ownedRoboPartsIds.Add(partId);
-            
-            await FirebaseFirestore.DefaultInstance
-                .Collection("users")
-                .Document(UserId)
-                .Collection("ownedRoboPartsIds")
-                .Document(partId)
-                .SetAsync(new Dictionary<string, object> { { "purchased", forcedAdd } });
+            var meta = ownedRoboPartsMeta[partId];
+            if (!meta.purchased && forcedAdd)
+            {
+                // purchased: false → true に変更
+                meta.purchased = true;
+                if (!ownedRoboPartsIds.Contains(partId))
+                    ownedRoboPartsIds.Add(partId);
+
+                shouldNotify = true;
+            }
+        }
+        else
+        {
+            // 初めてのパーツ → 追加＆通知
+            ownedRoboPartsMeta[partId] = new OwnedRoboPart { purchased = forcedAdd };
+            if (forcedAdd)
+            {
+                ownedRoboPartsIds.Add(partId);
+                shouldNotify = true;
+            }
+        }
+
+        // Firestoreに保存（上書き or 新規）
+        await FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(UserId)
+            .Collection("ownedRoboPartsIds")
+            .Document(partId)
+            .SetAsync(new Dictionary<string, object> { { "purchased", forcedAdd } });
+
+        // リスナー通知
+        if (shouldNotify)
+        {
+            mainThread?.Post(_ =>
+            {
+                foreach (var action in _ownedRoboPartsUpdateActions) action();
+            }, null);
         }
     }
+
     
     public bool IsRoboPartOwned(string partId)
     {
@@ -341,6 +375,18 @@ public class UserDataManager
     public void RemoveRoboCustomDataUpdateListener(Action action)
     {
         if (_roboCustomDataActions.Contains(action)) _roboCustomDataActions.Remove(action);
+    }
+    
+    public void AddOwnedRoboPartsUpdateListener(Action action)
+    {
+        if (!_ownedRoboPartsUpdateActions.Contains(action)) _ownedRoboPartsUpdateActions.Add(action);
+        
+        action();
+    }
+    
+    public void RemoveOwnedRoboPartsUpdateListener(Action action)
+    {
+        if (_ownedRoboPartsUpdateActions.Contains(action)) _ownedRoboPartsUpdateActions.Remove(action);
     }
 
     public UserData GetUserData()

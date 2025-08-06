@@ -55,6 +55,7 @@ public class SelectScene : MonoBehaviour
     {
         UserDataManager.GetInstance().AddUserDataUpdateListener(UpdatePlayerStatusUI);
         UserDataManager.GetInstance().AddUserDataUpdateListener(OnUserDataUpdated);
+        UserDataManager.GetInstance().AddOwnedRoboPartsUpdateListener(UpdatePlayerStatusUI);
 
         var lastLoginDateTime = Utils.UnixTimeToDateTime(UserDataManager.GetInstance().GetUserData().lastLoginDateTime);
         var now = Clock.GetInstance().Now();
@@ -84,6 +85,7 @@ public class SelectScene : MonoBehaviour
     {
         UserDataManager.GetInstance().RemoveUserDataUpdateListener(UpdatePlayerStatusUI);
         UserDataManager.GetInstance().RemoveUserDataUpdateListener(OnUserDataUpdated);
+        UserDataManager.GetInstance().RemoveOwnedRoboPartsUpdateListener(UpdatePlayerStatusUI);
     }
 
     private void UpdatePlayerStatusUI()
@@ -94,6 +96,9 @@ public class SelectScene : MonoBehaviour
         
         // 次のロボパーツを取得
         var ownedRoboId = UserDataManager.GetInstance().OwnedRoboPartsIds();
+        Debug.Log($"ownedRoboId: {string.Join(", ", ownedRoboId)}");
+        var unclaimedIds = UserDataManager.GetInstance().GetUnclaimedRewardRoboPartIds(currentExp);
+        Debug.Log($"unclaimedIds: {string.Join(", ", unclaimedIds)}");
         var nextRobo = MasterData.GetInstance().GetNextUnownedRoboByExp(ownedRoboId);
         
         if (nextRobo != null)
@@ -106,7 +111,8 @@ public class SelectScene : MonoBehaviour
             {
                 expSlider.value = (float)currentExp / nextExp;
             }
-            
+
+            levelText.text = $"{currentExp}/{nextExp}";
             
             // ロボパーツ画像の更新
             if (partsImage != null && !string.IsNullOrEmpty(nextRobo.id))
@@ -197,7 +203,6 @@ public class SelectScene : MonoBehaviour
         // 最後のボタンの位置を基に Content の高さを更新
         float totalHeight = verticalOffset + (chapterCount + 2) * buttonHeight; 
         contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, totalHeight);
-        Debug.Log(contentRect.sizeDelta);
 
         PlaceRobotOnChapter();
     }
