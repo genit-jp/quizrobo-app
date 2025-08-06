@@ -90,7 +90,6 @@ public class SelectScene : MonoBehaviour
     {
         var playerStatus = UserDataManager.GetInstance().GetPlayerStatus();
         int currentExp = playerStatus.exp;
-        int level = LevelingSystem.CalculateLevelFromExp(currentExp);
 
         
         // 次のロボパーツを取得
@@ -108,11 +107,6 @@ public class SelectScene : MonoBehaviour
                 expSlider.value = (float)currentExp / nextExp;
             }
             
-            // テキストの更新
-            if (levelText != null)
-            {
-                levelText.text = $"Lv. {level} {currentExp} / {nextExp}";
-            }
             
             // ロボパーツ画像の更新
             if (partsImage != null && !string.IsNullOrEmpty(nextRobo.id))
@@ -136,11 +130,6 @@ public class SelectScene : MonoBehaviour
             if (expSlider != null)
             {
                 expSlider.value = 1f; // 満タン表示
-            }
-            
-            if (levelText != null)
-            {
-                levelText.text = $"Lv. {level} MAX";
             }
             
             Debug.Log("No next robo available - player has reached max level");
@@ -181,7 +170,6 @@ public class SelectScene : MonoBehaviour
         for (int i = 0; i < chapterCount; i++)
         {
             int chapterNumber = i + 1;
-
             var chapterButton = Instantiate(Resources.Load<ChapterStar>("Prefabs/Select/SubjectSelect/ChapterStar"), chapterButtonParent);
             
             // chapterData を自前で構築（subject は固定で "算数"）
@@ -190,7 +178,7 @@ public class SelectScene : MonoBehaviour
                 chapterNumber = chapterNumber,
             };
 
-            chapterButton.Setup(chapterData, ShowChallengeDialog);
+            chapterButton.Setup(chapterData, ActionWhenSelectChapter);
 
             var rect = chapterButton.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
@@ -234,25 +222,10 @@ public class SelectScene : MonoBehaviour
     //     }
     // }
     
-    private async void ShowChallengeDialog(ChapterData data)
+    private void ActionWhenSelectChapter(ChapterData data)
     {
-        
-        var go = await Genit.Utils.OpenDialog("Prefabs/Common/CommonDialog", this.gameObject.transform);
-        var cd = go.GetComponent<CommonDialog>();
-        var challengeTitle = $"{data.chapterNumber}にチャレンジする？";
-        cd.Setup(challengeTitle, challengeTitle, async result => 
-        {
-            if (result == CommonDialog.Result.OK)
-            {
-                Const.GameSceneParam.DifficultyLevel = data.difficultyLevel;
-                Const.GameSceneParam.ChapterNumber = data.chapterNumber;
-                
-                // ダイアログのアニメーションが完了するのを待つ
-                await UniTask.Delay(150);
-                
-                StartGame();
-            }
-        }, CommonDialog.Mode.OK_CANCEL);
+        Const.GameSceneParam.ChapterNumber = data.chapterNumber;
+        StartGame();
     }
 
     private async void PlaceRobotOnChapter()

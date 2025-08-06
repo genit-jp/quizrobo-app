@@ -128,8 +128,6 @@ public class Const
     
     public static class GameSceneParam
     {
-        public static string Subject;
-        public static string DifficultyLevel;
         public static int ChapterNumber;
     }
     
