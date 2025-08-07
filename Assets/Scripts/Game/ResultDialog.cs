@@ -21,11 +21,11 @@ public class ResultDialog: DialogBaseListener
     private MasterData _masterData;
     private Dictionary<string, UserDataManager.RoboCustomData> _customRoboData;
 
-    public async void Setup(List<QuizResultData> quizResults, Action onGoToNextButtonClicked, Action onGoToSelectButtonClicked)
+    public async void Setup(List<QuizResultData> quizResults, Action onGoToNextButtonClicked, Action onGoToSelectButtonClicked, bool isGotNewPart)
     {
         _onGoToNextButtonClicked = onGoToNextButtonClicked;
         _onGoToSelectButtonClicked = onGoToSelectButtonClicked;
-        rewardGetImage.SetActive(false);
+        rewardGetImage.SetActive(isGotNewPart);
 
         var prefabPath = "Prefabs/Game/ResultContent";
         var resource = (GameObject)await Resources.LoadAsync(prefabPath);
@@ -79,7 +79,6 @@ public class ResultDialog: DialogBaseListener
         var unclaimedIds = userDataManager.GetUnclaimedRewardRoboPartIds(currentExp);
         if (unclaimedIds == null) return;
         {
-            rewardGetImage.SetActive(true);
             foreach (var partId in unclaimedIds)
             {
                 // 🎨 画像表示やアニメ演出

@@ -38,7 +38,7 @@ public class Quiz : MonoBehaviour
         if (_isTiming)
         {
             _remainingTime -= Time.deltaTime;
-            timerText.text = $"{Mathf.CeilToInt(_remainingTime)}秒";
+            timerText.text = $"{Mathf.CeilToInt(_remainingTime)}";
 
             if (_remainingTime <= 0f)
             {
