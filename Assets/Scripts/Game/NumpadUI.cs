@@ -34,7 +34,7 @@ public class NumpadUI : MonoBehaviour
 
         gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         gridLayout.constraintCount = 3;
-        gridLayout.cellSize = new Vector2(150, 200);
+        gridLayout.cellSize = new Vector2(200, 150);
         gridLayout.spacing = new Vector2(20, 20);
 
         // 既存のボタンをクリア
