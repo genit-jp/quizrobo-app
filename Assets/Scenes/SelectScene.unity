@@ -296,6 +296,7 @@ MonoBehaviour:
   expSlider: {fileID: 1749225379}
   levelText: {fileID: 290977342}
   partsImage: {fileID: 2078156960}
+  scrollRect: {fileID: 6865330533749862442}
 --- !u!81 &49885429
 AudioListener:
   m_ObjectHideFlags: 0

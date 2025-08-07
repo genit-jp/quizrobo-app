@@ -15,10 +15,12 @@ public class SelectScene : MonoBehaviour
     [SerializeField] private Slider expSlider;
     [SerializeField] private Text levelText;
     [SerializeField] private Image partsImage;
+    [SerializeField] private ScrollRect scrollRect;
     
 
     private int _selectedGrade;
     private TimeDispatcher _timer;
+    private int _challengeLevel;
 
     private async void Start()
     {
@@ -27,6 +29,7 @@ public class SelectScene : MonoBehaviour
 #endif
 
         var masterData = MasterData.GetInstance();
+        _challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
         // var subjects = masterData.AllSubjects();
         _selectedGrade = UserDataManager.GetInstance().GetUserData().grade;
 
@@ -205,6 +208,46 @@ public class SelectScene : MonoBehaviour
         contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, totalHeight);
 
         PlaceRobotOnChapter();
+        if (_challengeLevel != 1)
+        {
+            ScrollToChallengeChapter();
+        }
+    }
+    
+    private void ScrollToChallengeChapter()
+    {
+        float offsetY = 100f;
+        RectTransform targetRect = null;
+
+        foreach (Transform child in chapterButtonParent)
+        {
+            var chapterStar = child.GetComponent<ChapterStar>();
+            if (chapterStar == null) continue;
+
+            var chapterData = chapterStar.GetChapterData();
+            if (chapterData.chapterNumber == _challengeLevel)
+            {
+                targetRect = child.GetComponent<RectTransform>();
+                break;
+            }
+        }
+
+        if (targetRect == null)
+        {
+            Debug.LogWarning("スクロール対象のチャプターが見つかりません");
+            return;
+        }
+
+        // Content全体の高さと目的位置のYから、normalizedPositionを計算
+        var contentRect = chapterButtonParent.GetComponent<RectTransform>();
+        float contentHeight = contentRect.rect.height;
+        float viewportHeight = scrollRect.viewport.rect.height;
+
+        float targetY = Mathf.Abs(targetRect.anchoredPosition.y + offsetY); // anchoredPosition.yはマイナス値
+        float scrollRange = contentHeight - viewportHeight;
+        float normalizedY = 1f - Mathf.Clamp01(targetY / scrollRange);
+
+        scrollRect.verticalNormalizedPosition = normalizedY;
     }
     
     // private void SetTopBar()
@@ -237,8 +280,6 @@ public class SelectScene : MonoBehaviour
     {
         RectTransform targetRect = null;
         float adjustedY = 100f;
-
-        var challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
         
         foreach (Transform child in chapterButtonParent)
         {if (child == null) continue;
@@ -247,7 +288,7 @@ public class SelectScene : MonoBehaviour
             if (chapterStar != null)
             {
                 var chapterData = chapterStar.GetChapterData(); // ← ChapterData を返す getter を ChapterStar に追加してください
-                if (chapterData.chapterNumber == challengeLevel)
+                if (chapterData.chapterNumber == _challengeLevel)
                 {
                     targetRect = child.GetComponent<RectTransform>();
                     break;
