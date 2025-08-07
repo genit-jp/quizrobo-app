@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 820, y: -53.44}
-  m_SizeDelta: {x: 200, y: 0}
+  m_AnchoredPosition: {x: 620, y: -53.44}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &5068856086256428413
 CanvasRenderer:
@@ -194,7 +194,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50}
+  m_AnchoredPosition: {x: 0, y: -53.44}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4571515916105211854
@@ -338,7 +338,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 227.5, y: -37.5}
-  m_SizeDelta: {x: 800, y: 0}
+  m_SizeDelta: {x: 700, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4206607043809210777
 MonoBehaviour:
@@ -527,7 +527,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 105, y: -53.44}
-  m_SizeDelta: {x: 500, y: 0}
+  m_SizeDelta: {x: 400, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &5572490449221414120
 CanvasRenderer:
@@ -557,7 +557,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u3082\u3093\u3060\u3044\u554F\u984C\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044"
+  m_text: "\u3082\u3093\u3060\u3044\u554F\u984C\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 299ba6e9c1a19467b9785b9488265236, type: 2}
   m_sharedMaterial: {fileID: -5135864723097142244, guid: 299ba6e9c1a19467b9785b9488265236, type: 2}
@@ -630,7 +630,7 @@ MonoBehaviour:
   rubyScale: 0.5
   rubyShowType: 0
   rubyLineHeight: 
-  _uneditedText: "\u3082\u3093\u3060\u3044\u554F\u984C\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044"
+  _uneditedText: "\u3082\u3093\u3060\u3044\u554F\u984C\u3082\u3093\u3060\u3044\u3082\u3093\u3060\u3044"
 --- !u!114 &440208115716491370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -680,7 +680,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 800, y: 3}
+  m_SizeDelta: {x: 7, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8243330126703588875
 CanvasRenderer:

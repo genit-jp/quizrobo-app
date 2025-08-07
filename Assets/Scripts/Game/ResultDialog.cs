@@ -13,6 +13,7 @@ public class ResultDialog: DialogBaseListener
     [SerializeField] private GameObject _scrollViewContent, _roboContent, rewardGetImage;
     [SerializeField] private Slider expSlider;
     [SerializeField] private Image rewardItemImage;
+    [SerializeField] private Text expText;
     
     private Action _onGoToNextButtonClicked;
     private Action _onGoToSelectButtonClicked;
@@ -57,6 +58,7 @@ public class ResultDialog: DialogBaseListener
         int expForNextLevel = roboData.exp_required;
 
         expSlider.value = (float)currentExp / expForNextLevel;
+        expText.text = $"{currentExp} / {expForNextLevel}";
 
         // 報酬ロボパーツの画像を設定
         if (!string.IsNullOrEmpty(roboData.id))

@@ -54,6 +54,7 @@ public class RoboPrefab : MonoBehaviour
             var rectTransform = partObject.GetComponent<RectTransform>();
             if (rectTransform != null && sprite != null)
             {
+                rectTransform.pivot = new Vector2(1f, 0f);
                 // スプライトの実際のサイズを取得
                 float spriteWidth = sprite.rect.width;
                 float spriteHeight = sprite.rect.height;
