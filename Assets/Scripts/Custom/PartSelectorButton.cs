@@ -7,9 +7,8 @@ using UnityEngine.UI;
 public class PartSelectorButton : MonoBehaviour
 {
     [SerializeField] private Text partTitle;
-    [SerializeField] private Image backGround;
-    [SerializeField] private Sprite notSelected,selected;
     [SerializeField] private Image partImage;
+    [SerializeField] private List<Sprite> partSprites;
     
     public Action onPartSelected { get; set; }
     
@@ -17,34 +16,33 @@ public class PartSelectorButton : MonoBehaviour
     {
         partTitle.text = part;
         
-        if (Const.DefaultPartImageMap.TryGetValue(part, out var spriteName))
+        switch (part)
         {
-            var sprite = Resources.Load<Sprite>($"Images/Robo/{spriteName}");
-            if (sprite != null)
-            {
-                partImage.sprite = sprite;
-            }
-            else
-            {
-                Debug.LogWarning($"Sprite not found: Images/{spriteName}");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"Part not found in map: {part}");
+            case "あたま":
+                partImage.sprite = partSprites.Count > 0 ? partSprites[0] : null;
+                break;
+            case "からだ":
+                partImage.sprite = partSprites.Count > 1 ? partSprites[1] : null;
+                break;
+            case "うで":
+                partImage.sprite = partSprites.Count > 2 ? partSprites[2] : null;
+                break;
+            case "あし":
+                partImage.sprite = partSprites.Count > 3 ? partSprites[3] : null;
+                break;
+            case "しっぽ":
+                partImage.sprite = partSprites.Count > 4 ? partSprites[4] : null;
+                break;
+            default:
+                Debug.LogWarning($"Unknown part name: {part}");
+                partImage.sprite = null;
+                break;
         }
     }
     
     public void SetSelected(bool isSelected)
     {
-        if (isSelected)
-        {
-            backGround.sprite = selected;
-        }
-        else
-        {
-            backGround.sprite = notSelected;
-        }
+       //選ばれたときの処理
     }
     
     public void OnButtonClicked()

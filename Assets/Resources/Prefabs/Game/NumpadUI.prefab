@@ -62,6 +62,7 @@ MonoBehaviour:
   numpadContainer: {fileID: 2802523235866152233}
   answerDisplay: {fileID: 7366963817740362606}
   gridLayout: {fileID: 8337202387025823740}
+  deleteButtonImage: {fileID: 21300000, guid: fc0963f9aa2d144d49758394329bb536, type: 3}
 --- !u!1 &4877852314936252419
 GameObject:
   m_ObjectHideFlags: 0
