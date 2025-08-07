@@ -34,6 +34,7 @@ public class GameScene : MonoBehaviour
      
      private bool _gameEnded = false;
      private int _totalAttackPower = 10;
+     private bool _isGotNewItem;
 
      private UserDataManager _userData;
      
@@ -194,7 +195,8 @@ public class GameScene : MonoBehaviour
                      {
                          AdManager.Instance.ShowInterstitialAd(() => EndScene());
                      }
-                 });
+                 },
+                 _isGotNewItem);
          }
          else
          {
@@ -251,6 +253,7 @@ public class GameScene : MonoBehaviour
              {
                  // ロボットを獲得
                  await _userData.AddOwnedRoboPart(roboData.id, false);
+                    _isGotNewItem = true;
                  Debug.Log($"New Robo Part Unlocked: {roboData.id}");
              }
              else
