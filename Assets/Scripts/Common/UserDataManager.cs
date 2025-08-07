@@ -485,8 +485,7 @@ public class UserDataManager
     [FirestoreData]
     public class PlayerStatus
     {
-        [FirestoreProperty] public int hp { get; set; } = 100;
-        [FirestoreProperty] public int exp { get; set; } = 100;
+        [FirestoreProperty] public int exp { get; set; } = 0;
         
         [FirestoreProperty] public int level { get; set; } = 1;
     }

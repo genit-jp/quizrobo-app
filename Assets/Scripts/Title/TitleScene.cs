@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Balaso;
 using Firebase.Auth;
+using KetosGames.SceneTransition;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,8 +15,14 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
     [SerializeField] private RubyTextMeshProUGUI _loadingText;
     [SerializeField] private Text _UserIdText;
     [SerializeField] private Text _versionText;
+    [SerializeField] private GameObject _logoutButton;
     private bool _isFetchComplete;
     private FirebaseAuth auth;
+
+    private void Awake()
+    {
+        _logoutButton.SetActive(Const.IsDebug);
+    }
 
     private async void Start()
     {
@@ -72,5 +79,14 @@ public class TitleScene : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_isFetchComplete) SceneManager.LoadScene("SelectScene");
+    }
+    
+    public void OnClickLogoutButton()
+    {
+        if (Const.IsDebug)
+        {
+            FirebaseAuth.DefaultInstance.SignOut();
+            SceneLoader.LoadScene("TitleScene");
+        }
     }
 }
