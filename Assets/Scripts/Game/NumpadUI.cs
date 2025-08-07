@@ -9,6 +9,7 @@ public class NumpadUI : MonoBehaviour
     [SerializeField] private Transform numpadContainer;
     [SerializeField] private TextMeshProUGUI answerDisplay;
     [SerializeField] private GridLayoutGroup gridLayout;
+    [SerializeField] private Sprite deleteButtonImage; 
     
     private QuizData _quizData;
     private Action<bool, string> _answeredByUser;
@@ -66,7 +67,7 @@ public class NumpadUI : MonoBehaviour
         if (buttonText != null)
         {
             buttonText.text = number;
-            buttonText.fontSize = 36;
+            buttonText.fontSize = 60;
         }
 
         button.onClick.RemoveAllListeners();
@@ -81,14 +82,16 @@ public class NumpadUI : MonoBehaviour
 
         if (buttonText != null)
         {
-            buttonText.text = "削除";
-            buttonText.fontSize = 24;
+            buttonText.text = "";
+            buttonText.fontSize = 60;
         }
 
         Image buttonImage = buttonObj.GetComponent<Image>();
-        if (buttonImage != null)
+        if (buttonImage != null && deleteButtonImage != null)
         {
-            buttonImage.color = new Color(1f, 0.7f, 0.7f); // 薄い赤
+            buttonImage.sprite = deleteButtonImage;
+            buttonImage.type = Image.Type.Simple;
+            buttonImage.preserveAspect = true;
         }
 
         button.onClick.RemoveAllListeners();
