@@ -29,7 +29,6 @@ public class SelectScene : MonoBehaviour
 #endif
 
         var masterData = MasterData.GetInstance();
-        _challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
         // var subjects = masterData.AllSubjects();
         _selectedGrade = UserDataManager.GetInstance().GetUserData().grade;
 
@@ -156,6 +155,7 @@ public class SelectScene : MonoBehaviour
 
     private void SetChapterButtons()
     {
+        _challengeLevel = UserDataManager.GetInstance().GetChallengeLevel();
         foreach (Transform child in chapterButtonParent)
         {
             Destroy(child.gameObject); // 既存のボタンを削除
@@ -279,7 +279,7 @@ public class SelectScene : MonoBehaviour
     private async void PlaceRobotOnChapter()
     {
         RectTransform targetRect = null;
-        float adjustedY = 100f;
+        float adjustedY = 130f;
         
         foreach (Transform child in chapterButtonParent)
         {if (child == null) continue;
@@ -296,6 +296,7 @@ public class SelectScene : MonoBehaviour
             }
         }
 
+        Debug.Log($"ChallengeLevel: {_challengeLevel}");
         if (targetRect == null)
         {
             Debug.LogError("指定された challengeLevel に対応する ChapterStar が見つかりませんでした");
