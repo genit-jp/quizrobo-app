@@ -10,19 +10,15 @@ using System.Linq;
 
 public class GameScene : MonoBehaviour
 {
-//     [SerializeField] private AudioSource _audioSource;
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
      [SerializeField] private Transform answerProgressPanel;
      [SerializeField] private GameObject answerIconPrefab, robo;
      [SerializeField] private Sprite unansweredSprite, correctSprite, incorrectSprite;
      [SerializeField] private Transform enemyArea;
-//     private AudioClip _addMedalSound;
-//     private AudioClip _correctSound;
-//     private AudioClip _incorrectSound;
-//     private int _medalNum;
-//     private int _medalNumWhenStart;
-//     private AudioClip _nextQuizSound;
+    
+     private AudioClip _correctSound;
+     private AudioClip _incorrectSound;
 
      private int _quizIndex;
      private List<QuizResultData> _quizResults;
@@ -40,15 +36,13 @@ public class GameScene : MonoBehaviour
      
      private UserDataManager _userData;
      
-     // デフォルト攻撃力
-    
-//     private AudioClip _resultSound;
-
+     
      private async void Start()
      {
          _userData = UserDataManager.GetInstance();
          _userData.AddRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
          Debug.Log("GameScene Start");
+         BgmClips.Play(BgmClips.BgmType.GameScene);
          
          _quizzes = QuizGenerator.GenerateRandomQuizList(Const.GameSceneParam.ChapterNumber);
          _quizResults = new List<QuizResultData>();
@@ -61,12 +55,9 @@ public class GameScene : MonoBehaviour
              answerIcons.Add(image);
          }
          
-         // _correctSound = Resources.Load<AudioClip>("SE/correct");
-         // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
-         // _addMedalSound = Resources.Load<AudioClip>("SE/addMedal");
-         // _nextQuizSound = Resources.Load<AudioClip>("SE/nextQuiz");
-         // _resultSound = Resources.Load<AudioClip>("SE/result");
-         //
+         _correctSound = Resources.Load<AudioClip>("SE/answer_correct");
+         _incorrectSound = Resources.Load<AudioClip>("SE/answer_wrong");
+         
          await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
          
          // EnemyManagerを使用して敵を表示
@@ -76,10 +67,13 @@ public class GameScene : MonoBehaviour
          await SetRobo();
          await StartNextQuiz();
      }
+     
+     
 
      private void OnDisable()
      {
          _userData.RemoveRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
+         BgmClips.Stop();
      }
     
      private async void OnRoboCustomDataUpdated()
@@ -112,6 +106,7 @@ public class GameScene : MonoBehaviour
 
                  if (isCorrect)
                  {
+                     SeClips.PlayCorrect();
                      //攻撃力の計算
                      _enemyManager.AttackNextEnemy(_totalAttackPower);
                      
@@ -121,6 +116,10 @@ public class GameScene : MonoBehaviour
                          EndGame();
                          return;
                      }
+                 }
+                 else
+                 {
+                     SeClips.PlayIncorrect();
                  }
 
                  // クイズ結果を記録
@@ -205,7 +204,7 @@ public class GameScene : MonoBehaviour
              var commonDialog = dialogObj.GetComponent<CommonDialog>();
              commonDialog.Setup("敵が逃げてしまった", "EXPをためると新しいパーツをGET!\nロボをカスタマイズして再挑戦しよう！", (result) =>
              {
-                 EndScene();
+                 AdManager.Instance.ShowInterstitialAd(() => EndScene());
              }, CommonDialog.Mode.OK);
          }
 
@@ -289,7 +288,7 @@ public class GameScene : MonoBehaviour
          foreach (var go in scene.GetRootGameObjects())
              if (go.name == "Canvas")
                  go.SetActive(true);
-
+         BgmClips.Play(BgmClips.BgmType.Select);
          SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
      }
      
