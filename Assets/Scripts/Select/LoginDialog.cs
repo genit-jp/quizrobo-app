@@ -17,7 +17,7 @@ public class LoginDialog : DialogBaseListener
         _totalLoginNumText.uneditedText = "ごうけいログイン "+ totalLoginNum.ToString() + "日目";
         if(consecutiveLoginNum == 1)
         {
-            _commentText.uneditedText = "<r=まいにち>毎日</r>あそんでクイズ<r=はかせ>博士</r>になろう！";
+            _commentText.uneditedText = "<r=まいにち>毎日</r>あそんでロボをゲットしよう！";
         }
         else
         {
