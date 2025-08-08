@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Genit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 public class CustomScene : MonoBehaviour
 {
-    [SerializeField] private GameObject roboContainer, partSelectorPanel, currentPartsPanel;
+    [SerializeField] private GameObject roboContainer, partSelectorPanel, currentPartsPanel, saveSuccessPanel;
     [SerializeField] private Text selectedPartText;
     
     private UserDataManager.RoboCustomData _customizingRoboData;
@@ -269,7 +270,10 @@ public class CustomScene : MonoBehaviour
     
     public async void OnTappedSaveRoboButton()
     {
+        saveSuccessPanel.SetActive(true);
         var userDataManager = UserDataManager.GetInstance();
         await userDataManager.SaveRoboCustomData(_currentRoboId, _customizingRoboData);
+        await UniTask.Delay(1000);
+        saveSuccessPanel.SetActive(false);
     }
 }
