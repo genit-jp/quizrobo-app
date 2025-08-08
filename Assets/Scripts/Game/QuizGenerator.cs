@@ -30,6 +30,7 @@ public static class QuizGenerator
         }
     }
 
+    
 
     private static readonly List<ChallengeLevelRule> _challengeRules = new()
     {
