@@ -13,7 +13,7 @@ public class PauseDialog : DialogBaseListener
     public void OnClickContinue()
     {
         Close();
-        // _onClickContinue();
+        _onClickContinue();
     }
 
     public void OnClickQuit()

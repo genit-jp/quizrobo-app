@@ -20,6 +20,9 @@ public static class QuizGenerator
         public List<QuizType> AllowedTypes { get; set; }
         public int MaxProduct { get; set; } = 100;
         public int ChoiceRange { get; set; } = 5;
+        
+        public int MinNumber { get; set; } = 1;
+        public int MaxNumber { get; set; } = 9;
 
         public bool Matches(int level)
         {
@@ -27,6 +30,7 @@ public static class QuizGenerator
         }
     }
 
+    
 
     private static readonly List<ChallengeLevelRule> _challengeRules = new()
     {
@@ -43,7 +47,9 @@ public static class QuizGenerator
             MaxLevel = 40,
             DigitLevel = 1,
             AllowedTypes = new() { QuizType.Addition, QuizType.Subtraction, QuizType.Multiplication },
-            MaxProduct = 100
+            MaxProduct = 100,
+            MinNumber = 1, 
+            MaxNumber = 5 
         },
         new ChallengeLevelRule
         {
@@ -83,16 +89,16 @@ public static class QuizGenerator
         switch (quizType)
         {
             case QuizType.Addition:
-                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule.DigitLevel);
+                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule);
                 break;
             case QuizType.Subtraction:
-                (a, b, correctAnswer, question) = GenerateSubtractionProblem(rule.DigitLevel);
+                (a, b, correctAnswer, question) = GenerateSubtractionProblem(rule);
                 break;
             case QuizType.Multiplication:
-                (a, b, correctAnswer, question) = GenerateMultiplicationProblem(rule.DigitLevel, rule.MaxProduct);
+                (a, b, correctAnswer, question) = GenerateMultiplicationProblem(rule);
                 break;
             default:
-                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule.DigitLevel);
+                (a, b, correctAnswer, question) = GenerateAdditionProblem(rule);
                 break;
         }
 
@@ -124,9 +130,9 @@ public static class QuizGenerator
 }
 
     
-    private static (int a, int b, int answer, string question) GenerateAdditionProblem(int digitLevel)
+    private static (int a, int b, int answer, string question) GenerateAdditionProblem(ChallengeLevelRule rule)
     {
-        if (digitLevel == 1)
+        if (rule.DigitLevel == 1)
         {
             int a = Random.Range(1, 10);
             int b = Random.Range(1, 10);
@@ -136,11 +142,10 @@ public static class QuizGenerator
         }
         else
         {
-            // 2桁の加算: 繰り上がりなし、一の位は 1〜5
+            // 2桁の場合は従来通り
             int tenA = Random.Range(1, 10);
-            int unitA = Random.Range(1, 6); // 1〜5
-
-            int maxUnitB = 9 - unitA; // 繰り上がらない範囲で制限
+            int unitA = Random.Range(1, 6);
+            int maxUnitB = 9 - unitA;
             int unitB = Random.Range(1, Mathf.Min(6, maxUnitB + 1));
             int tenB = Random.Range(0, 10);
 
@@ -153,13 +158,14 @@ public static class QuizGenerator
     }
 
 
-    private static (int a, int b, int answer, string question) GenerateSubtractionProblem(int digitLevel)
+
+    private static (int a, int b, int answer, string question) GenerateSubtractionProblem(ChallengeLevelRule rule)
     {
-        if (digitLevel == 1)
+        if (rule.DigitLevel == 1)
         {
             int a = Random.Range(1, 10);
             int b = Random.Range(1, 10);
-            if (a < b) (a, b) = (b, a);
+            if (a < b) (a, b) = (b, a); // a ≥ b にする
             int answer = a - b;
             string question = $"{a} - {b} = ?";
             return (a, b, answer, question);
@@ -175,7 +181,7 @@ public static class QuizGenerator
             int unitB = Random.Range(0, unitA + 1);
             int b = tenB * 10 + unitB;
 
-            if (a < b) (a, b) = (b, a); // 念のため入れ替え
+            if (a < b) (a, b) = (b, a);
             int answer = a - b;
             string question = $"{a} - {b} = ?";
             return (a, b, answer, question);
@@ -183,8 +189,9 @@ public static class QuizGenerator
     }
 
 
+
     
-    private static (int a, int b, int answer, string question) GenerateMultiplicationProblem(int digitLevel, int maxProduct)
+    private static (int a, int b, int answer, string question) GenerateMultiplicationProblem(ChallengeLevelRule rule)
     {
         int a = 0, b = 0, answer = 0;
         int attempt = 0;
@@ -194,25 +201,23 @@ public static class QuizGenerator
             attempt++;
             if (attempt > 100)
             {
-                a = Random.Range(1, 10);
-                b = Random.Range(1, 10);
+                a = Random.Range(rule.MinNumber, rule.MaxNumber + 1);
+                b = Random.Range(rule.MinNumber, rule.MaxNumber + 1);
                 break;
             }
 
-            if (digitLevel == 1)
+            if (rule.DigitLevel == 1)
             {
-                // ✅ 1桁 × 1桁
-                a = Random.Range(1, 10);
+                a = Random.Range(rule.MinNumber, rule.MaxNumber + 1);
+                b = Random.Range(rule.MinNumber, rule.MaxNumber + 1);
+            }
+            else if (rule.DigitLevel == 2)
+            {
+                a = Random.Range(10, 50);
                 b = Random.Range(1, 10);
             }
-            else if (digitLevel == 2)
-            {
-                // ✅ 2桁 × 1桁
-                a = Random.Range(10, 50);  // 2桁
-                b = Random.Range(1, 10);    // 1桁
-            }
 
-            if (a * b <= maxProduct)
+            if (a * b <= rule.MaxProduct)
             {
                 answer = a * b;
                 break;
@@ -222,6 +227,7 @@ public static class QuizGenerator
         string question = $"{a} × {b} = ?";
         return (a, b, answer, question);
     }
+
 
 
     

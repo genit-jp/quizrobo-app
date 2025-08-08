@@ -185,8 +185,13 @@ public class Quiz : MonoBehaviour
         _remainingTime = timeLimit;
         _isTiming = true;
     }
+    
+    public void ResumeTimer()
+    {
+        _isTiming = true; // 残り時間を変えずに再開
+    }
 
-    private void StopTimer()
+    public void StopTimer()
     {
         _isTiming = false;
     }
