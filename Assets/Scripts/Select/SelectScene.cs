@@ -48,8 +48,17 @@ public class SelectScene : MonoBehaviour
             }
         };
         
+        //tutorialFlagが0ならばチュートリアルパネル表示
+        var tutorialFlag = UserDataManager.GetInstance().GetUserData().tutorialFlag;
+        if (tutorialFlag == 0)
+        {
+            var tutorialPanelObj = await Utils.InstantiatePrefab("Prefabs/Select/TutorialPanel", transform);
+            await UserDataManager.GetInstance().SetUserData(UserDataManager.USER_DATA_KEY_TUTORIAL_FLAG, 1);
+        }
+        
         // SetTopBar();
         SetChapterButtons();
+        
         
     }
 

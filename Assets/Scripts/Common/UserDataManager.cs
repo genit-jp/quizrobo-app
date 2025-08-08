@@ -24,6 +24,7 @@ public class UserDataManager
     public static readonly string USER_DATA_KEY_CHALLENGE_LEVEL = "challengeLevel";
     public static readonly string USER_DATA_KEY_SELECTED_ROBO_ID = "selectedRoboId";
     public static readonly string USER_DATA_KEY_PLAYER_STATUS = "playerStatus";
+    public static readonly string USER_DATA_KEY_TUTORIAL_FLAG = "tutorialFlag";
     private static UserDataManager _instance;
 
     private readonly List<Action> _userDataActions = new();
@@ -56,6 +57,7 @@ public class UserDataManager
         await SetDefaultValue(USER_DATA_KEY_CHALLENGE_LEVEL, 1);
         await SetDefaultValue(USER_DATA_KEY_SELECTED_ROBO_ID, "default");
         await SetDefaultValue(USER_DATA_KEY_PLAYER_STATUS, new PlayerStatus());
+        await SetDefaultValue(USER_DATA_KEY_TUTORIAL_FLAG, 0);
     }
 
 
@@ -524,6 +526,8 @@ public class UserDataManager
         [FirestoreProperty] public string selectedRoboId { get; set; } 
         
         [FirestoreProperty] public PlayerStatus playerStatus { get; set; } = new();
+        
+        [FirestoreProperty] public int tutorialFlag { get; set; } = 0;
 
     }
 }
