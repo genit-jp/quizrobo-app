@@ -35,7 +35,9 @@ public class GameScene : MonoBehaviour
      private bool _gameEnded = false;
      private int _totalAttackPower = 10;
      private bool _isGotNewItem;
-
+     private Quiz _quiz;
+    
+     
      private UserDataManager _userData;
      
      // デフォルト攻撃力
@@ -58,7 +60,7 @@ public class GameScene : MonoBehaviour
              image.sprite = unansweredSprite;
              answerIcons.Add(image);
          }
-
+         
          // _correctSound = Resources.Load<AudioClip>("SE/correct");
          // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
          // _addMedalSound = Resources.Load<AudioClip>("SE/addMedal");
@@ -99,15 +101,13 @@ public class GameScene : MonoBehaviour
                  Destroy(child.gameObject);
          
          // _audioSource.PlayOneShot(_nextQuizSound);
-
+         
          var quizObj = await Utils.InstantiatePrefab("Prefabs/Game/Quiz", contentsTransform);
-         var quiz = quizObj.GetComponent<Quiz>();
-         // quiz.Setup(_quizzes[_quizIndex], _quizIndex,
-         //     async (isCorrect, answerWord) => HandleQuizAnswer(isCorrect, answerWord, quiz));
-         quiz.Setup(_quizzes[_quizIndex], _quizIndex,
+         _quiz = quizObj.GetComponent<Quiz>();
+         _quiz.Setup(_quizzes[_quizIndex], _quizIndex,
              async (isCorrect, answerWord) =>
              {
-                 quiz.DestroyGameUI();
+                 _quiz.DestroyGameUI();
                  Debug.Log($"Answered: {answerWord}, Correct: {isCorrect}");
 
                  if (isCorrect)
@@ -364,12 +364,13 @@ public class GameScene : MonoBehaviour
      
      public async void OnClickPauseButton()
      {
+         _quiz.StopTimer();
          var pauseDialogObject = await Utils.OpenDialog("Prefabs/Game/PauseDialog", transform);
          var pauseDialog = pauseDialogObject.GetComponent<PauseDialog>();
          pauseDialog.Setup(
              () =>
              {
-                 //クローズ後の処理が必要になったらここに書く
+                 _quiz.ResumeTimer();
              });
      }
 }
