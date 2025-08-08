@@ -10,19 +10,15 @@ using System.Linq;
 
 public class GameScene : MonoBehaviour
 {
-//     [SerializeField] private AudioSource _audioSource;
      [SerializeField] private Transform contentsTransform;
      [SerializeField] private GameObject uiPanel;
      [SerializeField] private Transform answerProgressPanel;
      [SerializeField] private GameObject answerIconPrefab, robo;
      [SerializeField] private Sprite unansweredSprite, correctSprite, incorrectSprite;
      [SerializeField] private Transform enemyArea;
-//     private AudioClip _addMedalSound;
-//     private AudioClip _correctSound;
-//     private AudioClip _incorrectSound;
-//     private int _medalNum;
-//     private int _medalNumWhenStart;
-//     private AudioClip _nextQuizSound;
+    
+     private AudioClip _correctSound;
+     private AudioClip _incorrectSound;
 
      private int _quizIndex;
      private List<QuizResultData> _quizResults;
@@ -40,10 +36,7 @@ public class GameScene : MonoBehaviour
      
      private UserDataManager _userData;
      
-     // デフォルト攻撃力
-    
-//     private AudioClip _resultSound;
-
+     
      private async void Start()
      {
          _userData = UserDataManager.GetInstance();
@@ -61,12 +54,9 @@ public class GameScene : MonoBehaviour
              answerIcons.Add(image);
          }
          
-         // _correctSound = Resources.Load<AudioClip>("SE/correct");
-         // _incorrectSound = Resources.Load<AudioClip>("SE/incorrect");
-         // _addMedalSound = Resources.Load<AudioClip>("SE/addMedal");
-         // _nextQuizSound = Resources.Load<AudioClip>("SE/nextQuiz");
-         // _resultSound = Resources.Load<AudioClip>("SE/result");
-         //
+         _correctSound = Resources.Load<AudioClip>("SE/answer_correct");
+         _incorrectSound = Resources.Load<AudioClip>("SE/answer_wrong");
+         
          await Resources.LoadAsync("Prefabs/Game/JudgeScreen");
          
          // EnemyManagerを使用して敵を表示
@@ -112,6 +102,7 @@ public class GameScene : MonoBehaviour
 
                  if (isCorrect)
                  {
+                     SeClips.PlayCorrect();
                      //攻撃力の計算
                      _enemyManager.AttackNextEnemy(_totalAttackPower);
                      
@@ -121,6 +112,10 @@ public class GameScene : MonoBehaviour
                          EndGame();
                          return;
                      }
+                 }
+                 else
+                 {
+                     SeClips.PlayIncorrect();
                  }
 
                  // クイズ結果を記録
