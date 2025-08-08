@@ -8,14 +8,17 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Image enemyImage;
     [SerializeField] private Slider hpSlider;
     [SerializeField] private Text hpText;
+    [SerializeField] private GameObject hpBar;
 
     private System.Action _onEnemyDefeated;
     private int _currentHp, _maxHp;
     public bool IsDefeated => _currentHp <= 0;
     public int GetMaxHp() => _maxHp;
+    private Animator _animator;
 
     public void Setup(string id, int maxHp,　System.Action onEnemyDefeated = null)
     {
+        _animator = GetComponentInChildren<Animator>();
         _maxHp = maxHp;
         _currentHp = maxHp;
         string resourcePath = $"Images/Enemy/{id}";
@@ -61,6 +64,8 @@ public class Enemy : MonoBehaviour
         if (_currentHp == 0)
         {
             _onEnemyDefeated?.Invoke();
+            _animator.SetTrigger("Defeated");
+            hpBar.SetActive(false);
         }
     }
 
