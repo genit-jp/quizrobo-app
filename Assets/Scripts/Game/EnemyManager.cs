@@ -32,6 +32,10 @@ public class EnemyManager : MonoBehaviour
         string rawLine = enemyPatterns[chapterIndex].Trim();
         string[] parts = rawLine.Split(new[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
         string enemyPattern = parts.Length >= 2 ? parts[1] : parts[0];
+        
+        char[] sortedChars = enemyPattern.ToCharArray();
+        System.Array.Sort(sortedChars);
+        enemyPattern = new string(sortedChars);
 
 
         // 古い敵を削除
