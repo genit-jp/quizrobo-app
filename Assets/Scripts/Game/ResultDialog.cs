@@ -24,6 +24,8 @@ public class ResultDialog: DialogBaseListener
 
     public async void Setup(List<QuizResultData> quizResults, Action onGoToNextButtonClicked, Action onGoToSelectButtonClicked, bool isGotNewPart)
     {
+        BgmClips.Stop();
+        BgmClips.Play(BgmClips.BgmType.Result);
         _onGoToNextButtonClicked = onGoToNextButtonClicked;
         _onGoToSelectButtonClicked = onGoToSelectButtonClicked;
         rewardGetImage.SetActive(isGotNewPart);
@@ -141,8 +143,14 @@ public class ResultDialog: DialogBaseListener
         }
     }
 
+    private void OnDestroy()
+    {
+        BgmClips.Stop();
+    }
+
     public void OnClickGoToSelect()
     {
+        Destroy(gameObject);
         _userInteracted = true;
         _onGoToSelectButtonClicked?.Invoke();
     }

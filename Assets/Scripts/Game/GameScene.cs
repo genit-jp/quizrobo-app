@@ -42,6 +42,7 @@ public class GameScene : MonoBehaviour
          _userData = UserDataManager.GetInstance();
          _userData.AddRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
          Debug.Log("GameScene Start");
+         BgmClips.Play(BgmClips.BgmType.GameScene);
          
          _quizzes = QuizGenerator.GenerateRandomQuizList(Const.GameSceneParam.ChapterNumber);
          _quizResults = new List<QuizResultData>();
@@ -66,10 +67,13 @@ public class GameScene : MonoBehaviour
          await SetRobo();
          await StartNextQuiz();
      }
+     
+     
 
      private void OnDisable()
      {
          _userData.RemoveRoboCustomDataUpdateListener(OnRoboCustomDataUpdated);
+         BgmClips.Stop();
      }
     
      private async void OnRoboCustomDataUpdated()
@@ -200,7 +204,7 @@ public class GameScene : MonoBehaviour
              var commonDialog = dialogObj.GetComponent<CommonDialog>();
              commonDialog.Setup("敵が逃げてしまった", "EXPをためると新しいパーツをGET!\nロボをカスタマイズして再挑戦しよう！", (result) =>
              {
-                 EndScene();
+                 AdManager.Instance.ShowInterstitialAd(() => EndScene());
              }, CommonDialog.Mode.OK);
          }
 
@@ -284,7 +288,7 @@ public class GameScene : MonoBehaviour
          foreach (var go in scene.GetRootGameObjects())
              if (go.name == "Canvas")
                  go.SetActive(true);
-
+         BgmClips.Play(BgmClips.BgmType.Select);
          SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("GameScene"));
      }
      

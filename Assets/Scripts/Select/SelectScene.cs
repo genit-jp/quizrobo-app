@@ -58,6 +58,8 @@ public class SelectScene : MonoBehaviour
         UserDataManager.GetInstance().AddUserDataUpdateListener(UpdatePlayerStatusUI);
         UserDataManager.GetInstance().AddUserDataUpdateListener(OnUserDataUpdated);
         UserDataManager.GetInstance().AddOwnedRoboPartsUpdateListener(UpdatePlayerStatusUI);
+        
+        BgmClips.Play(BgmClips.BgmType.Select);
 
         var lastLoginDateTime = Utils.UnixTimeToDateTime(UserDataManager.GetInstance().GetUserData().lastLoginDateTime);
         var now = Clock.GetInstance().Now();
@@ -346,9 +348,9 @@ public class SelectScene : MonoBehaviour
     }
     private void StartGame()
     {
+        BgmClips.Stop();
         SceneManager.sceneLoaded += GameSceneLoaded;
         gameLoadingScene.LoadNextScene("GameScene", LoadSceneMode.Additive);
-        gameObject.SetActive(false);
     }
 
     private void GameSceneLoaded(Scene next, LoadSceneMode mode)

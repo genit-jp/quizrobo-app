@@ -38,7 +38,7 @@ public class CustomScene : MonoBehaviour
         };
         
         RefreshRoboDisplay();
-       
+        BgmClips.Play(BgmClips.BgmType.Select);
        CreatePartSelectButtons();
     }
     
